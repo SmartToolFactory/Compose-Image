@@ -1,6 +1,5 @@
 package com.smarttoolfactory.image.transform
 
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -9,7 +8,6 @@ import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
@@ -35,7 +33,6 @@ fun TransformLayout(
 
     MorphSubcomposeLayout(
         modifier = modifier
-            .border(3.dp, Color.Green)
             .requiredSizeIn(
                 minWidth = handleRadius * 2,
                 minHeight = handleRadius * 2

@@ -17,8 +17,8 @@ enum class TouchRegion {
  * * [HandlePlacement.Corner] places handles
  * top left, top right, bottom left, and bottom right corners
  * * [HandlePlacement.Side] places handles center of left, right, top and bottom sides
- * * [HandlePlacement.All] places handles both corners and centers of each sides
+ * * [HandlePlacement.Both] places handles both corners and centers of each sides
  */
 enum class HandlePlacement {
-    Corner, Side, All
+    Corner, Side, Both
 }

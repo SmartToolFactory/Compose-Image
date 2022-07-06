@@ -1,6 +1,5 @@
 package com.smarttoolfactory.image.transform
 
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -11,10 +10,8 @@ import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
@@ -23,24 +20,30 @@ import androidx.compose.ui.unit.dp
 import com.smarttoolfactory.gesture.PointerRequisite
 import com.smarttoolfactory.gesture.detectPointerTransformGestures
 
+/**
+ * Composable that changes dimensions of its content from handles, translates its position
+ * when dragged inside bounds
+ */
 @Composable
 fun MorphLayout(
     modifier: Modifier = Modifier,
+    containerModifier: Modifier = Modifier,
     enabled: Boolean = true,
     handleRadius: Dp = 15.dp,
     handlePlacement: HandlePlacement = HandlePlacement.Corner,
+    updatePhysicalSize: Boolean = false,
     onDown: () -> Unit = {},
     onMove: (DpSize) -> Unit = {},
     onUp: () -> Unit = {},
     content: @Composable () -> Unit
 ) {
     MorphSubcomposeLayout(
-        modifier = Modifier.border(4.dp, Color.Red),
+        modifier = containerModifier,
         handleRadius = handleRadius,
-        updatePhysicalSize = false,
+        updatePhysicalSize = updatePhysicalSize,
         mainContent = {
             Box(
-                modifier = modifier.border(2.dp, Color.Green).onGloballyPositioned {  },
+                modifier = modifier,
                 contentAlignment = Alignment.Center
             ) {
                 content()
@@ -97,7 +100,7 @@ private fun MorphLayout(
 
     with(LocalDensity.current) {
         touchRegionRadius = handleRadius.toPx()
-        minDimension = (touchRegionRadius * 4)
+        minDimension = (touchRegionRadius * if (handlePlacement == HandlePlacement.Corner) 4 else 6)
         size = updatedSize.toSize()
     }
 

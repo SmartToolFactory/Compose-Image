@@ -4,21 +4,32 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
-import com.smarttoolfactory.gesture.PointerRequisite
-import com.smarttoolfactory.gesture.detectPointerTransformGestures
 import kotlin.math.abs
 
+/**
+ * Composable that changes scale of its content from handles, translates its position
+ * when dragged inside bounds
+ *
+ * @param modifier is modifier of Composable used as [content]
+
+ * @param enabled flag for enabling morph operations and boroder and handle display
+ * @param handleRadius radius of circular handles to implement morphing operations
+ * @param handlePlacement determines how handles should be placed. They can be placed at corners
+ * ot center of each side or both.
+ * @param onDown callback invoked when gesture has started
+ * @param onMove callback notifies composable has a pointer down and invoking operations
+ * @param onUp notifies last pointer down is now up
+ * @param content is the composable that will be contained in this Composable
+ */
 @Composable
 fun TransformLayout(
     modifier: Modifier = Modifier,
@@ -103,11 +114,11 @@ private fun TransformLayout(
         )
     }
 
-    var innerTransform by remember {
-        mutableStateOf(
-            transform
-        )
-    }
+//    var innerTransform by remember {
+//        mutableStateOf(
+//            transform
+//        )
+//    }
 
 
     var rectDraw by remember {
@@ -159,42 +170,42 @@ private fun TransformLayout(
                 horizontal = handleRadius / abs(outerTransform.scaleX),
                 vertical = handleRadius / abs(outerTransform.scaleY)
             )
-            .clipToBounds()
-            .graphicsLayer {
-                translationX = innerTransform.translationX
-                translationY = innerTransform.translationY
-                scaleX = innerTransform.scaleX
-                scaleY = innerTransform.scaleY
-            }
-            .pointerInput(Unit) {
-                detectPointerTransformGestures(
-                    requisite = PointerRequisite.GreaterThan,
-                    numberOfPointers = 1,
-                    onGesture = { _,
-                                  gesturePan: Offset,
-                                  gestureZoom: Float,
-                                  _,
-                                  _,
-                                  _ ->
-
-                        val oldZoom = innerTransform.scaleX
-                        val offset =
-                            Offset(innerTransform.translationX, innerTransform.translationY)
-                        val zoom = (oldZoom * gestureZoom).coerceIn(1f, 3f)
-                        val newOffset = offset + gesturePan
-
-                        val maxX = (size.width * (zoom - 1) / 2f)
-                        val maxY = (size.height * (zoom - 1) / 2f)
-
-                        innerTransform = innerTransform.copy(
-                            translationX = newOffset.x.coerceIn(-maxX, maxX),
-                            translationY = newOffset.y.coerceIn(-maxY, maxY),
-                            scaleX = zoom,
-                            scaleY = zoom
-                        )
-                    }
-                )
-            }
+//            .clipToBounds()
+//            .graphicsLayer {
+//                translationX = innerTransform.translationX
+//                translationY = innerTransform.translationY
+//                scaleX = innerTransform.scaleX
+//                scaleY = innerTransform.scaleY
+//            }
+//            .pointerInput(Unit) {
+//                detectPointerTransformGestures(
+//                    requisite = PointerRequisite.GreaterThan,
+//                    numberOfPointers = 1,
+//                    onGesture = { _,
+//                                  gesturePan: Offset,
+//                                  gestureZoom: Float,
+//                                  _,
+//                                  _,
+//                                  _ ->
+//
+//                        val oldZoom = innerTransform.scaleX
+//                        val offset =
+//                            Offset(innerTransform.translationX, innerTransform.translationY)
+//                        val zoom = (oldZoom * gestureZoom).coerceIn(1f, 3f)
+//                        val newOffset = offset + gesturePan
+//
+//                        val maxX = (size.width * (zoom - 1) / 2f)
+//                        val maxY = (size.height * (zoom - 1) / 2f)
+//
+//                        innerTransform = innerTransform.copy(
+//                            translationX = newOffset.x.coerceIn(-maxX, maxX),
+//                            translationY = newOffset.y.coerceIn(-maxY, maxY),
+//                            scaleX = zoom,
+//                            scaleY = zoom
+//                        )
+//                    }
+//                )
+//            }
 
     TransformImpl(
         modifier = editModifier,
@@ -244,4 +255,3 @@ private fun TransformImpl(
         }
     }
 }
-

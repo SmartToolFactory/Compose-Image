@@ -23,7 +23,7 @@ import com.smarttoolfactory.gesture.pointerMotionEvents
 import kotlin.math.roundToInt
 
 /**
- * [ImageWithConstraints] with [ThumbnailLayout] displays thumbnail of bitmap it draws in corner specified
+ * [ImageWithThumbnail] with [ThumbnailLayout] displays thumbnail of bitmap it draws in corner specified
  * by [ThumbnailState.position]. When touch position is close to thumbnail position
  * if [ThumbnailState.dynamicPosition]
  * is set to true moves thumbnail to corner specified by [ThumbnailState.moveTo]

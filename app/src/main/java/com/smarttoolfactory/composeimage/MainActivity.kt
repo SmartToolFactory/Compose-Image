@@ -18,10 +18,7 @@ import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.PagerState
 import com.google.accompanist.pager.rememberPagerState
-import com.smarttoolfactory.composeimage.demo.EditScaleDemo
-import com.smarttoolfactory.composeimage.demo.EditSizeDemo
-import com.smarttoolfactory.composeimage.demo.ImageWithConstraintsDemo
-import com.smarttoolfactory.composeimage.demo.ThumbnailDemo
+import com.smarttoolfactory.composeimage.demo.*
 import com.smarttoolfactory.composeimage.ui.theme.ComposeImageTheme
 import kotlinx.coroutines.launch
 
@@ -93,7 +90,8 @@ private fun HomeContent() {
                 0 -> ImageWithConstraintsDemo()
                 1 -> ThumbnailDemo()
                 2 -> EditScaleDemo()
-                else -> EditSizeDemo()
+                3 -> EditSizeDemo()
+                else -> ZoomableImageDemo()
             }
         }
     }
@@ -105,4 +103,5 @@ internal val tabList =
         "Image Thumbnail",
         "Editable Scale",
         "Editable Size",
+        "Zoomable Image",
     )

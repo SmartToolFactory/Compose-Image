@@ -3,6 +3,12 @@
 Collection of Image Composables and utility functions for Jetpack compose to expand
 and enrich displaying, manipulating, scaling, morphing, zooming, exif and more with
 
+
+
+https://user-images.githubusercontent.com/35650605/177825237-6b509ff5-5027-44aa-b9db-84b93f21fdfa.mp4
+
+
+
 ## ImageWithConstraints
 A composable that lays out and draws a given `ImageBitmap`. This will attempt to  
 size the composable according to the `ImageBitmap`'s given width and height.

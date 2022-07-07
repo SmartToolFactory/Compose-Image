@@ -18,6 +18,8 @@ import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.PagerState
 import com.google.accompanist.pager.rememberPagerState
+import com.smarttoolfactory.composeimage.demo.EditScaleDemo
+import com.smarttoolfactory.composeimage.demo.EditSizeDemo
 import com.smarttoolfactory.composeimage.demo.ImageWithConstraintsDemo
 import com.smarttoolfactory.composeimage.demo.ThumbnailDemo
 import com.smarttoolfactory.composeimage.ui.theme.ComposeImageTheme
@@ -89,7 +91,9 @@ private fun HomeContent() {
 
             when (page) {
                 0 -> ImageWithConstraintsDemo()
-                else-> ThumbnailDemo()
+                1 -> ThumbnailDemo()
+                2 -> EditScaleDemo()
+                else -> EditSizeDemo()
             }
         }
     }
@@ -98,5 +102,7 @@ private fun HomeContent() {
 internal val tabList =
     listOf(
         "Image Constraints",
-        "Image Thumbnail"
+        "Image Thumbnail",
+        "Editable Scale",
+        "Editable Size",
     )

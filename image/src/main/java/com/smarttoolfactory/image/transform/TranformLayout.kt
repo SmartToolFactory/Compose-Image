@@ -9,11 +9,9 @@ import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.DpSize
-import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.*
 import kotlin.math.abs
+import kotlin.ranges.coerceAtLeast
 
 /**
  * Composable that changes scale of its content from handles, translates its position
@@ -58,7 +56,7 @@ fun TransformLayout(
                 content()
             }
         },
-        dependentContent = { intSize: IntSize ->
+        dependentContent = { intSize: IntSize, constraints: Constraints ->
 
             val dpSize = with(LocalDensity.current) {
                 val rawWidth = intSize.width.toDp()
@@ -66,7 +64,6 @@ fun TransformLayout(
                 DpSize(rawWidth, rawHeight)
             }
 
-            println("Dependent size: $intSize")
             TransformLayout(
                 enabled = enabled,
                 handleRadius = handleRadius,
@@ -119,8 +116,7 @@ private fun TransformLayout(
 //            transform
 //        )
 //    }
-
-
+    
     var rectDraw by remember {
         mutableStateOf(
             Rect(

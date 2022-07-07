@@ -10,10 +10,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.DpSize
-import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.*
 
 /**
  * Composable that changes dimensions of its content from handles, translates its position
@@ -24,7 +21,7 @@ import androidx.compose.ui.unit.dp
  * set a **Size** modifier because [MorphSubcomposeLayout] measures with unbounded constraints
  * and size of this composable is changed. If you set a fixed size, size won't be calculated
  * accurately.
- * @param enabled flag for enabling morph operations and boroder and handle display
+ * @param enabled flag for enabling morph operations and border and handle display
  * @param handleRadius radius of circular handles to implement morphing operations
  * @param handlePlacement determines how handles should be placed. They can be placed at corners
  * ot center of each side or both.
@@ -60,7 +57,7 @@ fun MorphLayout(
                 content()
             }
         },
-        dependentContent = { intSize: IntSize ->
+        dependentContent = { intSize: IntSize, constraints: Constraints ->
 
             val dpSize = with(LocalDensity.current) {
                 val rawWidth = intSize.width.toDp()
@@ -72,6 +69,7 @@ fun MorphLayout(
                 handleRadius = handleRadius,
                 enabled = enabled,
                 dpSize = dpSize,
+                constraints = constraints,
                 handlePlacement = handlePlacement,
                 onDown = onDown,
                 onMove = onMove,
@@ -87,6 +85,7 @@ private fun MorphLayout(
     enabled: Boolean = true,
     handleRadius: Dp,
     dpSize: DpSize,
+    constraints: Constraints,
     handlePlacement: HandlePlacement,
     onDown: () -> Unit = {},
     onMove: (DpSize) -> Unit = {},
@@ -94,9 +93,9 @@ private fun MorphLayout(
     content: @Composable () -> Unit
 ) {
 
+    val density = LocalDensity.current
     val touchRegionRadius: Float
     val minDimension: Float
-    val size: Size
 
     val initialSize = remember {
         DpSize(
@@ -109,14 +108,18 @@ private fun MorphLayout(
         mutableStateOf(initialSize)
     }
 
-    with(LocalDensity.current) {
+    with(density) {
         touchRegionRadius = handleRadius.toPx()
-        minDimension = (touchRegionRadius * if (handlePlacement == HandlePlacement.Corner) 4 else 6)
-        size = updatedSize.toSize()
+        minDimension =
+            (touchRegionRadius * if (handlePlacement == HandlePlacement.Corner) 4 else 6)
     }
 
     val rectDraw = remember(updatedSize) {
-        Rect(offset = Offset.Zero, size = size)
+        with(density) {
+            val width = updatedSize.width.toPx().coerceAtMost(constraints.maxWidth.toFloat())
+            val height = updatedSize.height.toPx().coerceAtMost(constraints.maxHeight.toFloat())
+            Rect(offset = Offset.Zero, size = Size(width, height))
+        }
     }
 
     val editModifier = Modifier
@@ -125,6 +128,7 @@ private fun MorphLayout(
             initialSize = initialSize,
             touchRegionRadius = touchRegionRadius,
             minDimension = minDimension,
+            constraints = constraints,
             handlePlacement = handlePlacement,
             onDown = onDown,
             onMove = { dpSizeChange: DpSize ->

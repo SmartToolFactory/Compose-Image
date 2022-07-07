@@ -12,7 +12,9 @@ import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.positionChange
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import com.smarttoolfactory.gesture.pointerMotionEvents
 
@@ -21,15 +23,23 @@ internal fun Modifier.morph(
     initialSize: DpSize,
     touchRegionRadius: Float,
     minDimension: Float,
+    constraints: Constraints,
     handlePlacement: HandlePlacement,
-    onDown: ()->Unit,
+    onDown: () -> Unit,
     onMove: (DpSize) -> Unit,
-    onUp: () ->Unit
+    onUp: () -> Unit
 ) = composed(
     factory = {
 
         val density = LocalDensity.current
 
+        val maxWidth: Dp
+        val maxHeight: Dp
+
+        with(density) {
+            maxWidth = constraints.maxWidth.toDp()
+            maxHeight = constraints.maxHeight.toDp()
+        }
         var updatedSize by remember {
             mutableStateOf(initialSize)
         }
@@ -76,8 +86,11 @@ internal fun Modifier.morph(
                         minDimension,
                         transform,
                         onUpdate = { dpSize, transformChange ->
-                            updatedSize = dpSize
-                            onMove(dpSize)
+                            updatedSize = DpSize(
+                                dpSize.width.coerceAtMost(maxWidth),
+                                dpSize.height.coerceAtMost(maxHeight)
+                            )
+                            onMove(updatedSize)
                             transform = transformChange
                         }
                     )

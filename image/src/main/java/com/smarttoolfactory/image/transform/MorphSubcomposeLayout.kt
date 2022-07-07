@@ -7,6 +7,7 @@ import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.layout.SubcomposeMeasureScope
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
@@ -31,7 +32,7 @@ internal fun MorphSubcomposeLayout(
     handleRadius: Dp = 15.dp,
     updatePhysicalSize:Boolean =false,
     mainContent: @Composable () -> Unit,
-    dependentContent: @Composable (IntSize) -> Unit
+    dependentContent: @Composable (IntSize, Constraints) -> Unit
 ) {
 
     val handleRadiusInPx = with(LocalDensity.current) {
@@ -62,7 +63,7 @@ internal fun MorphSubcomposeLayout(
         val maxSize = IntSize(maxWidth, maxHeight)
 
         val dependentPlaceables = subcompose(SlotsEnum.Dependent) {
-            dependentContent(maxSize)
+            dependentContent(maxSize, constraints)
         }.map {
             it.measure(constraints)
         }

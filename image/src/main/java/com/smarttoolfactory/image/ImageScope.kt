@@ -58,13 +58,13 @@ interface ImageScope {
 
     /**
      * Width of area inside BoxWithConstraints that is scaled based on [ContentScale]
-     * This is width of the [Canvas] draw draws [ImageBitmap]
+     * This is width of the [Canvas] draw [ImageBitmap]
      */
     val imageWidth: Dp
 
     /**
      * Height of area inside BoxWithConstraints that is scaled based on [ContentScale]
-     * This is height of the [Canvas] draw draws [ImageBitmap]
+     * This is height of the [Canvas] draw [ImageBitmap]
      */
     val imageHeight: Dp
 

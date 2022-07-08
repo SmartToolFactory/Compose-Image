@@ -91,7 +91,7 @@ private fun HomeContent() {
                 1 -> ThumbnailDemo()
                 2 -> EditScaleDemo()
                 3 -> EditSizeDemo()
-                else -> ZoomableImageDemo()
+                else -> ZoomDemo()
             }
         }
     }
@@ -103,5 +103,5 @@ internal val tabList =
         "Image Thumbnail",
         "Editable Scale",
         "Editable Size",
-        "Zoomable Image",
+        "Zoom",
     )

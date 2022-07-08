@@ -4,7 +4,11 @@ Collection of Images, Modifiers, utility functions for Jetpack Compose to expand
 and enrich displaying, manipulating, scaling, resizing, zooming, and
 getting cropped `ImageBitmap` based on selection area
 
-https://user-images.githubusercontent.com/35650605/177825237-6b509ff5-5027-44aa-b9db-84b93f21fdfa.mp4
+
+
+https://user-images.githubusercontent.com/35650605/177950258-b9c122a9-b6df-422f-b03b-dcfe9a294b18.mp4
+
+
 
 ## ImageWithConstraints
 A composable that lays out and draws a given `ImageBitmap`. This will attempt to  

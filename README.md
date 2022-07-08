@@ -10,12 +10,16 @@ https://user-images.githubusercontent.com/35650605/177825237-6b509ff5-5027-44aa-
 A composable that lays out and draws a given `ImageBitmap`. This will attempt to  
 size the composable according to the `ImageBitmap`'s given width and height.
 
-`ImageScope` contains `Constraints` since `ImageWithConstraints` uses `BoxWithConstraints` 
-also it contains information about canvas width, height and top left position relative 
-to parent `BoxWithConstraints`.
+ `ImageScope` returns constraints, width and height of the drawing area based on `contentScale`
+* and rectangle of `imageBitmap` drawn. When a bitmap is displayed scaled to fit area of Composable
+* space used for drawing image is represented with `ImageScope.imageWidth` and
+* `ImageScope.imageHeight`.
+*
+* When we display a bitmap 1000x1000px with `ContentScale.Crop` if it's cropped to 500x500px
+* `ImageScope.rect` returns `IntRect(250,250,750,750)`.
 
 This composable enables building other `Image` based Composables that require you to know
-which section of Composable image is drawn to or which section of Bitmap is drawn to `Canvas`
+spaces around `ImageBitmap` with `ContentScale ` or which section of Bitmap is drawn to `Canvas`
 
 ```kotlin
 @Composable
@@ -76,13 +80,13 @@ interface ImageScope {
 
     /**
      * Width of area inside BoxWithConstraints that is scaled based on [ContentScale]
-     * This is width of the [Canvas] draw draws [ImageBitmap]
+     * This is width of the [Canvas] draws [ImageBitmap]
      */
     val imageWidth: Dp
 
     /**
      * Height of area inside BoxWithConstraints that is scaled based on [ContentScale]
-     * This is height of the [Canvas] draw draws [ImageBitmap]
+     * This is height of the [Canvas] draws [ImageBitmap]
      */
     val imageHeight: Dp
 
@@ -93,8 +97,9 @@ interface ImageScope {
 }
 ```
 
-* drawImage param is to set whether this Composable should draw on Canvas or `content` param
-should get scope parameter and draw it
+* drawImage param is to set whether this Composable should draw on Canvas. `ImageWithConstraints`
+can be used not only for drawing but providing required info for its `content` or child 
+Composables so child can draw `ImageBitmap` as required by developer.
 
 ## ImageWithThumbnail
 `ImageWithThumbnail` displays thumbnail of bitmap it draws in corner specified

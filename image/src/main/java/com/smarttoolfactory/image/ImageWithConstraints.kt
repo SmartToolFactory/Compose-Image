@@ -23,11 +23,18 @@ import androidx.compose.ui.unit.*
 
 /**
  * A composable that lays out and draws a given [ImageBitmap]. This will attempt to
- * size the composable according to the [ImageBitmap]'s given width and height.
+ * size the composable according to the [ImageBitmap]'s given width and height. However, an
+ * optional [Modifier] parameter can be provided to adjust sizing or draw additional content (ex.
+ * background). Any unspecified dimension will leverage the [ImageBitmap]'s size as a minimum
+ * constraint.
  *
- * [ImageScope] contains [Constraints] since [ImageWithConstraints] uses [BoxWithConstraints]
- * also it contains information about canvas width, height and top left position relative
- * to parent [BoxWithConstraints].
+ * [ImageScope] returns constraints, width and height of the drawing area based on [contentScale]
+ * and rectangle of [imageBitmap] drawn. When a bitmap is displayed scaled to fit area of Composable
+ * space used for drawing image is represented with [ImageScope.imageWidth] and
+ * [ImageScope.imageHeight].
+ *
+ * When we display a bitmap 1000x1000px with [ContentScale.Crop] if it's cropped to 500x500px
+ * [ImageScope.rect] returns `IntRect(250,250,750,750)`.
  *
  * @param alignment determines where image will be aligned inside [BoxWithConstraints]
  * This is observable when bitmap image/width ratio differs from [Canvas] that draws [ImageBitmap]

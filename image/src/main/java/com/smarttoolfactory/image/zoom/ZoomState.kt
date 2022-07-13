@@ -3,10 +3,17 @@ package com.smarttoolfactory.image.zoom
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.VectorConverter
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import kotlinx.coroutines.coroutineScope
 
+/**
+ * * Create and [remember] the [ZoomState] based on the currently appropriate transform
+ * configuration to allow changing pan, zoom, and rotation.
+ *
+ */
 @Composable
 fun rememberZoomState(
     initialZoom: Float = 1f,
@@ -24,13 +31,18 @@ fun rememberZoomState(
     }
 }
 
-class ZoomState internal constructor(
+/**
+ *  * State of the zoom. Allows the developer to change zoom, pan,  translate,
+ *  or get current state by
+ * calling methods on this object. To be hosted and passed to [Modifier.zoom]
+ */
+@Immutable
+open class ZoomState internal constructor(
     initialZoom: Float = 1f,
     initialRotation: Float = 0f,
     minZoom: Float = 1f,
     maxZoom: Float = 5f
 ) {
-    internal var zoomLevel = ZoomLevel.Min
 
     internal val zoomMin = minZoom.coerceAtLeast(.5f)
     internal val zoomMax = maxZoom.coerceAtLeast(1f)
@@ -69,27 +81,27 @@ class ZoomState internal constructor(
         )
     }
 
-    suspend fun animatePanTo(pan: Offset) = coroutineScope {
+    internal suspend fun animatePanTo(pan: Offset) = coroutineScope {
         animatablePan.animateTo(pan)
     }
 
-    suspend fun animateZoomTo(zoom: Float) = coroutineScope {
+    internal suspend fun animateZoomTo(zoom: Float) = coroutineScope {
         animatableZoom.animateTo(zoom)
     }
 
-    suspend fun animateRotationTo(rotation: Float) = coroutineScope {
+    internal suspend fun animateRotationTo(rotation: Float) = coroutineScope {
         animatableRotation.animateTo(rotation)
     }
 
-    suspend fun snapPanTo(offset: Offset) = coroutineScope {
+    internal suspend fun snapPanTo(offset: Offset) = coroutineScope {
         animatablePan.snapTo(offset)
     }
 
-    suspend fun snapZoomTo(zoom: Float) = coroutineScope {
+    internal suspend fun snapZoomTo(zoom: Float) = coroutineScope {
         animatableZoom.snapTo(zoom)
     }
 
-    suspend fun snapRotationTo(rotation: Float) = coroutineScope {
+    internal suspend fun snapRotationTo(rotation: Float) = coroutineScope {
         animatableRotation.snapTo(rotation)
     }
 }

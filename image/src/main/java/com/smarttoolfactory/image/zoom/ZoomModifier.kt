@@ -1,7 +1,7 @@
 package com.smarttoolfactory.image.zoom
 
 import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.draw.clipToBounds
@@ -49,6 +49,8 @@ fun Modifier.zoom(
         val coroutineScope = rememberCoroutineScope()
         val boundPan = limitPan && !rotationEnabled
         val clipToBounds = (clip || boundPan)
+
+        var zoomLevel by remember { mutableStateOf(ZoomLevel.Min) }
 
         val transformModifier = Modifier.pointerInput(keys) {
             detectTransformGestures(
@@ -118,13 +120,13 @@ fun Modifier.zoom(
                 onDoubleTap = {
 
                     val (newZoomLevel, newZoom) = calculateZoom(
-                        zoomLevel = zoomState.zoomLevel,
+                        zoomLevel = zoomLevel,
                         initial = zoomState.zoomInitial,
                         min = zoomState.zoomMin,
                         max = zoomState.zoomMax
                     )
 
-                    zoomState.zoomLevel = newZoomLevel
+                    zoomLevel = newZoomLevel
 
                     coroutineScope.launch {
                         zoomState.animatePanTo(Offset.Zero)

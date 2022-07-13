@@ -1,24 +1,16 @@
 package com.smarttoolfactory.image.zoom
 
-import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.VectorConverter
-import androidx.compose.animation.core.spring
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clipToBounds
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.*
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.DefaultAlpha
+import androidx.compose.ui.graphics.FilterQuality
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.drawscope.DrawScope
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalDensity
-import com.smarttoolfactory.gesture.detectTransformGestures
 import com.smarttoolfactory.image.ImageWithConstraints
-import kotlinx.coroutines.launch
 
 /**
  * Zoomable image that zooms in and out in [ [minZoom], [maxZoom] ] interval and translates
@@ -30,6 +22,19 @@ import kotlinx.coroutines.launch
  * @param maxZoom maximum zoom value this Composable can possess
  * @param clipTransformToContentScale when set true zoomable image takes borders of image drawn
  * while zooming in. [contentScale] determines whether will be empty spaces on edges of Composable
+ * @param limitPan limits pan to bounds of parent Composable. Using this flag prevents creating
+ * empty space on sides or edges of parent.
+ * @param consume flag to prevent other gestures such as scroll, drag or transform to get
+ * event propagations
+ * @param zoomEnabled when set to true zoom is enabled
+ * @param panEnabled when set to true pan is enabled
+ * @param rotationEnabled when set to true rotation is enabled
+ * @param onGestureStart callback to to notify gesture has started and return current ZoomData
+ * of this modifier
+ * @param onGesture callback to notify about ongoing gesture and return current ZoomData
+ * of this modifier
+ * @param onGestureEnd callback to notify that gesture finished and return current ZoomData
+ * of this modifier
  */
 @Composable
 fun ZoomableImage(
@@ -42,79 +47,36 @@ fun ZoomableImage(
     initialZoom: Float = 1f,
     minZoom: Float = 1f,
     maxZoom: Float = 5f,
+    limitPan: Boolean = true,
+    zoomEnabled: Boolean = true,
+    panEnabled: Boolean = true,
+    rotationEnabled: Boolean = false,
+    consume: Boolean = true,
+    onGestureStart: (ZoomData) -> Unit = {},
+    onGesture: (ZoomData) -> Unit = {},
+    onGestureEnd: (ZoomData) -> Unit = {},
     clipTransformToContentScale: Boolean = false,
     colorFilter: ColorFilter? = null,
     filterQuality: FilterQuality = DrawScope.DefaultFilterQuality,
 ) {
 
-    val coroutineScope = rememberCoroutineScope()
-    val zoomMin = minZoom.coerceAtLeast(.5f)
-    val zoomMax = maxZoom.coerceAtLeast(1f)
-    val zoomInitial = initialZoom.coerceIn(zoomMin, zoomMax)
-
-    require(zoomMax >= zoomMin)
-
-    var size by remember { mutableStateOf(Size.Zero) }
-
-    val animatableOffset = remember(imageBitmap, contentScale) {
-        Animatable(Offset.Zero, Offset.VectorConverter)
-    }
-    val animatableZoom = remember(imageBitmap, contentScale) { Animatable(zoomInitial) }
-
     val zoomModifier = Modifier
-        .clipToBounds()
-        .graphicsLayer {
-            val zoom = animatableZoom.value
-            translationX = animatableOffset.value.x
-            translationY = animatableOffset.value.y
-            scaleX = zoom
-            scaleY = zoom
-        }
-        .pointerInput(imageBitmap, contentScale) {
-
-            detectTransformGestures(
-                onGesture = { _,
-                              gesturePan: Offset,
-                              gestureZoom: Float,
-                              _,
-                              _,
-                              _ ->
-
-                    var zoom = animatableZoom.value
-                    val offset = animatableOffset.value
-
-                    zoom = (zoom * gestureZoom).coerceIn(zoomMin, zoomMax)
-                    val newOffset = offset + gesturePan.times(zoom)
-
-                    val maxX = (size.width * (zoom - 1) / 2f).coerceAtLeast(0f)
-                    val maxY = (size.height * (zoom - 1) / 2f).coerceAtLeast(0f)
-
-                    coroutineScope.launch {
-                        animatableZoom.snapTo(zoom)
-                    }
-                    coroutineScope.launch {
-                        animatableOffset.snapTo(
-                            Offset(
-                                newOffset.x.coerceIn(-maxX, maxX),
-                                newOffset.y.coerceIn(-maxY, maxY)
-                            )
-                        )
-                    }
-                }
-            )
-        }
-        .pointerInput(imageBitmap, contentScale) {
-            detectTapGestures(
-                onDoubleTap = {
-                    coroutineScope.launch {
-                        animatableOffset.animateTo(Offset.Zero, spring())
-                    }
-                    coroutineScope.launch {
-                        animatableZoom.animateTo(zoomInitial, spring())
-                    }
-                }
-            )
-        }
+        .zoom(
+            Unit,
+            limitPan = limitPan,
+            zoomEnabled = zoomEnabled,
+            panEnabled = panEnabled,
+            rotationEnabled = rotationEnabled,
+            zoomState = rememberZoomState(
+                initialZoom = initialZoom,
+                minZoom = minZoom,
+                maxZoom = maxZoom
+            ),
+            consume = consume,
+            onGestureStart = onGestureStart,
+            onGesture = onGesture,
+            onGestureEnd = onGestureEnd
+        )
 
     ImageWithConstraints(
         modifier = if (clipTransformToContentScale) modifier else modifier.then(zoomModifier),
@@ -128,12 +90,6 @@ fun ZoomableImage(
         drawImage = !clipTransformToContentScale
     ) {
 
-        size = with(LocalDensity.current) {
-            Size(
-                width = imageWidth.toPx(),
-                height = imageHeight.toPx()
-            )
-        }
 
         if (clipTransformToContentScale) {
             Image(

@@ -44,6 +44,8 @@ fun ZoomableImage(
     contentScale: ContentScale = ContentScale.Fit,
     contentDescription: String? = null,
     alpha: Float = DefaultAlpha,
+    colorFilter: ColorFilter? = null,
+    filterQuality: FilterQuality = DrawScope.DefaultFilterQuality,
     initialZoom: Float = 1f,
     minZoom: Float = 1f,
     maxZoom: Float = 5f,
@@ -51,26 +53,27 @@ fun ZoomableImage(
     zoomEnabled: Boolean = true,
     panEnabled: Boolean = true,
     rotationEnabled: Boolean = false,
+    clipTransformToContentScale: Boolean = false,
     consume: Boolean = true,
     onGestureStart: (ZoomData) -> Unit = {},
     onGesture: (ZoomData) -> Unit = {},
-    onGestureEnd: (ZoomData) -> Unit = {},
-    clipTransformToContentScale: Boolean = false,
-    colorFilter: ColorFilter? = null,
-    filterQuality: FilterQuality = DrawScope.DefaultFilterQuality,
+    onGestureEnd: (ZoomData) -> Unit = {}
 ) {
 
     val zoomModifier = Modifier
         .zoom(
-            Unit,
-            limitPan = limitPan,
-            zoomEnabled = zoomEnabled,
-            panEnabled = panEnabled,
-            rotationEnabled = rotationEnabled,
+            key1 = imageBitmap,
+            key2 = contentScale,
             zoomState = rememberZoomState(
+                key1 = imageBitmap,
+                key2 = contentScale,
                 initialZoom = initialZoom,
                 minZoom = minZoom,
-                maxZoom = maxZoom
+                maxZoom = maxZoom,
+                limitPan = limitPan,
+                zoomEnabled = zoomEnabled,
+                panEnabled = panEnabled,
+                rotationEnabled = rotationEnabled,
             ),
             consume = consume,
             onGestureStart = onGestureStart,
@@ -90,6 +93,79 @@ fun ZoomableImage(
         drawImage = !clipTransformToContentScale
     ) {
 
+        if (clipTransformToContentScale) {
+            Image(
+                bitmap = imageBitmap,
+                contentScale = contentScale,
+                modifier = zoomModifier,
+                alignment = alignment,
+                contentDescription = contentDescription,
+                alpha = alpha,
+                colorFilter = colorFilter,
+                filterQuality = filterQuality,
+            )
+        }
+    }
+}
+
+/**
+ * Zoomable image that zooms in and out in [zoomState.minZoom, zoomState.maxZoom] interval and translates
+ * zoomed image based on pointer position.
+ * Double tap gestures reset image translation and zoom to default values with animation.
+ *
+
+ * @param clipTransformToContentScale when set true zoomable image takes borders of image drawn
+ * while zooming in. [contentScale] determines whether will be empty spaces on edges of Composable
+ * @param consume flag to prevent other gestures such as scroll, drag or transform to get
+ * event propagations
+ * @param onGestureStart callback to to notify gesture has started and return current ZoomData
+ * of this modifier
+ * @param onGesture callback to notify about ongoing gesture and return current ZoomData
+ * of this modifier
+ * @param onGestureEnd callback to notify that gesture finished and return current ZoomData
+ * of this modifier
+ */
+@Composable
+fun ZoomableImage(
+    modifier: Modifier = Modifier,
+    imageBitmap: ImageBitmap,
+    alignment: Alignment = Alignment.Center,
+    contentScale: ContentScale = ContentScale.Fit,
+    contentDescription: String? = null,
+    alpha: Float = DefaultAlpha,
+    colorFilter: ColorFilter? = null,
+    filterQuality: FilterQuality = DrawScope.DefaultFilterQuality,
+    clipTransformToContentScale: Boolean = false,
+    zoomState: ZoomState,
+    consume: Boolean = true,
+    onGestureStart: (ZoomData) -> Unit = {},
+    onGesture: (ZoomData) -> Unit = {},
+    onGestureEnd: (ZoomData) -> Unit = {}
+
+) {
+
+    val zoomModifier = Modifier
+        .zoom(
+            key1 = imageBitmap,
+            key2 = contentScale,
+            zoomState = zoomState,
+            consume = consume,
+            onGestureStart = onGestureStart,
+            onGesture = onGesture,
+            onGestureEnd = onGestureEnd
+        )
+
+    ImageWithConstraints(
+        modifier = if (clipTransformToContentScale) modifier else modifier.then(zoomModifier),
+        imageBitmap = imageBitmap,
+        alignment = alignment,
+        contentScale = contentScale,
+        contentDescription = contentDescription,
+        alpha = alpha,
+        colorFilter = colorFilter,
+        filterQuality = filterQuality,
+        drawImage = !clipTransformToContentScale
+    ) {
 
         if (clipTransformToContentScale) {
             Image(
@@ -105,4 +181,5 @@ fun ZoomableImage(
         }
     }
 }
+
 

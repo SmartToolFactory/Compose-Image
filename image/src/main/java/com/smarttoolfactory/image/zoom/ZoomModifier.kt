@@ -6,7 +6,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.GraphicsLayerScope
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import com.smarttoolfactory.gesture.detectTransformGestures
@@ -423,22 +422,3 @@ fun Modifier.zoom(
     onGestureEnd = {},
     onGesture = {}
 )
-
-private fun GraphicsLayerScope.update(zoomState: ZoomState) {
-
-    // Set zoom
-    val zoom = zoomState.zoom
-    this.scaleX = zoom
-    this.scaleY = zoom
-
-    // Set pan
-    val pan = zoomState.pan
-    val translationX = pan.x
-    val translationY = pan.y
-    this.translationX = translationX
-    this.translationY = translationY
-
-    // Set rotation
-    this.rotationZ = zoomState.rotation
-}
-

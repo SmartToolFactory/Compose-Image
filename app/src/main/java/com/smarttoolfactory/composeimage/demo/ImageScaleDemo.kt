@@ -1,6 +1,7 @@
 package com.smarttoolfactory.composeimage.demo
 
 import android.graphics.Bitmap
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -11,6 +12,7 @@ import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.*
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -319,19 +321,49 @@ private fun Drawing(modifier: Modifier) {
     // This is previous motion event before next touch is saved into this current position
     var previousPosition by remember { mutableStateOf(Offset.Unspecified) }
 
-    val brush = remember {
-        Brush.verticalGradient(
-            colors = listOf(
-                Color.Red,
-                Color.Green,
-                Color.Yellow,
-                Color.Blue,
-                Color.Cyan,
-                Color.Magenta,
-                Color.Red,
-            )
+
+    val transition: InfiniteTransition = rememberInfiniteTransition()
+
+    // Infinite phase animation for PathEffect
+    val phase by transition.animateFloat(
+        initialValue = .9f,
+        targetValue = .3f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(
+                durationMillis = 1000,
+                easing = FastOutSlowInEasing
+            ),
+            repeatMode = RepeatMode.Reverse
         )
+    )
+
+    val color = Color.Green
+
+    val paint = remember {
+        Paint().apply {
+            style = PaintingStyle.Stroke
+            strokeWidth = 15f
+            strokeCap = StrokeCap.Round
+
+
+            this.asFrameworkPaint().apply {
+                val transparent = color
+                    .copy(alpha = 0f)
+                    .toArgb()
+
+                this.color = transparent
+            }
+        }
     }
+
+    paint.asFrameworkPaint().setShadowLayer(
+        30f * phase,
+        0f,
+        0f,
+        color
+            .copy(alpha = phase)
+            .toArgb()
+    )
 
     // Path is what is used for drawing line on Canvas
     val path = remember(modifier) { Path() }
@@ -385,10 +417,15 @@ private fun Drawing(modifier: Modifier) {
             else -> Unit
         }
 
-        drawPath(
-            brush = brush,
-            path = path,
-            style = Stroke(width = 4.dp.toPx(), cap = StrokeCap.Round, join = StrokeJoin.Round)
-        )
+        this.drawIntoCanvas {
+
+            it.drawPath(path, paint)
+
+            drawPath(
+                color = Color.White.copy((0.4f + phase).coerceAtMost(1f)),
+                path = path,
+                style = Stroke(width = 4.dp.toPx(), cap = StrokeCap.Round, join = StrokeJoin.Round)
+            )
+        }
     }
 }

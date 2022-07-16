@@ -2,28 +2,24 @@
 
 Collection of Images, Modifiers, utility functions for Jetpack Compose to expand
 and enrich displaying, manipulating, scaling, resizing, zooming, and
-getting cropped `ImageBitmap` based on selection area
-
-
+getting cropped `ImageBitmap` based on selection area, before/after image to with handle to
+show partial of both images and more is cooking up
 
 https://user-images.githubusercontent.com/35650605/177950258-b9c122a9-b6df-422f-b03b-dcfe9a294b18.mp4
 
-
-
 ## ImageWithConstraints
+
 A composable that lays out and draws a given `ImageBitmap`. This will attempt to  
 size the composable according to the `ImageBitmap`'s given width and height.
 
- `ImageScope` returns constraints, width and height of the drawing area based on `contentScale`
-* and rectangle of `imageBitmap` drawn. When a bitmap is displayed scaled to fit area of Composable
-* space used for drawing image is represented with `ImageScope.imageWidth` and
-* `ImageScope.imageHeight`.
-*
-* When we display a bitmap 1000x1000px with `ContentScale.Crop` if it's cropped to 500x500px
-* `ImageScope.rect` returns `IntRect(250,250,750,750)`.
+`ImageScope` returns constraints, width and height of the drawing area based on `contentScale`
+and rectangle of `imageBitmap` drawn. When a bitmap is displayed scaled to fit area of Composable
+space used for drawing image is represented with `ImageScope.imageWidth` and
+`ImageScope.imageHeight`. When we display a bitmap 1000x1000px with `ContentScale.Crop` if it's
+cropped to 500x500px `ImageScope.rect` returns `IntRect(250,250,750,750)`.
 
 This composable enables building other `Image` based Composables that require you to know
-spaces around `ImageBitmap` with `ContentScale ` or which section of Bitmap is drawn to `Canvas`
+spaces around `ImageBitmap` based on `ContentScale ` or which section of Bitmap is drawn to `Canvas`
 
 ```kotlin
 @Composable
@@ -39,10 +35,12 @@ fun ImageWithConstraints(
     drawImage: Boolean = true,
     content: @Composable ImageScope.() -> Unit = {}
 ) {
+    imageScope: ImageScope->
 
 }
 ```
-returns `ImageScope` which is 
+
+returns `ImageScope` which is
 
 ```
 @Stable
@@ -102,13 +100,14 @@ interface ImageScope {
 ```
 
 * drawImage param is to set whether this Composable should draw on Canvas. `ImageWithConstraints`
-can be used not only for drawing but providing required info for its `content` or child 
-Composables so child can draw `ImageBitmap` as required by developer.
+  can be used not only for drawing but providing required info for its `content` or child
+  Composables so child can draw `ImageBitmap` as required by developer.
 
 ## ImageWithThumbnail
+
 `ImageWithThumbnail` displays thumbnail of bitmap it draws in corner specified
-by `ThumbnailState.position`. When touch position is close to thumbnail position 
-if `ThumbnailState.dynamicPosition` is set to true moves thumbnail 
+by `ThumbnailState.position`. When touch position is close to thumbnail position
+if `ThumbnailState.dynamicPosition` is set to true moves thumbnail
 to corner specified by `ThumbnailState.moveTo`
 
 ```kotlin
@@ -130,13 +129,14 @@ fun ImageWithThumbnail(
     onThumbnailCenterChange: ((Offset) -> Unit)? = null,
     content: @Composable ImageScope.() -> Unit = {}
 ) {
-    
+
 }
 ```
 
 ## TransformLayout
-Composable that changes scale of its content from handles, translates its position 
-when dragged inside bounds
+
+Composable that changes scale of its content with handles, translates its position
+when dragged inside bounds.
 
 ```kotlin
 @Composable
@@ -150,16 +150,19 @@ fun TransformLayout(
     onUp: (Transform) -> Unit = {},
     content: @Composable () -> Unit
 ) {
-    
+
 }
 ```
 
 ## MorphLayout
-Composable that changes dimensions of its content from handles, translates its position 
-when dragged inside bounds. When using be mindful about the parent composable that contains this
-Composable since maximum width and height this Composable depends on how a Composable, 
-Column for instance,  lays out its children. It can be expanded upto remaining space if other
-sibling occupy rest of the parent's available space
+
+Composable that changes dimensions of its content with handles, translates its position
+when dragged inside bounds.
+
+⚠️ Be careful about maximum dimension can be assigned to this Composable with handles
+because maximum width and height depends on how a Composable,
+Column for instance, lays out its children. It can be expanded up to remaining space if other
+siblings occupy rest of the parent's available space set with parent `Layout`
 
 ```kotlin
 @Composable
@@ -179,9 +182,12 @@ fun MorphLayout(
 ```
 
 ## ZoomableImage
-Zoomable image that zooms in and out in [ [minZoom], [maxZoom] ] interval and translates 
-zoomed image based on pointer position. 
+
+Zoomable image that zooms in and out in [ [minZoom], [maxZoom] ] interval and translates
+zoomed image based on pointer position.
 Double tap gestures reset image translation and zoom to default values with animation.
+Callbacks notify user that gesture has started, going on finished with [ZoomData] that
+contains current transformation information
 
 ```kotlin
 @Composable
@@ -192,12 +198,41 @@ fun ZoomableImage(
     contentScale: ContentScale = ContentScale.Fit,
     contentDescription: String? = null,
     alpha: Float = DefaultAlpha,
+    colorFilter: ColorFilter? = null,
+    filterQuality: FilterQuality = DrawScope.DefaultFilterQuality,
     initialZoom: Float = 1f,
     minZoom: Float = 1f,
     maxZoom: Float = 5f,
+    limitPan: Boolean = true,
+    zoomEnabled: Boolean = true,
+    panEnabled: Boolean = true,
+    rotationEnabled: Boolean = false,
     clipTransformToContentScale: Boolean = false,
-    colorFilter: ColorFilter? = null,
-    filterQuality: FilterQuality = DrawScope.DefaultFilterQuality,
+    consume: Boolean = true,
+    onGestureStart: (ZoomData) -> Unit = {},
+    onGesture: (ZoomData) -> Unit = {},
+    onGestureEnd: (ZoomData) -> Unit = {}
 ) {
 }
+```
+
+## Modifier.zoom
+
+Modifier that zooms, pans, and rotates any Composable it set to. when [clip] is true
+`Modifier.clipToBounds()` is used to limit content inside Composable bounds
+`consume` param is for `Modifier.pointerInput` to consume current events to prevent other
+gestures like scroll, drag or transform to initiate.
+Callbacks notify user that gesture has started, going on finished with [ZoomData] that
+contains current transformation information
+
+```kotlin
+fun Modifier.zoom(
+    key: Any?,
+    consume: Boolean = true,
+    clip: Boolean = true,
+    zoomState: ZoomState,
+    onGestureStart: (ZoomData) -> Unit = {},
+    onGesture: (ZoomData) -> Unit = {},
+    onGestureEnd: (ZoomData) -> Unit = {},
+) 
 ```

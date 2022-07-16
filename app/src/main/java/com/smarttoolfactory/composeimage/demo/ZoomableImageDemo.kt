@@ -1,9 +1,7 @@
 package com.smarttoolfactory.composeimage.demo
 
-import androidx.compose.foundation.background
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Slider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -24,6 +22,7 @@ import androidx.compose.ui.unit.sp
 import com.smarttoolfactory.composeimage.ContentScaleSelectionMenu
 import com.smarttoolfactory.composeimage.R
 import com.smarttoolfactory.image.zoom.ZoomableImage
+import com.smarttoolfactory.image.zoom.rememberZoomState
 import com.smarttoolfactory.image.zoom.zoom
 import kotlin.math.cos
 import kotlin.math.roundToInt
@@ -38,23 +37,32 @@ fun ZoomDemo() {
             .verticalScroll(rememberScrollState())
             .background(Color(0xffECEFF1))
     ) {
-        ZoomableImageDemo()
+
+        var contentScale by remember { mutableStateOf(ContentScale.Fit) }
+
+        ContentScaleSelectionMenu(contentScale = contentScale) {
+            contentScale = it
+        }
+
+        ZoomableImageDemo(contentScale)
         ZoomModifierDemo()
     }
 }
 
 @Composable
-private fun ZoomableImageDemo() {
+private fun ZoomableImageDemo(contentScale: ContentScale) {
     val imageBitmapLarge = ImageBitmap.imageResource(
         LocalContext.current.resources,
         R.drawable.landscape4
     )
 
-    var contentScale by remember { mutableStateOf(ContentScale.Fit) }
-
-    ContentScaleSelectionMenu(contentScale = contentScale) {
-        contentScale = it
-    }
+    Text(
+        text = "ZoomableImage",
+        fontSize = 20.sp,
+        fontWeight = FontWeight.Bold,
+        color = MaterialTheme.colorScheme.primary,
+        modifier = Modifier.padding(8.dp)
+    )
 
     Text(
         text = "clipTransformToContentScale false",
@@ -73,7 +81,7 @@ private fun ZoomableImageDemo() {
         clipTransformToContentScale = false
     )
 
-    Spacer(modifier = Modifier.height(20.dp))
+    Spacer(modifier = Modifier.height(40.dp))
 
     Text(
         text = "clipTransformToContentScale true",
@@ -91,6 +99,73 @@ private fun ZoomableImageDemo() {
         contentScale = contentScale,
         clipTransformToContentScale = true
     )
+
+    Spacer(modifier = Modifier.height(40.dp))
+
+    Text(
+        text = "rotationEnabled true",
+        fontSize = 16.sp,
+        fontWeight = FontWeight.Bold,
+        color = MaterialTheme.colorScheme.primary,
+        modifier = Modifier.padding(8.dp)
+    )
+    ZoomableImage(
+        modifier = Modifier
+            .background(Color.LightGray)
+            .fillMaxWidth()
+            .aspectRatio(4 / 3f),
+        imageBitmap = imageBitmapLarge,
+        contentScale = contentScale,
+        clipTransformToContentScale = true,
+        rotationEnabled = true
+    )
+
+    Spacer(modifier = Modifier.height(40.dp))
+
+
+    Text(
+        text = "gesture callbacks",
+        fontSize = 16.sp,
+        fontWeight = FontWeight.Bold,
+        color = MaterialTheme.colorScheme.primary,
+        modifier = Modifier.padding(8.dp)
+    )
+
+
+    var text by remember { mutableStateOf("Use pinch or fling gesture\n" +
+            "to observe data") }
+
+    Image(
+        modifier = Modifier
+            .background(Color.LightGray)
+            .fillMaxWidth()
+            .aspectRatio(4 / 3f)
+            .zoom(
+                Unit,
+                zoomState = rememberZoomState(
+                    limitPan = false,
+                    rotationEnabled = true
+                ),
+                clip = true,
+                consume = true,
+                onGestureStart = {
+                    text = "onGestureStart data: $it"
+                },
+                onGesture = {
+                    text = "onGesture data: $it"
+
+
+                },
+                onGestureEnd = {
+                    text = "onGestureEnd data: $it"
+                }
+            ),
+        bitmap = imageBitmapLarge,
+        contentDescription = "",
+        contentScale = ContentScale.FillBounds
+    )
+
+    Text(text)
 }
 
 @Composable
@@ -98,8 +173,115 @@ private fun ZoomModifierDemo() {
     Column(
         modifier = Modifier
     ) {
+
+        val imageBitmapLarge = ImageBitmap.imageResource(
+            LocalContext.current.resources,
+            R.drawable.landscape5
+        )
+
         Text(
-            text = "Modifier.zoom(clip=true)",
+            text = "Zoom Modifier",
+            fontSize = 20.sp,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.padding(8.dp)
+        )
+
+        Text(
+            text = "Modifier.zoom(clip = true, limitPan = false)",
+            fontSize = 16.sp,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.padding(8.dp)
+        )
+        Image(
+            modifier = Modifier
+                .background(Color.LightGray)
+                .border(2.dp, Color.Red)
+                .fillMaxWidth()
+                .aspectRatio(4 / 3f)
+                .zoom(
+                    clip = true,
+                    zoomState = rememberZoomState(limitPan = false),
+                ),
+            bitmap = imageBitmapLarge,
+            contentDescription = "",
+            contentScale = ContentScale.FillBounds
+        )
+
+        Spacer(modifier = Modifier.height(40.dp))
+        Text(
+            text = "Modifier.zoom(clip = true, limitPan = true)",
+            fontSize = 16.sp,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.padding(8.dp)
+        )
+        Image(
+            modifier = Modifier
+                .background(Color.LightGray)
+                .border(2.dp, Color.Red)
+                .fillMaxWidth()
+                .aspectRatio(4 / 3f)
+                .zoom(
+                    clip = true,
+                    zoomState = rememberZoomState(limitPan = true),
+                ),
+            bitmap = imageBitmapLarge,
+            contentDescription = "",
+            contentScale = ContentScale.FillBounds
+        )
+
+        Spacer(modifier = Modifier.height(40.dp))
+        Text(
+            text = "Modifier.zoom(clip = true, rotate = true)",
+            fontSize = 16.sp,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.padding(8.dp)
+        )
+        Image(
+            modifier = Modifier
+                .background(Color.LightGray)
+                .border(2.dp, Color.Red)
+                .fillMaxWidth()
+                .aspectRatio(4 / 3f)
+                .zoom(
+                    clip = true,
+                    zoomState = rememberZoomState(rotationEnabled = true),
+
+                    ),
+            bitmap = imageBitmapLarge,
+            contentDescription = "",
+            contentScale = ContentScale.FillBounds
+        )
+
+        Spacer(modifier = Modifier.height(40.dp))
+        Text(
+            text = "Modifier.zoom(clip = false, rotate = true)",
+            fontSize = 16.sp,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.padding(8.dp)
+        )
+        Image(
+            modifier = Modifier
+                .background(Color.LightGray)
+                .border(2.dp, Color.Red)
+                .fillMaxWidth()
+                .aspectRatio(4 / 3f)
+                .zoom(
+                    clip = false,
+                    zoomState = rememberZoomState(rotationEnabled = true),
+                ),
+            bitmap = imageBitmapLarge,
+            contentDescription = "",
+            contentScale = ContentScale.FillBounds
+        )
+
+        Spacer(modifier = Modifier.height(40.dp))
+        Text(
+            text = "Modifier.zoom(clip = true, limitPan = false)",
             fontSize = 16.sp,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.primary,
@@ -112,13 +294,15 @@ private fun ZoomModifierDemo() {
                 .background(Color.White)
                 .fillMaxWidth()
                 .height(200.dp)
-                .zoom(Unit, clip = true)
+                .zoom(
+                    clip = true,
+                    zoomState = rememberZoomState(limitPan = false),
+                )
         )
 
-        Spacer(modifier = Modifier.height(20.dp))
-
+        Spacer(modifier = Modifier.height(40.dp))
         Text(
-            text = "Modifier.zoom(clip=false)",
+            text = "Modifier.zoom(clip = false, limitPan = false)",
             fontSize = 16.sp,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.primary,
@@ -131,7 +315,33 @@ private fun ZoomModifierDemo() {
                 .background(Color.White)
                 .fillMaxWidth()
                 .height(200.dp)
-                .zoom(Unit, clip = false)
+                .zoom(
+                    clip = false,
+                    zoomState = rememberZoomState(limitPan = false),
+                )
+        )
+
+        Spacer(modifier = Modifier.height(40.dp))
+        Text(
+            text = "Modifier.zoom(clip = false, limitPan = true)",
+            fontSize = 16.sp,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.padding(8.dp)
+        )
+        DrawPolygonPath(
+            modifier = Modifier
+                .padding(8.dp)
+                .shadow(1.dp, clip = false)
+                .background(Color.White)
+                .fillMaxWidth()
+                .height(200.dp)
+                .zoom(
+                    clip = false,
+                    zoomState = rememberZoomState(
+                        limitPan = true
+                    )
+                )
         )
     }
 }
@@ -142,7 +352,7 @@ private fun DrawPolygonPath(modifier: Modifier) {
     var sides by remember { mutableStateOf(3f) }
     var cornerRadius by remember { mutableStateOf(1f) }
 
-    androidx.compose.foundation.Canvas(modifier = modifier) {
+    Canvas(modifier = modifier) {
         val canvasWidth = size.width
         val canvasHeight = size.height
         val cx = canvasWidth / 2

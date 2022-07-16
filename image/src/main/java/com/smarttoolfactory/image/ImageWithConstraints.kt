@@ -2,7 +2,6 @@ package com.smarttoolfactory.image
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.BoxWithConstraints
-import androidx.compose.foundation.layout.BoxWithConstraintsScope
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -18,7 +17,10 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.unit.*
+import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntRect
+import androidx.compose.ui.unit.IntSize
 
 
 /**
@@ -129,83 +131,6 @@ fun ImageWithConstraints(
     }
 }
 
-/**
- * Get Rectangle of [ImageBitmap] with [bitmapWidth] and [bitmapHeight] that is drawn inside
- * Canvas with [imageWidth] and [imageHeight]. [boxWidth] and [boxHeight] belong
- * to [BoxWithConstraints] that contains Canvas.
- *  @param boxWidth width of the parent container
- *  @param boxHeight height of the parent container
- *  @param imageWidth width of the [Canvas] that draw [ImageBitmap]
- *  @param imageHeight height of the [Canvas] that draw [ImageBitmap]
- *  @param bitmapWidth intrinsic width of the [ImageBitmap]
- *  @param bitmapHeight intrinsic height of the [ImageBitmap]
- *  @return [IntRect] that covers [ImageBitmap] bounds. When image [ContentScale] is crop
- *  this rectangle might return smaller rectangle than actual [ImageBitmap] and left or top
- *  of the rectangle might be bigger than zero.
- */
-private fun getScaledBitmapRect(
-    boxWidth: Int,
-    boxHeight: Int,
-    imageWidth: Float,
-    imageHeight: Float,
-    bitmapWidth: Int,
-    bitmapHeight: Int
-): IntRect {
-    // Get scale of box to width of the image
-    // We need a rect that contains Bitmap bounds to pass if any child requires it
-    // For a image with 100x100 px with 300x400 px container and image with crop 400x400px
-    // So we need to pass top left as 0,50 and size
-    val scaledBitmapX = boxWidth / imageWidth
-    val scaledBitmapY = boxHeight / imageHeight
-
-    val topLeft = IntOffset(
-        x = (bitmapWidth * (imageWidth - boxWidth) / imageWidth / 2)
-            .coerceAtLeast(0f).toInt(),
-        y = (bitmapHeight * (imageHeight - boxHeight) / imageHeight / 2)
-            .coerceAtLeast(0f).toInt()
-    )
-
-    val size = IntSize(
-        width = (bitmapWidth * scaledBitmapX).toInt().coerceAtMost(bitmapWidth),
-        height = (bitmapHeight * scaledBitmapY).toInt().coerceAtMost(bitmapHeight)
-    )
-
-    return IntRect(offset = topLeft, size = size)
-}
-
-/**
- * Get [IntSize] of the parent or container that contains [Canvas] that draws [ImageBitmap]
- *  @param bitmapWidth intrinsic width of the [ImageBitmap]
- *  @param bitmapHeight intrinsic height of the [ImageBitmap]
- *  @return size of parent Composable. When Modifier is assigned with fixed or finite size
- *  they are used, but when any dimension is set to infinity intrinsic dimensions of
- *  [ImageBitmap] are returned
- */
-private fun BoxWithConstraintsScope.getParentSize(
-    bitmapWidth: Int,
-    bitmapHeight: Int
-): IntSize {
-    // Check if Composable has fixed size dimensions
-    val hasBoundedDimens = constraints.hasBoundedWidth && constraints.hasBoundedHeight
-    // Check if Composable has infinite dimensions
-    val hasFixedDimens = constraints.hasFixedWidth && constraints.hasFixedHeight
-
-    // Box is the parent(BoxWithConstraints) that contains Canvas under the hood
-    // Canvas aspect ratio or size might not match parent but it's upper bounds are
-    // what are passed from parent. Canvas cannot be bigger or taller than BoxWithConstraints
-    val boxWidth: Int = if (hasBoundedDimens || hasFixedDimens) {
-        constraints.maxWidth
-    } else {
-        constraints.minWidth.coerceAtLeast(bitmapWidth)
-    }
-    val boxHeight: Int = if (hasBoundedDimens || hasFixedDimens) {
-        constraints.maxHeight
-    } else {
-        constraints.minHeight.coerceAtLeast(bitmapHeight)
-    }
-    return IntSize(boxWidth, boxHeight)
-}
-
 @Composable
 private fun ImageLayout(
     constraints: Constraints,
@@ -232,12 +157,11 @@ private fun ImageLayout(
         canvasHeightInDp = imageHeight.coerceAtMost(boxHeight.toFloat()).toDp()
     }
 
-    // Send the not scaled ImageBitmap dimensions which can be larger than Canvas size
-    // but the one constraint with Canvas size
-    // because modes like ContentScale.Crop
-    // which displays center section of the ImageBitmap if it's scaled
-    // to be bigger than Canvas.
-    // What user see on screen cannot be bigger than Canvas dimensions
+    // Send rectangle of Bitmap drawn to Canvas as bitmapRect, content scale modes like
+    // crop might crop image from center so Rect can be such as IntRect(250,250,500,500)
+
+    // canvasWidthInDp, and  canvasHeightInDp are Canvas dimensions coerced to Box size
+    // that covers Canvas
     val imageScopeImpl = ImageScopeImpl(
         density = density,
         constraints = constraints,

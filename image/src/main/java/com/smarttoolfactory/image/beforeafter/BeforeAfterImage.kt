@@ -24,7 +24,6 @@ import androidx.compose.ui.unit.*
 import com.smarttoolfactory.gesture.detectTransformGestures
 import com.smarttoolfactory.gesture.pointerMotionEvents
 import com.smarttoolfactory.image.ImageScope
-import com.smarttoolfactory.image.ImageScopeImpl
 import com.smarttoolfactory.image.getParentSize
 import com.smarttoolfactory.image.getScaledBitmapRect
 
@@ -73,7 +72,7 @@ fun BeforeAfterImage(
     alpha: Float = DefaultAlpha,
     colorFilter: ColorFilter? = null,
     filterQuality: FilterQuality = DrawScope.DefaultFilterQuality,
-    content: @Composable ImageScope.() -> Unit = {}
+    content: @Composable BeforeAfterImageScope.() -> Unit = {}
 ) {
 
     val semantics = if (contentDescription != null) {
@@ -94,7 +93,6 @@ fun BeforeAfterImage(
         val bitmapWidth = beforeImage.width
         val bitmapHeight = beforeImage.height
 
-
         val (boxWidth: Int, boxHeight: Int) = getParentSize(bitmapWidth, bitmapHeight)
 
         // Src is Bitmap, Dst is the container(Image) that Bitmap will be displayed
@@ -108,13 +106,19 @@ fun BeforeAfterImage(
         val imageWidth = bitmapWidth * scaleFactor.scaleX
         val imageHeight = bitmapHeight * scaleFactor.scaleY
 
-        var handlePosition by remember { mutableStateOf(imageWidth.coerceAtMost(boxWidth.toFloat()) / 2f) }
+        var handlePosition by remember {
+            mutableStateOf(
+                Offset(
+                    x = imageWidth.coerceAtMost(boxWidth.toFloat()) / 2f,
+                    y = imageHeight.coerceAtMost(boxHeight.toFloat()) / 2f,
+                )
+            )
+        }
 
         var isHandleTouched by remember { mutableStateOf(false) }
 
         var zoom by remember { mutableStateOf(1f) }
         var pan by remember { mutableStateOf(Offset.Zero) }
-
 
         val imageModifier = Modifier
             .clipToBounds()
@@ -140,11 +144,11 @@ fun BeforeAfterImage(
                     val position = it.position
                     val xPos = position.x
 
-                    isHandleTouched = ((handlePosition - xPos) * (handlePosition - xPos) < 10000)
+                    isHandleTouched = ((handlePosition.x - xPos) * (handlePosition.x - xPos) < 10000)
                 },
                 onMove = {
                     if (isHandleTouched) {
-                        handlePosition = it.position.x
+                        handlePosition = handlePosition.copy(x = it.position.x)
                         it.consume()
                     }
                 },
@@ -206,7 +210,7 @@ private fun ImageLayout(
     constraints: Constraints,
     beforeImage: ImageBitmap,
     afterImage: ImageBitmap,
-    handlePosition: Float,
+    handlePosition: Offset,
     translateX: Float,
     zoom: Float,
     bitmapRect: IntRect,
@@ -217,7 +221,7 @@ private fun ImageLayout(
     alpha: Float = DefaultAlpha,
     colorFilter: ColorFilter? = null,
     filterQuality: FilterQuality = DrawScope.DefaultFilterQuality,
-    content: @Composable ImageScope.() -> Unit
+    content: @Composable BeforeAfterImageScope.() -> Unit
 ) {
 
     val density = LocalDensity.current
@@ -227,12 +231,13 @@ private fun ImageLayout(
 
     // canvasWidthInDp, and  canvasHeightInDp are Canvas dimensions coerced to Box size
     // that covers Canvas
-    val imageScopeImpl = ImageScopeImpl(
+    val imageScopeImpl = BeforeAfterImageScopeImpl(
         density = density,
         constraints = constraints,
         imageWidth = canvasWidthInDp,
         imageHeight = canvasHeightInDp,
-        rect = bitmapRect
+        rect = bitmapRect,
+        touchPosition = handlePosition
     )
 
     // width and height params for translating draw position if scaled Image dimensions are
@@ -247,8 +252,6 @@ private fun ImageLayout(
         alpha = alpha,
         width = imageWidth.toInt(),
         height = imageHeight.toInt(),
-        canvasWidthInDp = canvasWidthInDp,
-        canvasHeightInDp = canvasHeightInDp,
         colorFilter = colorFilter,
         filterQuality = filterQuality
     )
@@ -261,13 +264,11 @@ private fun ImageImpl(
     modifier: Modifier,
     beforeImage: ImageBitmap,
     afterImage: ImageBitmap,
-    handlePosition: Float,
+    handlePosition: Offset,
     translateX: Float,
     zoom: Float,
     width: Int,
     height: Int,
-    canvasWidthInDp: Dp,
-    canvasHeightInDp: Dp,
     alpha: Float = DefaultAlpha,
     colorFilter: ColorFilter? = null,
     filterQuality: FilterQuality = DrawScope.DefaultFilterQuality,
@@ -282,7 +283,7 @@ private fun ImageImpl(
             val canvasHeight = size.height
 
             val touchPosition =
-                (+width - canvasWidth) / 2f + (handlePosition / zoom).coerceIn(0f, canvasWidth)
+                (+width - canvasWidth) / 2f + (handlePosition.x / zoom).coerceIn(0f, canvasWidth)
                     .toInt()
 
             // Translate to left or down when Image size is bigger than this canvas.
@@ -297,16 +298,8 @@ private fun ImageImpl(
                 val maxX = (size.width * (zoom - 1) / 2f)
                 val pan = (maxX - translateX) / zoom
 
-                println(
-                    "🔥 canvasWidth: $canvasWidth, bitmapWidth: $bitmapWidth, maxX: $maxX\n" +
-                            "touchPosition: $touchPosition, translateX: $translateX, pan: $pan, zoom: $zoom"
-                )
-
-
                 val srcOffsetX = ((pan + touchPosition) * bitmapWidth / width).toInt()
                 val dstOffsetX = (pan + touchPosition).toInt()
-
-                println("🍏 srcOffsetX: $srcOffsetX, dstOffsetX: $dstOffsetX")
 
                 drawImage(
                     afterImage,
@@ -327,25 +320,6 @@ private fun ImageImpl(
                     filterQuality = filterQuality
                 )
             }
-        }
-
-        Canvas(modifier = Modifier.size(canvasWidthInDp, canvasHeightInDp)) {
-
-            val canvasWidth = size.width
-
-            val imagePosition = handlePosition.coerceIn(0f, canvasWidth)
-
-            drawLine(
-                Color.White,
-                strokeWidth = 2.dp.toPx(),
-                start = Offset(imagePosition, 0f),
-                end = Offset(imagePosition, size.height)
-            )
-            drawCircle(
-                color = Color.Red,
-                center = Offset(imagePosition, size.height / 2),
-                radius = 30f
-            )
         }
     }
 }

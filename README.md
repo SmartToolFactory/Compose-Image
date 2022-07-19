@@ -8,7 +8,8 @@ and enrich displaying, manipulating, scaling, resizing, zooming, and
 getting cropped `ImageBitmap` based on selection area, before/after image to with handle to
 show partial of both images and more is cooking up
 
-https://user-images.githubusercontent.com/35650605/177950258-b9c122a9-b6df-422f-b03b-dcfe9a294b18.mp4
+
+https://user-images.githubusercontent.com/35650605/179715223-ba681886-6032-461f-806a-ea6a535d0627.mp4
 
 ## Gradle Setup
 

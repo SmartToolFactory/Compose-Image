@@ -1,11 +1,39 @@
 # Compose Image on Steroids
 
+[![](https://jitpack.io/v/SmartToolFactory/Compose-Image.svg)](https://jitpack.io/#SmartToolFactory/Compose-Image)
+
+
 Collection of Images, Modifiers, utility functions for Jetpack Compose to expand
 and enrich displaying, manipulating, scaling, resizing, zooming, and
 getting cropped `ImageBitmap` based on selection area, before/after image to with handle to
 show partial of both images and more is cooking up
 
 https://user-images.githubusercontent.com/35650605/177950258-b9c122a9-b6df-422f-b03b-dcfe9a294b18.mp4
+
+## Gradle Setup
+
+To get a Git project into your build:
+
+* Step 1. Add the JitPack repository to your build file Add it in your root build.gradle at the end
+  of repositories:
+
+```
+allprojects {
+  repositories {
+      ...
+      maven { url 'https://jitpack.io' }
+  }
+}
+```
+
+* Step 2. Add the dependency
+
+```
+dependencies {
+    implementation 'com.github.SmartToolFactory:Compose-Image:<version>'
+}
+```
+
 
 ## ImageWithConstraints
 

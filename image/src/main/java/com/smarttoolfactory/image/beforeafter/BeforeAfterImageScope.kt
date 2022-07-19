@@ -11,7 +11,7 @@ import com.smarttoolfactory.image.ImageScope
  * Scope for before-after images that returns touch position on Composable
  */
 interface BeforeAfterImageScope : ImageScope {
-    var touchPosition: Offset
+    var position: Offset
 }
 
 class BeforeAfterImageScopeImpl(
@@ -20,7 +20,7 @@ class BeforeAfterImageScopeImpl(
     override val imageWidth: Dp,
     override val imageHeight: Dp,
     override val rect: IntRect,
-    override var touchPosition: Offset,
+    override var position: Offset,
 ) : BeforeAfterImageScope {
 
     override val minWidth: Dp get() = with(density) { constraints.minWidth.toDp() }

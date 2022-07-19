@@ -34,6 +34,27 @@ import com.smarttoolfactory.image.getParentSize
 import com.smarttoolfactory.image.getScaledBitmapRect
 import com.smarttoolfactory.image.util.scale
 
+/**
+ * A composable that lays out and draws a given [beforeImage] and [afterImage] at given [order]
+ * with specified [contentScale] and returns draw area and section of drawn bitmap.
+ *
+ * [BeforeAfterImageScope] extends [ImageScope] that returns draw area dimensions and image draw rect
+ * and touch position of user on screen.
+ *
+ * @param beforeImage image that show initial progress
+ * @param afterImage image that show final progress
+ * @param enableProgressWithTouch flag to enable drag and change progress with touch
+ * @param enableZoom when enabled images are zoomable and pannable
+ * @param order order of images to be drawn
+ * @param alignment determines where image will be aligned inside [BoxWithConstraints]
+ * This is observable when bitmap image/width ratio differs from [Canvas] that draws [ImageBitmap]
+ * @param contentDescription text used by accessibility services to describe what this image
+ * represents. This should always be provided unless this image is used for decorative purposes,
+ * and does not represent a meaningful action that a user can take. This text should be
+ * localized, such as by using [androidx.compose.ui.res.stringResource] or similar
+ * @param contentScale how image should be scaled inside Canvas to match parent dimensions.
+ * [ContentScale.Fit] for instance maintains src ratio and scales image to fit inside the parent.
+ */
 @Composable
 fun BeforeAfterImage(
     modifier: Modifier = Modifier,
@@ -73,10 +94,6 @@ fun BeforeAfterImage(
             val thumbRadius = (thumbSize / 2)
 
             posY = ((imageHeight * thumbPosition / 100f - thumbRadius) - imageHeight / 2)
-//                .coerceIn(
-//                    thumbRadius,
-//                    imageHeight - thumbRadius
-//                )
                 .roundToPx()
 
             imageWidth.toPx() / 2
@@ -110,6 +127,36 @@ fun BeforeAfterImage(
     }
 }
 
+/**
+ * A composable that lays out and draws a given [beforeImage] and [afterImage] at given [order]
+ * with specified [contentScale] and returns draw area and section of drawn bitmap.
+ *
+ * [BeforeAfterImageScope] extends [ImageScope] that returns draw area dimensions and image draw rect
+ * and touch position of user on screen.
+ *
+ * @param beforeImage image that show initial progress
+ * @param afterImage image that show final progress
+ * @param enableProgressWithTouch flag to enable drag and change progress with touch
+ * @param enableZoom when enabled images are zoomable and pannable
+ * @param order order of images to be drawn
+ * @param alignment determines where image will be aligned inside [BoxWithConstraints]
+ * This is observable when bitmap image/width ratio differs from [Canvas] that draws [ImageBitmap]
+ * @param contentDescription text used by accessibility services to describe what this image
+ * represents. This should always be provided unless this image is used for decorative purposes,
+ * and does not represent a meaningful action that a user can take. This text should be
+ * localized, such as by using [androidx.compose.ui.res.stringResource] or similar
+ * @param contentScale how image should be scaled inside Canvas to match parent dimensions.
+ * [ContentScale.Fit] for instance maintains src ratio and scales image to fit inside the parent.
+ * @param alpha Opacity to be applied to [beforeImage] from 0.0f to 1.0f representing
+ * fully transparent to fully opaque respectively
+ * @param colorFilter ColorFilter to apply to the [beforeImage] when drawn into the destination
+ * @param filterQuality Sampling algorithm applied to the [beforeImage] when it is scaled and drawn
+ * into the destination. The default is [FilterQuality.Low] which scales using a bilinear
+ * sampling algorithm
+ * @param content is a Composable that can be matched at exact position where [beforeImage] is drawn.
+ * This is useful for drawing thumbs, cropping or another layout that should match position
+ * with the image that is scaled is drawn
+ */
 @Composable
 fun BeforeAfterImage(
     modifier: Modifier = Modifier,
@@ -150,20 +197,19 @@ fun BeforeAfterImage(
 }
 
 /**
- * A composable that lays out and draws a given [ImageBitmap]. This will attempt to
- * size the composable according to the [ImageBitmap]'s given width and height. However, an
- * optional [Modifier] parameter can be provided to adjust sizing or draw additional content (ex.
- * background). Any unspecified dimension will leverage the [ImageBitmap]'s size as a minimum
- * constraint.
+ * A composable that lays out and draws a given [beforeImage] and [afterImage] at given [order]
+ * with specified [contentScale] and returns draw area and section of drawn bitmap.
+  *
+ * [BeforeAfterImageScope] extends [ImageScope] that returns draw area dimensions and image draw rect
+ * and touch position of user on screen.
  *
- * [ImageScope] returns constraints, width and height of the drawing area based on [contentScale]
- * and rectangle of [beforeImage] drawn. When a bitmap is displayed scaled to fit area of Composable
- * space used for drawing image is represented with [ImageScope.imageWidth] and
- * [ImageScope.imageHeight].
- *
- * When we display a bitmap 1000x1000px with [ContentScale.Crop] if it's cropped to 500x500px
- * [ImageScope.rect] returns `IntRect(250,250,750,750)`.
- *
+ * @param beforeImage image that show initial progress
+ * @param afterImage image that show final progress
+ * @param progress current before/after or after/before image display ratio between [0f-100f]
+ * @param onProgressChange callback to notify use about [progress] has changed
+ * @param enableProgressWithTouch flag to enable drag and change progress with touch
+ * @param enableZoom when enabled images are zoomable and pannable
+ * @param order order of images to be drawn
  * @param alignment determines where image will be aligned inside [BoxWithConstraints]
  * This is observable when bitmap image/width ratio differs from [Canvas] that draws [ImageBitmap]
  * @param contentDescription text used by accessibility services to describe what this image
@@ -200,7 +246,6 @@ fun BeforeAfterImage(
     filterQuality: FilterQuality = DrawScope.DefaultFilterQuality,
     content: @Composable BeforeAfterImageScope.() -> Unit = {}
 ) {
-
     val semantics = if (contentDescription != null) {
         Modifier.semantics {
             this.contentDescription = contentDescription

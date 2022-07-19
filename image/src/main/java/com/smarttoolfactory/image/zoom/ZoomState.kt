@@ -11,7 +11,6 @@ import androidx.compose.ui.unit.IntSize
 import kotlinx.coroutines.coroutineScope
 
 
-
 /**
  * * Create and [remember] the [ZoomState] based on the currently appropriate transform
  * configuration to allow changing pan, zoom, and rotation.
@@ -129,7 +128,7 @@ fun rememberZoomState(
     rotationEnabled: Boolean = false,
     limitPan: Boolean = false,
     vararg keys: Any?
-    ): ZoomState {
+): ZoomState {
     return remember(keys) {
         ZoomState(
             initialZoom = initialZoom,
@@ -197,7 +196,7 @@ open class ZoomState internal constructor(
         )
 
 
-    open fun boundPan(lowerBound:Offset, upperBound:Offset) {
+    open fun boundPan(lowerBound: Offset, upperBound: Offset) {
         animatablePan.updateBounds(lowerBound, upperBound)
     }
 
@@ -205,12 +204,9 @@ open class ZoomState internal constructor(
         size: IntSize,
         gesturePan: Offset,
         gestureZoom: Float,
-        gestureRotate: Float,
+        gestureRotate: Float = 1f,
     ) {
-        var zoom = zoom
-
-        val boundPan = limitPan && !rotationEnabled
-
+        val zoom = (zoom * gestureZoom).coerceIn(zoomMin, zoomMax)
         val rotation = if (rotationEnabled) {
             rotation + gestureRotate
         } else {
@@ -220,6 +216,7 @@ open class ZoomState internal constructor(
         if (panEnabled) {
             val offset = pan
             var newOffset = offset + gesturePan.times(zoom)
+            val boundPan = limitPan && !rotationEnabled
 
             if (boundPan) {
                 val maxX = (size.width * (zoom - 1) / 2f)
@@ -235,7 +232,6 @@ open class ZoomState internal constructor(
         }
 
         if (zoomEnabled) {
-            zoom = (zoom * gestureZoom).coerceIn(zoomMin, zoomMax)
             snapZoomTo(zoom)
         }
 

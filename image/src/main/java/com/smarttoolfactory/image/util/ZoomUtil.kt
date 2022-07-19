@@ -1,4 +1,8 @@
-package com.smarttoolfactory.image.zoom
+package com.smarttoolfactory.image.util
+
+import androidx.compose.ui.graphics.GraphicsLayerScope
+import com.smarttoolfactory.image.zoom.ZoomLevel
+import com.smarttoolfactory.image.zoom.ZoomState
 
 /**
  * Calculate zoom level and zoom value when user double taps
@@ -29,3 +33,25 @@ internal fun calculateZoom(
     }
     return Pair(newZoomLevel, newZoom)
 }
+
+/**
+ * Update graphic layer with [zoomState]
+ */
+internal fun GraphicsLayerScope.update(zoomState: ZoomState) {
+
+    // Set zoom
+    val zoom = zoomState.zoom
+    this.scaleX = zoom
+    this.scaleY = zoom
+
+    // Set pan
+    val pan = zoomState.pan
+    val translationX = pan.x
+    val translationY = pan.y
+    this.translationX = translationX
+    this.translationY = translationY
+
+    // Set rotation
+    this.rotationZ = zoomState.rotation
+}
+

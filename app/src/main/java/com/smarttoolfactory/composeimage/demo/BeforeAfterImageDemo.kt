@@ -52,9 +52,25 @@ fun BeforeAfterImageDemo() {
             LocalContext.current.resources, R.drawable.image_before_after_elements_b
         )
 
+        val imageBefore3 = ImageBitmap.imageResource(
+            LocalContext.current.resources, R.drawable.landscape5_before
+        )
+
+        val imageAfter3 = ImageBitmap.imageResource(
+            LocalContext.current.resources, R.drawable.landscape5
+        )
+
         Text(
             text = "BeforeAfterImage",
             fontSize = 20.sp,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.padding(8.dp)
+        )
+
+        Text(
+            text = "Order",
+            fontSize = 16.sp,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.primary,
             modifier = Modifier.padding(8.dp)
@@ -110,6 +126,47 @@ fun BeforeAfterImageDemo() {
         }
 
         Spacer(modifier = Modifier.height(40.dp))
+        Text(
+            text = "Zoom(Pinch gesture)",
+            fontSize = 16.sp,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.padding(8.dp)
+        )
+
+        Box {
+            BeforeAfterImage(
+                modifier = Modifier
+                    .shadow(1.dp, RoundedCornerShape(10.dp))
+                    .fillMaxWidth()
+                    .aspectRatio(4 / 3f),
+                beforeImage = imageBefore3,
+                afterImage = imageAfter3,
+                order = Order.AfterBefore,
+                contentScale = ContentScale.FillBounds
+            )
+            Label(
+                text = "AFTER",
+                modifier = Modifier
+                    .padding(8.dp)
+                    .align(Alignment.TopStart)
+            )
+            Label(
+                text = "BEFORE", modifier = Modifier
+                    .padding(8.dp)
+                    .align(Alignment.TopEnd)
+            )
+        }
+
+
+        Spacer(modifier = Modifier.height(40.dp))
+        Text(
+            text = "Progress animation",
+            fontSize = 16.sp,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.padding(8.dp)
+        )
 
         val transition: InfiniteTransition = rememberInfiniteTransition()
 

@@ -1,6 +1,8 @@
-package com.smarttoolfactory.image.zoom
+package com.smarttoolfactory.image.util
 
 import androidx.compose.ui.graphics.GraphicsLayerScope
+import com.smarttoolfactory.image.zoom.ZoomLevel
+import com.smarttoolfactory.image.zoom.ZoomState
 
 /**
  * Calculate zoom level and zoom value when user double taps

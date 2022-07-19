@@ -9,6 +9,8 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import com.smarttoolfactory.gesture.detectTransformGestures
+import com.smarttoolfactory.image.util.calculateZoom
+import com.smarttoolfactory.image.util.update
 import kotlinx.coroutines.launch
 
 /**

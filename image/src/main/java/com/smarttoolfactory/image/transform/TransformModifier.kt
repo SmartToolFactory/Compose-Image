@@ -12,6 +12,7 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.ui.input.pointer.positionChange
 import com.smarttoolfactory.gesture.pointerMotionEvents
+import com.smarttoolfactory.image.util.getTouchRegion
 
 internal fun Modifier.transform(
     enabled: Boolean,

@@ -25,7 +25,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.smarttoolfactory.composeimage.R
 import com.smarttoolfactory.image.beforeafter.BeforeAfterImage
-import com.smarttoolfactory.image.beforeafter.Order
+import com.smarttoolfactory.image.beforeafter.ImageOrder
 import kotlin.math.roundToInt
 
 @Composable
@@ -109,7 +109,7 @@ fun BeforeAfterImageDemo() {
                     .aspectRatio(4 / 3f),
                 beforeImage = imageBefore,
                 afterImage = imageAfter,
-                order = Order.AfterBefore,
+                imageOrder = ImageOrder.AfterBefore,
                 contentScale = ContentScale.FillBounds
             )
             Label(
@@ -142,7 +142,7 @@ fun BeforeAfterImageDemo() {
                     .aspectRatio(4 / 3f),
                 beforeImage = imageBefore3,
                 afterImage = imageAfter3,
-                order = Order.AfterBefore,
+                imageOrder = ImageOrder.AfterBefore,
                 contentScale = ContentScale.FillBounds
             )
             Label(

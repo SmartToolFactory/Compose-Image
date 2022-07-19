@@ -39,7 +39,7 @@ import com.smarttoolfactory.image.zoom.rememberZoomState
 import kotlinx.coroutines.launch
 
 /**
- * A composable that lays out and draws a given [beforeImage] and [afterImage] at given [order]
+ * A composable that lays out and draws a given [beforeImage] and [afterImage] at given [imageOrder]
  * with specified [contentScale] and returns draw area and section of drawn bitmap.
  *
  * [BeforeAfterImageScope] extends [ImageScope] that returns draw area dimensions and image draw rect
@@ -50,7 +50,7 @@ import kotlinx.coroutines.launch
  * @param enableProgressWithTouch flag to enable drag and change progress with touch
  * @param enableZoom when enabled images are zoomable and pannable
  * @param verticalThumbMove when set to true thumb moves to touch position in y coordinate
- * @param order order of images to be drawn
+ * @param imageOrder order of images to be drawn
  * @param alignment determines where image will be aligned inside [BoxWithConstraints]
  * This is observable when bitmap image/width ratio differs from [Canvas] that draws [ImageBitmap]
  * @param contentDescription text used by accessibility services to describe what this image
@@ -68,7 +68,7 @@ fun BeforeAfterImage(
     enableProgressWithTouch: Boolean = true,
     enableZoom: Boolean = true,
     verticalThumbMove: Boolean = false,
-    order: Order = Order.BeforeAfter,
+    imageOrder: ImageOrder = ImageOrder.BeforeAfter,
     lineColor: Color = Color.White,
     @DrawableRes thumbResource: Int = R.drawable.baseline_swap_horiz_24,
     thumbSize: Dp = 36.dp,
@@ -85,7 +85,7 @@ fun BeforeAfterImage(
         afterImage = afterImage,
         enableProgressWithTouch = enableProgressWithTouch,
         enableZoom = enableZoom,
-        order = order,
+        imageOrder = imageOrder,
         contentScale = contentScale,
         alignment = alignment,
         contentDescription = contentDescription,
@@ -143,7 +143,7 @@ fun BeforeAfterImage(
 }
 
 /**
- * A composable that lays out and draws a given [beforeImage] and [afterImage] at given [order]
+ * A composable that lays out and draws a given [beforeImage] and [afterImage] at given [imageOrder]
  * with specified [contentScale] and returns draw area and section of drawn bitmap.
  *
  * [BeforeAfterImageScope] extends [ImageScope] that returns draw area dimensions and image draw rect
@@ -153,7 +153,7 @@ fun BeforeAfterImage(
  * @param afterImage image that show final progress
  * @param enableProgressWithTouch flag to enable drag and change progress with touch
  * @param enableZoom when enabled images are zoomable and pannable
- * @param order order of images to be drawn
+ * @param imageOrder order of images to be drawn
  * @param alignment determines where image will be aligned inside [BoxWithConstraints]
  * This is observable when bitmap image/width ratio differs from [Canvas] that draws [ImageBitmap]
  * @param contentDescription text used by accessibility services to describe what this image
@@ -179,7 +179,7 @@ fun BeforeAfterImage(
     afterImage: ImageBitmap,
     enableProgressWithTouch: Boolean = true,
     enableZoom: Boolean = true,
-    order: Order = Order.BeforeAfter,
+    imageOrder: ImageOrder = ImageOrder.BeforeAfter,
     alignment: Alignment = Alignment.Center,
     contentScale: ContentScale = ContentScale.Fit,
     contentDescription: String? = null,
@@ -198,7 +198,7 @@ fun BeforeAfterImage(
         onProgressChange = {
             progress = it
         },
-        order = order,
+        imageOrder = imageOrder,
         enableProgressWithTouch = enableProgressWithTouch,
         enableZoom = enableZoom,
         alignment = alignment,
@@ -212,7 +212,7 @@ fun BeforeAfterImage(
 }
 
 /**
- * A composable that lays out and draws a given [beforeImage] and [afterImage] at given [order]
+ * A composable that lays out and draws a given [beforeImage] and [afterImage] at given [imageOrder]
  * with specified [contentScale] and returns draw area and section of drawn bitmap.
  *
  * [BeforeAfterImageScope] extends [ImageScope] that returns draw area dimensions and image draw rect
@@ -224,7 +224,7 @@ fun BeforeAfterImage(
  * @param onProgressChange callback to notify use about [progress] has changed
  * @param enableProgressWithTouch flag to enable drag and change progress with touch
  * @param enableZoom when enabled images are zoomable and pannable
- * @param order order of images to be drawn
+ * @param imageOrder order of images to be drawn
  * @param alignment determines where image will be aligned inside [BoxWithConstraints]
  * This is observable when bitmap image/width ratio differs from [Canvas] that draws [ImageBitmap]
  * @param contentDescription text used by accessibility services to describe what this image
@@ -252,7 +252,7 @@ fun BeforeAfterImage(
     onProgressChange: ((Float) -> Unit)? = null,
     enableProgressWithTouch: Boolean = true,
     enableZoom: Boolean = true,
-    order: Order = Order.BeforeAfter,
+    imageOrder: ImageOrder = ImageOrder.BeforeAfter,
     alignment: Alignment = Alignment.Center,
     contentScale: ContentScale = ContentScale.Fit,
     contentDescription: String? = null,
@@ -276,8 +276,6 @@ fun BeforeAfterImage(
         contentAlignment = alignment,
     ) {
 
-        val density = LocalDensity.current
-
         val bitmapWidth = beforeImage.width
         val bitmapHeight = beforeImage.height
 
@@ -295,6 +293,24 @@ fun BeforeAfterImage(
         // image bounds can be smaller or bigger than its parent based on how it's scaled
         val imageWidth = bitmapWidth * scaleFactor.scaleX
         val imageHeight = bitmapHeight * scaleFactor.scaleY
+
+        // Dimensions of canvas that will draw this Bitmap
+        val canvasWidthInDp: Dp
+        val canvasHeightInDp: Dp
+
+        with(LocalDensity.current) {
+            canvasWidthInDp = imageWidth.coerceAtMost(boxWidth).toDp()
+            canvasHeightInDp = imageHeight.coerceAtMost(boxHeight).toDp()
+        }
+
+        val bitmapRect = getScaledBitmapRect(
+            boxWidth = boxWidth.toInt(),
+            boxHeight = boxHeight.toInt(),
+            imageWidth = imageWidth,
+            imageHeight = imageHeight,
+            bitmapWidth = bitmapWidth,
+            bitmapHeight = bitmapHeight
+        )
 
         // Sales and interpolates from offset from dragging to user value in valueRange
         fun scaleToUserValue(offset: Float) =
@@ -383,25 +399,6 @@ fun BeforeAfterImage(
             .then(if (enableProgressWithTouch) touchModifier else Modifier)
             .then(graphicsModifier)
 
-
-        val bitmapRect = getScaledBitmapRect(
-            boxWidth = boxWidth.toInt(),
-            boxHeight = boxHeight.toInt(),
-            imageWidth = imageWidth,
-            imageHeight = imageHeight,
-            bitmapWidth = bitmapWidth,
-            bitmapHeight = bitmapHeight
-        )
-
-        // Dimensions of canvas that will draw this Bitmap
-        val canvasWidthInDp: Dp
-        val canvasHeightInDp: Dp
-
-        with(density) {
-            canvasWidthInDp = imageWidth.coerceAtMost(boxWidth).toDp()
-            canvasHeightInDp = imageHeight.coerceAtMost(boxHeight).toDp()
-        }
-
         ImageLayout(
             modifier = imageModifier,
             constraints = constraints,
@@ -415,7 +412,7 @@ fun BeforeAfterImage(
             imageHeight = imageHeight,
             canvasWidthInDp = canvasWidthInDp,
             canvasHeightInDp = canvasHeightInDp,
-            order = order,
+            imageOrder = imageOrder,
             alpha = alpha,
             colorFilter = colorFilter,
             filterQuality = filterQuality,
@@ -438,14 +435,12 @@ private fun ImageLayout(
     imageHeight: Float,
     canvasWidthInDp: Dp,
     canvasHeightInDp: Dp,
-    order: Order,
+    imageOrder: ImageOrder,
     alpha: Float = DefaultAlpha,
     colorFilter: ColorFilter? = null,
     filterQuality: FilterQuality = DrawScope.DefaultFilterQuality,
     content: @Composable BeforeAfterImageScope.() -> Unit
 ) {
-
-    val density = LocalDensity.current
 
     // Send rectangle of Bitmap drawn to Canvas as bitmapRect, content scale modes like
     // crop might crop image from center so Rect can be such as IntRect(250,250,500,500)
@@ -453,7 +448,7 @@ private fun ImageLayout(
     // canvasWidthInDp, and  canvasHeightInDp are Canvas dimensions coerced to Box size
     // that covers Canvas
     val imageScopeImpl = BeforeAfterImageScopeImpl(
-        density = density,
+        density = LocalDensity.current,
         constraints = constraints,
         imageWidth = canvasWidthInDp,
         imageHeight = canvasHeightInDp,
@@ -473,7 +468,7 @@ private fun ImageLayout(
         alpha = alpha,
         width = imageWidth.toInt(),
         height = imageHeight.toInt(),
-        order = order,
+        imageOrder = imageOrder,
         colorFilter = colorFilter,
         filterQuality = filterQuality
     )
@@ -491,7 +486,7 @@ private fun ImageImpl(
     zoom: Float,
     width: Int,
     height: Int,
-    order: Order,
+    imageOrder: ImageOrder,
     alpha: Float = DefaultAlpha,
     colorFilter: ColorFilter? = null,
     filterQuality: FilterQuality = DrawScope.DefaultFilterQuality,
@@ -529,7 +524,7 @@ private fun ImageImpl(
                 val srcOffsetX = ((pan + touchPosition) * bitmapWidth / width).toInt()
                 val dstOffsetX = (pan + touchPosition).toInt()
 
-                if (order == Order.BeforeAfter) {
+                if (imageOrder == ImageOrder.BeforeAfter) {
                     drawImage(
                         beforeImage,
                         srcSize = IntSize(bitmapWidth, bitmapHeight),
@@ -573,6 +568,6 @@ private fun ImageImpl(
     }
 }
 
-enum class Order {
+enum class ImageOrder {
     BeforeAfter, AfterBefore
 }

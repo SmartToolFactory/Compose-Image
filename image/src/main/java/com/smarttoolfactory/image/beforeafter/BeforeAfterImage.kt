@@ -4,6 +4,7 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.FloatRange
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.Icon
@@ -33,6 +34,9 @@ import com.smarttoolfactory.image.R
 import com.smarttoolfactory.image.getParentSize
 import com.smarttoolfactory.image.getScaledBitmapRect
 import com.smarttoolfactory.image.util.scale
+import com.smarttoolfactory.image.util.update
+import com.smarttoolfactory.image.zoom.rememberZoomState
+import kotlinx.coroutines.launch
 
 /**
  * A composable that lays out and draws a given [beforeImage] and [afterImage] at given [order]
@@ -45,6 +49,7 @@ import com.smarttoolfactory.image.util.scale
  * @param afterImage image that show final progress
  * @param enableProgressWithTouch flag to enable drag and change progress with touch
  * @param enableZoom when enabled images are zoomable and pannable
+ * @param verticalThumbMove when set to true thumb moves to touch position in y coordinate
  * @param order order of images to be drawn
  * @param alignment determines where image will be aligned inside [BoxWithConstraints]
  * This is observable when bitmap image/width ratio differs from [Canvas] that draws [ImageBitmap]
@@ -62,6 +67,7 @@ fun BeforeAfterImage(
     afterImage: ImageBitmap,
     enableProgressWithTouch: Boolean = true,
     enableZoom: Boolean = true,
+    verticalThumbMove: Boolean = false,
     order: Order = Order.BeforeAfter,
     lineColor: Color = Color.White,
     @DrawableRes thumbResource: Int = R.drawable.baseline_swap_horiz_24,
@@ -71,9 +77,7 @@ fun BeforeAfterImage(
     alignment: Alignment = Alignment.Center,
     contentDescription: String? = null,
 ) {
-
     val density = LocalDensity.current
-    val thumbPosition = thumbPositionPercent.coerceIn(0f, 100f)
 
     BeforeAfterImage(
         modifier = modifier,
@@ -87,27 +91,38 @@ fun BeforeAfterImage(
         contentDescription = contentDescription,
     ) {
 
-        val handlePosition = position.x
-        val posY: Int
+        var positionX = position.x
+        var positionY = position.y
 
-        val realPos = handlePosition - with(density) {
-            val thumbRadius = (thumbSize / 2)
+        val linePosition: Float
 
-            posY = ((imageHeight * thumbPosition / 100f - thumbRadius) - imageHeight / 2)
-                .roundToPx()
+        with(density) {
+            val thumbRadius = (thumbSize / 2).toPx()
+            val imageWidthInPx = imageWidth.toPx()
+            val imageHeightInPx = imageHeight.toPx()
 
-            imageWidth.toPx() / 2
+            linePosition = positionX.coerceIn(0f, imageWidthInPx)
+            positionX -= imageWidth.toPx() / 2
+
+            positionY = if (verticalThumbMove) {
+                (positionY - imageHeightInPx / 2)
+                    .coerceIn(
+                        -imageHeightInPx / 2 + thumbRadius,
+                        imageHeightInPx / 2 - thumbRadius
+                    )
+            } else {
+                val thumbPosition = thumbPositionPercent.coerceIn(0f, 100f)
+                ((imageHeightInPx * thumbPosition / 100f - thumbRadius) - imageHeightInPx / 2)
+            }
         }
 
         Canvas(modifier = Modifier.size(imageWidth, imageHeight)) {
-            val canvasWidth = size.width
-            val imagePosition = handlePosition.coerceIn(0f, canvasWidth)
 
             drawLine(
                 lineColor,
                 strokeWidth = 1.5.dp.toPx(),
-                start = Offset(imagePosition, 0f),
-                end = Offset(imagePosition, size.height)
+                start = Offset(linePosition, 0f),
+                end = Offset(linePosition, size.height)
             )
         }
 
@@ -117,7 +132,7 @@ fun BeforeAfterImage(
             tint = Color.Gray,
             modifier = Modifier
                 .offset {
-                    IntOffset(realPos.toInt(), posY)
+                    IntOffset(positionX.toInt(), positionY.toInt())
                 }
                 .shadow(2.dp, CircleShape)
                 .background(Color.White)
@@ -199,7 +214,7 @@ fun BeforeAfterImage(
 /**
  * A composable that lays out and draws a given [beforeImage] and [afterImage] at given [order]
  * with specified [contentScale] and returns draw area and section of drawn bitmap.
-  *
+ *
  * [BeforeAfterImageScope] extends [ImageScope] that returns draw area dimensions and image draw rect
  * and touch position of user on screen.
  *
@@ -302,23 +317,20 @@ fun BeforeAfterImage(
 
         var isHandleTouched by remember { mutableStateOf(false) }
 
-        var zoom by remember { mutableStateOf(1f) }
-        var pan by remember { mutableStateOf(Offset.Zero) }
+        val zoomState = rememberZoomState(limitPan = true)
+        val coroutineScope = rememberCoroutineScope()
 
         val transformModifier = Modifier.pointerInput(Unit) {
             detectTransformGestures(
                 onGesture = { _: Offset, panChange: Offset, zoomChange: Float, _, _, _ ->
 
-                    zoom = (zoom * zoomChange).coerceIn(1f, 5f)
-
-                    val maxX = (size.width * (zoom - 1) / 2f)
-                    val maxY = (size.height * (zoom - 1) / 2f)
-
-                    val newPan = pan + panChange.times(zoom)
-                    pan = Offset(
-                        newPan.x.coerceIn(-maxX, maxX),
-                        newPan.y.coerceIn(-maxY, maxY)
-                    )
+                    coroutineScope.launch {
+                        zoomState.updateZoomState(
+                            size,
+                            gesturePan = panChange,
+                            gestureZoom = zoomChange
+                        )
+                    }
                 }
             )
         }
@@ -330,11 +342,11 @@ fun BeforeAfterImage(
                     val xPos = position.x
 
                     isHandleTouched =
-                        ((rawOffset.x - xPos) * (rawOffset.x - xPos) < 10000)
+                        ((rawOffset.x - xPos) * (rawOffset.x - xPos) < 5000)
                 },
                 onMove = {
                     if (isHandleTouched) {
-                        rawOffset = rawOffset.copy(x = it.position.x)
+                        rawOffset = it.position
                         onProgressChange?.invoke(
                             scaleToUserValue(rawOffset.x)
                         )
@@ -347,16 +359,27 @@ fun BeforeAfterImage(
             )
         }
 
+        val tapModifier = Modifier.pointerInput(Unit) {
+            detectTapGestures(
+                onDoubleTap = {
+                    coroutineScope.launch {
+                        zoomState.animatePanTo(Offset.Zero)
+                    }
+
+                    coroutineScope.launch {
+                        zoomState.animateZoomTo(1f)
+                    }
+                }
+            )
+        }
+
         val graphicsModifier = Modifier.graphicsLayer {
-            this.scaleX = zoom
-            this.scaleY = zoom
-            this.translationX = pan.x
-            this.translationY = pan.y
+            this.update(zoomState)
         }
 
         val imageModifier = Modifier
             .clipToBounds()
-            .then(if (enableZoom) transformModifier else Modifier)
+            .then(if (enableZoom) transformModifier.then(tapModifier) else Modifier)
             .then(if (enableProgressWithTouch) touchModifier else Modifier)
             .then(graphicsModifier)
 
@@ -385,8 +408,8 @@ fun BeforeAfterImage(
             beforeImage = beforeImage,
             afterImage = afterImage,
             position = rawOffset,
-            translateX = pan.x,
-            zoom = zoom,
+            translateX = zoomState.pan.x,
+            zoom = zoomState.zoom,
             bitmapRect = bitmapRect,
             imageWidth = imageWidth,
             imageHeight = imageHeight,

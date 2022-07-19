@@ -1,13 +1,17 @@
 package com.smarttoolfactory.image.beforeafter
 
+import androidx.annotation.DrawableRes
+import androidx.annotation.FloatRange
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.Icon
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.*
@@ -16,17 +20,134 @@ import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.*
+import com.smarttoolfactory.gesture.detectMotionEvents
 import com.smarttoolfactory.gesture.detectTransformGestures
-import com.smarttoolfactory.gesture.pointerMotionEvents
 import com.smarttoolfactory.image.ImageScope
+import com.smarttoolfactory.image.R
 import com.smarttoolfactory.image.getParentSize
 import com.smarttoolfactory.image.getScaledBitmapRect
+import com.smarttoolfactory.image.util.scale
 
+@Composable
+fun BeforeAfterImage(
+    modifier: Modifier = Modifier,
+    beforeImage: ImageBitmap,
+    afterImage: ImageBitmap,
+    enableProgressWithTouch: Boolean = true,
+    enableZoom: Boolean = true,
+    order: Order = Order.BeforeAfter,
+    lineColor: Color = Color.White,
+    @DrawableRes thumbResource: Int = R.drawable.baseline_swap_horiz_24,
+    thumbSize: Dp = 36.dp,
+    @FloatRange(from = 0.0, to = 100.0) thumbPositionPercent: Float = 85f,
+    contentScale: ContentScale = ContentScale.Fit,
+    alignment: Alignment = Alignment.Center,
+    contentDescription: String? = null,
+) {
+
+    val density = LocalDensity.current
+    val thumbPosition = thumbPositionPercent.coerceIn(0f, 100f)
+
+    BeforeAfterImage(
+        modifier = modifier,
+        beforeImage = beforeImage,
+        afterImage = afterImage,
+        enableProgressWithTouch = enableProgressWithTouch,
+        enableZoom = enableZoom,
+        order = order,
+        contentScale = contentScale,
+        alignment = alignment,
+        contentDescription = contentDescription,
+    ) {
+
+        val handlePosition = position.x
+        val posY: Int
+
+        val realPos = handlePosition - with(density) {
+            val thumbRadius = (thumbSize / 2)
+
+            posY = ((imageHeight * thumbPosition / 100f - thumbRadius) - imageHeight / 2)
+//                .coerceIn(
+//                    thumbRadius,
+//                    imageHeight - thumbRadius
+//                )
+                .roundToPx()
+
+            imageWidth.toPx() / 2
+        }
+
+        Canvas(modifier = Modifier.size(imageWidth, imageHeight)) {
+            val canvasWidth = size.width
+            val imagePosition = handlePosition.coerceIn(0f, canvasWidth)
+
+            drawLine(
+                lineColor,
+                strokeWidth = 1.5.dp.toPx(),
+                start = Offset(imagePosition, 0f),
+                end = Offset(imagePosition, size.height)
+            )
+        }
+
+        Icon(
+            painter = painterResource(id = thumbResource),
+            contentDescription = null,
+            tint = Color.Gray,
+            modifier = Modifier
+                .offset {
+                    IntOffset(realPos.toInt(), posY)
+                }
+                .shadow(2.dp, CircleShape)
+                .background(Color.White)
+                .size(thumbSize)
+                .padding(4.dp)
+        )
+    }
+}
+
+@Composable
+fun BeforeAfterImage(
+    modifier: Modifier = Modifier,
+    beforeImage: ImageBitmap,
+    afterImage: ImageBitmap,
+    enableProgressWithTouch: Boolean = true,
+    enableZoom: Boolean = true,
+    order: Order = Order.BeforeAfter,
+    alignment: Alignment = Alignment.Center,
+    contentScale: ContentScale = ContentScale.Fit,
+    contentDescription: String? = null,
+    alpha: Float = DefaultAlpha,
+    colorFilter: ColorFilter? = null,
+    filterQuality: FilterQuality = DrawScope.DefaultFilterQuality,
+    content: @Composable BeforeAfterImageScope.() -> Unit
+) {
+    var progress by remember { mutableStateOf(50f) }
+
+    BeforeAfterImage(
+        modifier = modifier,
+        beforeImage = beforeImage,
+        afterImage = afterImage,
+        progress = progress,
+        onProgressChange = {
+            progress = it
+        },
+        order = order,
+        enableProgressWithTouch = enableProgressWithTouch,
+        enableZoom = enableZoom,
+        alignment = alignment,
+        contentScale = contentScale,
+        contentDescription = contentDescription,
+        alpha = alpha,
+        colorFilter = colorFilter,
+        filterQuality = filterQuality,
+        content = content
+    )
+}
 
 /**
  * A composable that lays out and draws a given [ImageBitmap]. This will attempt to
@@ -66,6 +187,11 @@ fun BeforeAfterImage(
     modifier: Modifier = Modifier,
     beforeImage: ImageBitmap,
     afterImage: ImageBitmap,
+    @FloatRange(from = 0.0, to = 100.0) progress: Float = 50f,
+    onProgressChange: ((Float) -> Unit)? = null,
+    enableProgressWithTouch: Boolean = true,
+    enableZoom: Boolean = true,
+    order: Order = Order.BeforeAfter,
     alignment: Alignment = Alignment.Center,
     contentScale: ContentScale = ContentScale.Fit,
     contentDescription: String? = null,
@@ -90,14 +216,18 @@ fun BeforeAfterImage(
         contentAlignment = alignment,
     ) {
 
+        val density = LocalDensity.current
+
         val bitmapWidth = beforeImage.width
         val bitmapHeight = beforeImage.height
 
-        val (boxWidth: Int, boxHeight: Int) = getParentSize(bitmapWidth, bitmapHeight)
+        val parenSize = getParentSize(bitmapWidth, bitmapHeight)
+        val boxWidth: Float = parenSize.width.toFloat()
+        val boxHeight: Float = parenSize.height.toFloat()
 
         // Src is Bitmap, Dst is the container(Image) that Bitmap will be displayed
         val srcSize = Size(bitmapWidth.toFloat(), bitmapHeight.toFloat())
-        val dstSize = Size(boxWidth.toFloat(), boxHeight.toFloat())
+        val dstSize = Size(boxWidth, boxHeight)
 
         val scaleFactor = contentScale.computeScaleFactor(srcSize, dstSize)
 
@@ -106,49 +236,63 @@ fun BeforeAfterImage(
         val imageWidth = bitmapWidth * scaleFactor.scaleX
         val imageHeight = bitmapHeight * scaleFactor.scaleY
 
-        var handlePosition by remember {
+        // Sales and interpolates from offset from dragging to user value in valueRange
+        fun scaleToUserValue(offset: Float) =
+            scale(0f, boxWidth, offset, 0f, 100f)
+
+        // Scales user value using valueRange to position on x axis on screen
+        fun scaleToOffset(userValue: Float) =
+            scale(0f, 100f, userValue, 0f, boxWidth)
+
+        var rawOffset by remember {
             mutableStateOf(
                 Offset(
-                    x = imageWidth.coerceAtMost(boxWidth.toFloat()) / 2f,
-                    y = imageHeight.coerceAtMost(boxHeight.toFloat()) / 2f,
+                    x = scaleToOffset(progress),
+                    y = imageHeight.coerceAtMost(boxHeight) / 2f,
                 )
             )
         }
+
+        rawOffset = rawOffset.copy(x = scaleToOffset(progress))
 
         var isHandleTouched by remember { mutableStateOf(false) }
 
         var zoom by remember { mutableStateOf(1f) }
         var pan by remember { mutableStateOf(Offset.Zero) }
 
-        val imageModifier = Modifier
-            .clipToBounds()
-            .pointerInput(Unit) {
-                detectTransformGestures(
-                    onGesture = { _: Offset, panChange: Offset, zoomChange: Float, _, _, _ ->
+        val transformModifier = Modifier.pointerInput(Unit) {
+            detectTransformGestures(
+                onGesture = { _: Offset, panChange: Offset, zoomChange: Float, _, _, _ ->
 
-                        zoom = (zoom * zoomChange).coerceIn(1f, 5f)
+                    zoom = (zoom * zoomChange).coerceIn(1f, 5f)
 
-                        val maxX = (size.width * (zoom - 1) / 2f)
-                        val maxY = (size.height * (zoom - 1) / 2f)
+                    val maxX = (size.width * (zoom - 1) / 2f)
+                    val maxY = (size.height * (zoom - 1) / 2f)
 
-                        val newPan = pan + panChange.times(zoom)
-                        pan = Offset(
-                            newPan.x.coerceIn(-maxX, maxX),
-                            newPan.y.coerceIn(-maxY, maxY)
-                        )
-                    }
-                )
-            }
-            .pointerMotionEvents(
+                    val newPan = pan + panChange.times(zoom)
+                    pan = Offset(
+                        newPan.x.coerceIn(-maxX, maxX),
+                        newPan.y.coerceIn(-maxY, maxY)
+                    )
+                }
+            )
+        }
+
+        val touchModifier = Modifier.pointerInput(Unit) {
+            detectMotionEvents(
                 onDown = {
                     val position = it.position
                     val xPos = position.x
 
-                    isHandleTouched = ((handlePosition.x - xPos) * (handlePosition.x - xPos) < 10000)
+                    isHandleTouched =
+                        ((rawOffset.x - xPos) * (rawOffset.x - xPos) < 10000)
                 },
                 onMove = {
                     if (isHandleTouched) {
-                        handlePosition = handlePosition.copy(x = it.position.x)
+                        rawOffset = rawOffset.copy(x = it.position.x)
+                        onProgressChange?.invoke(
+                            scaleToUserValue(rawOffset.x)
+                        )
                         it.consume()
                     }
                 },
@@ -156,31 +300,38 @@ fun BeforeAfterImage(
                     isHandleTouched = false
                 }
             )
-            .graphicsLayer {
-                this.scaleX = zoom
-                this.scaleY = zoom
-                this.translationX = pan.x
-                this.translationY = pan.y
-            }
+        }
+
+        val graphicsModifier = Modifier.graphicsLayer {
+            this.scaleX = zoom
+            this.scaleY = zoom
+            this.translationX = pan.x
+            this.translationY = pan.y
+        }
+
+        val imageModifier = Modifier
+            .clipToBounds()
+            .then(if (enableZoom) transformModifier else Modifier)
+            .then(if (enableProgressWithTouch) touchModifier else Modifier)
+            .then(graphicsModifier)
+
 
         val bitmapRect = getScaledBitmapRect(
-            boxWidth = boxWidth,
-            boxHeight = boxHeight,
+            boxWidth = boxWidth.toInt(),
+            boxHeight = boxHeight.toInt(),
             imageWidth = imageWidth,
             imageHeight = imageHeight,
             bitmapWidth = bitmapWidth,
             bitmapHeight = bitmapHeight
         )
 
-        val density = LocalDensity.current
-
         // Dimensions of canvas that will draw this Bitmap
         val canvasWidthInDp: Dp
         val canvasHeightInDp: Dp
 
         with(density) {
-            canvasWidthInDp = imageWidth.coerceAtMost(boxWidth.toFloat()).toDp()
-            canvasHeightInDp = imageHeight.coerceAtMost(boxHeight.toFloat()).toDp()
+            canvasWidthInDp = imageWidth.coerceAtMost(boxWidth).toDp()
+            canvasHeightInDp = imageHeight.coerceAtMost(boxHeight).toDp()
         }
 
         ImageLayout(
@@ -188,7 +339,7 @@ fun BeforeAfterImage(
             constraints = constraints,
             beforeImage = beforeImage,
             afterImage = afterImage,
-            handlePosition = handlePosition,
+            position = rawOffset,
             translateX = pan.x,
             zoom = zoom,
             bitmapRect = bitmapRect,
@@ -196,6 +347,7 @@ fun BeforeAfterImage(
             imageHeight = imageHeight,
             canvasWidthInDp = canvasWidthInDp,
             canvasHeightInDp = canvasHeightInDp,
+            order = order,
             alpha = alpha,
             colorFilter = colorFilter,
             filterQuality = filterQuality,
@@ -210,7 +362,7 @@ private fun ImageLayout(
     constraints: Constraints,
     beforeImage: ImageBitmap,
     afterImage: ImageBitmap,
-    handlePosition: Offset,
+    position: Offset,
     translateX: Float,
     zoom: Float,
     bitmapRect: IntRect,
@@ -218,6 +370,7 @@ private fun ImageLayout(
     imageHeight: Float,
     canvasWidthInDp: Dp,
     canvasHeightInDp: Dp,
+    order: Order,
     alpha: Float = DefaultAlpha,
     colorFilter: ColorFilter? = null,
     filterQuality: FilterQuality = DrawScope.DefaultFilterQuality,
@@ -237,7 +390,7 @@ private fun ImageLayout(
         imageWidth = canvasWidthInDp,
         imageHeight = canvasHeightInDp,
         rect = bitmapRect,
-        touchPosition = handlePosition
+        position = position
     )
 
     // width and height params for translating draw position if scaled Image dimensions are
@@ -246,12 +399,13 @@ private fun ImageLayout(
         modifier = modifier.size(canvasWidthInDp, canvasHeightInDp),
         beforeImage = beforeImage,
         afterImage = afterImage,
-        handlePosition = handlePosition,
+        position = position,
         translateX = translateX,
         zoom = zoom,
         alpha = alpha,
         width = imageWidth.toInt(),
         height = imageHeight.toInt(),
+        order = order,
         colorFilter = colorFilter,
         filterQuality = filterQuality
     )
@@ -264,11 +418,12 @@ private fun ImageImpl(
     modifier: Modifier,
     beforeImage: ImageBitmap,
     afterImage: ImageBitmap,
-    handlePosition: Offset,
+    position: Offset,
     translateX: Float,
     zoom: Float,
     width: Int,
     height: Int,
+    order: Order,
     alpha: Float = DefaultAlpha,
     colorFilter: ColorFilter? = null,
     filterQuality: FilterQuality = DrawScope.DefaultFilterQuality,
@@ -282,8 +437,11 @@ private fun ImageImpl(
             val canvasWidth = size.width
             val canvasHeight = size.height
 
+            // First add translation for crop and other content scale
+            // then get user touch position on any zoom level to get raw value
             val touchPosition =
-                (+width - canvasWidth) / 2f + (handlePosition.x / zoom).coerceIn(0f, canvasWidth)
+                (width - canvasWidth) / 2f + (position.x / zoom)
+                    .coerceIn(0f, canvasWidth)
                     .toInt()
 
             // Translate to left or down when Image size is bigger than this canvas.
@@ -295,31 +453,58 @@ private fun ImageImpl(
                 left = (-width + canvasWidth) / 2f,
             ) {
 
+                // This is pan limit set to limit panning inside image borders
                 val maxX = (size.width * (zoom - 1) / 2f)
+                // Get actual pan value
                 val pan = (maxX - translateX) / zoom
 
                 val srcOffsetX = ((pan + touchPosition) * bitmapWidth / width).toInt()
                 val dstOffsetX = (pan + touchPosition).toInt()
 
-                drawImage(
-                    afterImage,
-                    srcSize = IntSize(bitmapWidth, bitmapHeight),
-                    dstSize = IntSize(width, height),
-                    alpha = alpha,
-                    colorFilter = colorFilter,
-                    filterQuality = filterQuality
-                )
-                drawImage(
-                    beforeImage,
-                    srcSize = IntSize(bitmapWidth, bitmapHeight),
-                    srcOffset = IntOffset(srcOffsetX, 0),
-                    dstSize = IntSize(width, height),
-                    dstOffset = IntOffset(dstOffsetX, 0),
-                    alpha = alpha,
-                    colorFilter = colorFilter,
-                    filterQuality = filterQuality
-                )
+                if (order == Order.BeforeAfter) {
+                    drawImage(
+                        beforeImage,
+                        srcSize = IntSize(bitmapWidth, bitmapHeight),
+                        dstSize = IntSize(width, height),
+                        alpha = alpha,
+                        colorFilter = colorFilter,
+                        filterQuality = filterQuality
+                    )
+                    drawImage(
+                        afterImage,
+                        srcSize = IntSize(bitmapWidth, bitmapHeight),
+                        srcOffset = IntOffset(srcOffsetX, 0),
+                        dstSize = IntSize(width, height),
+                        dstOffset = IntOffset(dstOffsetX, 0),
+                        alpha = alpha,
+                        colorFilter = colorFilter,
+                        filterQuality = filterQuality
+                    )
+                } else {
+                    drawImage(
+                        afterImage,
+                        srcSize = IntSize(bitmapWidth, bitmapHeight),
+                        dstSize = IntSize(width, height),
+                        alpha = alpha,
+                        colorFilter = colorFilter,
+                        filterQuality = filterQuality
+                    )
+                    drawImage(
+                        beforeImage,
+                        srcSize = IntSize(bitmapWidth, bitmapHeight),
+                        srcOffset = IntOffset(srcOffsetX, 0),
+                        dstSize = IntSize(width, height),
+                        dstOffset = IntOffset(dstOffsetX, 0),
+                        alpha = alpha,
+                        colorFilter = colorFilter,
+                        filterQuality = filterQuality
+                    )
+                }
             }
         }
     }
+}
+
+enum class Order {
+    BeforeAfter, AfterBefore
 }

@@ -11,6 +11,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
+/**
+ * Black transparent label to display before or after text
+ */
 @Composable
 fun Label(modifier: Modifier = Modifier, text: String) {
     Text(

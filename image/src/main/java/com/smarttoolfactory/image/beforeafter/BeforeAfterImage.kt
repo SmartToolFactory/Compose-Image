@@ -3,16 +3,14 @@ package com.smarttoolfactory.image.beforeafter
 import androidx.annotation.DrawableRes
 import androidx.annotation.FloatRange
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.Icon
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.*
@@ -21,7 +19,6 @@ import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.role
@@ -77,8 +74,6 @@ fun BeforeAfterImage(
     alignment: Alignment = Alignment.Center,
     contentDescription: String? = null,
 ) {
-    val density = LocalDensity.current
-
     BeforeAfterImage(
         modifier = modifier,
         beforeImage = beforeImage,
@@ -91,53 +86,15 @@ fun BeforeAfterImage(
         contentDescription = contentDescription,
     ) {
 
-        var positionX = position.x
-        var positionY = position.y
-
-        val linePosition: Float
-
-        with(density) {
-            val thumbRadius = (thumbSize / 2).toPx()
-            val imageWidthInPx = imageWidth.toPx()
-            val imageHeightInPx = imageHeight.toPx()
-
-            linePosition = positionX.coerceIn(0f, imageWidthInPx)
-            positionX -= imageWidth.toPx() / 2
-
-            positionY = if (verticalThumbMove) {
-                (positionY - imageHeightInPx / 2)
-                    .coerceIn(
-                        -imageHeightInPx / 2 + thumbRadius,
-                        imageHeightInPx / 2 - thumbRadius
-                    )
-            } else {
-                val thumbPosition = thumbPositionPercent.coerceIn(0f, 100f)
-                ((imageHeightInPx * thumbPosition / 100f - thumbRadius) - imageHeightInPx / 2)
-            }
-        }
-
-        Canvas(modifier = Modifier.size(imageWidth, imageHeight)) {
-
-            drawLine(
-                lineColor,
-                strokeWidth = 1.5.dp.toPx(),
-                start = Offset(linePosition, 0f),
-                end = Offset(linePosition, size.height)
-            )
-        }
-
-        Icon(
-            painter = painterResource(id = thumbResource),
-            contentDescription = null,
-            tint = Color.Gray,
-            modifier = Modifier
-                .offset {
-                    IntOffset(positionX.toInt(), positionY.toInt())
-                }
-                .shadow(2.dp, CircleShape)
-                .background(Color.White)
-                .size(thumbSize)
-                .padding(4.dp)
+        DefaultOverlay(
+            width = imageWidth,
+            height = imageHeight,
+            position = position,
+            verticalThumbMove = verticalThumbMove,
+            lineColor = lineColor,
+            thumbResource = thumbResource,
+            thumbSize = thumbSize,
+            thumbPositionPercent = thumbPositionPercent
         )
     }
 }

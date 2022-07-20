@@ -4,12 +4,12 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.FloatRange
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.offset
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.Icon
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
@@ -35,11 +35,11 @@ import com.smarttoolfactory.image.R
  * @param thumbResource drawable resource that should be used with thumb
  * @param thumbSize size of the thumb in dp
  * @param thumbPositionPercent vertical position of thumb if [verticalThumbMove] is false.
- * It's betweem [0f-100f] to set thumb's vertical position in layout
+ * It's between [0f-100f] to set thumb's vertical position in layout
  */
 @Composable
-fun DefaultOverlay(
-    width:Dp,
+internal fun DefaultOverlay(
+    width: Dp,
     height: Dp,
     position: Offset,
     verticalThumbMove: Boolean = false,
@@ -49,9 +49,8 @@ fun DefaultOverlay(
     @FloatRange(from = 0.0, to = 100.0) thumbPositionPercent: Float = 85f,
 ) {
 
-
-    var positionX = position.x
-    var positionY = position.y
+    var thumbPosX = position.x
+    var thumbPosY = position.y
 
     val linePosition: Float
 
@@ -62,42 +61,51 @@ fun DefaultOverlay(
         val imageWidthInPx = width.toPx()
         val imageHeightInPx = height.toPx()
 
-        linePosition = positionX.coerceIn(0f, imageWidthInPx)
-        positionX -= width.toPx() / 2
+        val horizontalOffset = imageWidthInPx/2
+        val verticalOffset =imageHeightInPx / 2
 
-        positionY = if (verticalThumbMove) {
-            (positionY - imageHeightInPx / 2)
+        linePosition = thumbPosX.coerceIn(0f, imageWidthInPx)
+        thumbPosX -= horizontalOffset
+
+        thumbPosY = if (verticalThumbMove) {
+            (thumbPosY - verticalOffset)
                 .coerceIn(
-                    -imageHeightInPx / 2 + thumbRadius,
-                    imageHeightInPx / 2 - thumbRadius
+                    -verticalOffset + thumbRadius,
+                    verticalOffset - thumbRadius
                 )
         } else {
-            val thumbPosition = thumbPositionPercent.coerceIn(0f, 100f)
-            ((imageHeightInPx * thumbPosition / 100f - thumbRadius) - imageHeightInPx / 2)
+            ((imageHeightInPx * thumbPositionPercent / 100f - thumbRadius) - verticalOffset)
         }
     }
 
-    Canvas(modifier = Modifier.size(width, height)) {
+    Box(
+        Modifier
+            .size(width, height)
+            .border(4.dp, Color.Blue),
+        contentAlignment = Alignment.Center
+    ) {
+        Canvas(modifier = Modifier.fillMaxSize()) {
 
-        drawLine(
-            lineColor,
-            strokeWidth = 1.5.dp.toPx(),
-            start = Offset(linePosition, 0f),
-            end = Offset(linePosition, size.height)
+            drawLine(
+                lineColor,
+                strokeWidth = 1.5.dp.toPx(),
+                start = Offset(linePosition, 0f),
+                end = Offset(linePosition, size.height)
+            )
+        }
+
+        Icon(
+            painter = painterResource(id = thumbResource),
+            contentDescription = null,
+            tint = Color.Gray,
+            modifier = Modifier
+                .offset {
+                    IntOffset(thumbPosX.toInt(), thumbPosY.toInt())
+                }
+                .shadow(2.dp, CircleShape)
+                .background(Color.White)
+                .size(thumbSize)
+                .padding(4.dp)
         )
     }
-
-    Icon(
-        painter = painterResource(id = thumbResource),
-        contentDescription = null,
-        tint = Color.Gray,
-        modifier = Modifier
-            .offset {
-                IntOffset(positionX.toInt(), positionY.toInt())
-            }
-            .shadow(2.dp, CircleShape)
-            .background(Color.White)
-            .size(thumbSize)
-            .padding(4.dp)
-    )
 }

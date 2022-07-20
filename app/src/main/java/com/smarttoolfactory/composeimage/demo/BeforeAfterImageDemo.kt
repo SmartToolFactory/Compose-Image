@@ -1,7 +1,6 @@
 package com.smarttoolfactory.composeimage.demo
 
 import androidx.compose.animation.core.*
-import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -25,7 +24,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.smarttoolfactory.composeimage.R
 import com.smarttoolfactory.image.beforeafter.BeforeAfterImage
-import com.smarttoolfactory.image.beforeafter.ImageOrder
+import com.smarttoolfactory.image.beforeafter.ContentOrder
+import com.smarttoolfactory.image.beforeafter.Label
 import kotlin.math.roundToInt
 
 @Composable
@@ -109,7 +109,7 @@ fun BeforeAfterImageDemo() {
                     .aspectRatio(4 / 3f),
                 beforeImage = imageBefore,
                 afterImage = imageAfter,
-                imageOrder = ImageOrder.AfterBefore,
+                contentOrder = ContentOrder.AfterBefore,
                 contentScale = ContentScale.FillBounds
             )
             Label(
@@ -142,7 +142,7 @@ fun BeforeAfterImageDemo() {
                     .aspectRatio(4 / 3f),
                 beforeImage = imageBefore3,
                 afterImage = imageAfter3,
-                imageOrder = ImageOrder.AfterBefore,
+                contentOrder = ContentOrder.AfterBefore,
                 contentScale = ContentScale.FillBounds
             )
             Label(
@@ -203,17 +203,4 @@ fun BeforeAfterImageDemo() {
             )
         }
     }
-}
-
-@Composable
-private fun Label(modifier: Modifier = Modifier, text: String) {
-    Text(
-        text = text,
-        color = Color.White,
-        fontSize = 14.sp,
-        fontWeight = FontWeight.Bold,
-        modifier = modifier
-            .background(Color.Black.copy(alpha = .4f), RoundedCornerShape(50))
-            .padding(8.dp)
-    )
 }

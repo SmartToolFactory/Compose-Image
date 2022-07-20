@@ -4,7 +4,6 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.FloatRange
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.Icon
@@ -61,8 +60,8 @@ internal fun DefaultOverlay(
         val imageWidthInPx = width.toPx()
         val imageHeightInPx = height.toPx()
 
-        val horizontalOffset = imageWidthInPx/2
-        val verticalOffset =imageHeightInPx / 2
+        val horizontalOffset = imageWidthInPx / 2
+        val verticalOffset = imageHeightInPx / 2
 
         linePosition = thumbPosX.coerceIn(0f, imageWidthInPx)
         thumbPosX -= horizontalOffset
@@ -79,9 +78,7 @@ internal fun DefaultOverlay(
     }
 
     Box(
-        Modifier
-            .size(width, height)
-            .border(4.dp, Color.Blue),
+        modifier = Modifier.size(width, height),
         contentAlignment = Alignment.Center
     ) {
         Canvas(modifier = Modifier.fillMaxSize()) {

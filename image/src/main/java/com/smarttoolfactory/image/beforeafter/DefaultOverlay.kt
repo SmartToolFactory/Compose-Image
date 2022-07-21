@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Dp
@@ -29,11 +30,15 @@ import com.smarttoolfactory.image.R
  * @param height of the [BeforeAfterImage] or [BeforeAfterLayout]. You should get height from
  * scope of these Composables and pass to calculate bounds correctly
  * @param position current position or progress of before/after
- * @param verticalThumbMove whether thumb should move vertically
+ * @param verticalThumbMove when true thumb can move vertically based on user touch
  * @param lineColor color if divider line
+ * @param thumbBackgroundColor background color of thumb [Icon]
+ * @param thumbTintColor tint color of thumb [Icon]
+ * @param thumbShape shape of thumb [Icon]
+ * @param thumbElevation elevation of thumb [Icon]
  * @param thumbResource drawable resource that should be used with thumb
  * @param thumbSize size of the thumb in dp
- * @param thumbPositionPercent vertical position of thumb if [verticalThumbMove] is false.
+ * @param thumbPositionPercent vertical position of thumb if [verticalThumbMove] is false
  * It's between [0f-100f] to set thumb's vertical position in layout
  */
 @Composable
@@ -43,6 +48,10 @@ internal fun DefaultOverlay(
     position: Offset,
     verticalThumbMove: Boolean = false,
     lineColor: Color = Color.White,
+    thumbBackgroundColor: Color = Color.White,
+    thumbTintColor: Color = Color.Gray,
+    thumbShape: Shape = CircleShape,
+    thumbElevation: Dp = 2.dp,
     @DrawableRes thumbResource: Int = R.drawable.baseline_swap_horiz_24,
     thumbSize: Dp = 36.dp,
     @FloatRange(from = 0.0, to = 100.0) thumbPositionPercent: Float = 85f,
@@ -94,13 +103,13 @@ internal fun DefaultOverlay(
         Icon(
             painter = painterResource(id = thumbResource),
             contentDescription = null,
-            tint = Color.Gray,
+            tint = thumbTintColor,
             modifier = Modifier
                 .offset {
                     IntOffset(thumbPosX.toInt(), thumbPosY.toInt())
                 }
-                .shadow(2.dp, CircleShape)
-                .background(Color.White)
+                .shadow(thumbElevation, thumbShape)
+                .background(thumbBackgroundColor)
                 .size(thumbSize)
                 .padding(4.dp)
         )

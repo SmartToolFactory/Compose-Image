@@ -91,7 +91,9 @@ private fun HomeContent() {
                 1 -> ThumbnailDemo()
                 2 -> EditScaleDemo()
                 3 -> EditSizeDemo()
-                else -> ZoomableImageDemo()
+                4 -> ZoomDemo()
+                5 -> BeforeAfterImageDemo()
+                else -> BeforeAfterLayoutDemo()
             }
         }
     }
@@ -103,5 +105,7 @@ internal val tabList =
         "Image Thumbnail",
         "Editable Scale",
         "Editable Size",
-        "Zoomable Image",
+        "Zoom",
+        "Before/After Image",
+        "Before/After Layout",
     )

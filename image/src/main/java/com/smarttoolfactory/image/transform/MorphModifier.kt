@@ -17,6 +17,7 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import com.smarttoolfactory.gesture.pointerMotionEvents
+import com.smarttoolfactory.image.util.getTouchRegion
 
 internal fun Modifier.morph(
     enabled: Boolean,

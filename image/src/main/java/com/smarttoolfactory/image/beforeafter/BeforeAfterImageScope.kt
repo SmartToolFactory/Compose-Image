@@ -11,6 +11,9 @@ import com.smarttoolfactory.image.ImageScope
  * Scope for before-after images that returns touch position on Composable
  */
 interface BeforeAfterImageScope : ImageScope {
+    /**
+     * Touch position on screen
+     */
     var position: Offset
 }
 

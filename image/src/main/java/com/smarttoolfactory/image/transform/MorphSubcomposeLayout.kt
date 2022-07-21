@@ -11,6 +11,7 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import com.smarttoolfactory.image.SlotsEnum
 
 /**
  * [SubcomposeLayout] layouts children like [Box] and returns [IntSize] of this Composable.
@@ -96,5 +97,3 @@ internal fun MorphSubcomposeLayout(
         }
     }
 }
-
-enum class SlotsEnum { Main, Dependent }

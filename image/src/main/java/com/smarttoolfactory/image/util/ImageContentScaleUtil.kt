@@ -1,4 +1,4 @@
-package com.smarttoolfactory.image
+package com.smarttoolfactory.image.util
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.BoxWithConstraints

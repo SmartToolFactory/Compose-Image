@@ -7,13 +7,16 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.GenericShape
+import androidx.compose.material.Icon
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
@@ -30,21 +33,48 @@ import com.smarttoolfactory.image.util.update
 import com.smarttoolfactory.image.zoom.rememberZoomState
 import kotlinx.coroutines.launch
 
+/**
+ * A composable that lays out and draws a given [beforeContent] and [afterContent]
+ * based on [contentOrder]. This overload uses [DefaultOverlay] to draw vertical slider and thumb.
+ *
+ * @param enableProgressWithTouch flag to enable drag and change progress with touch
+ * @param enableZoom when enabled images are zoomable and pannable
+ * @param contentOrder order of composables to be drawn
+ * @param verticalThumbMove when true thumb can move vertically based on user touch
+ * @param lineColor color if divider line
+ * @param thumbBackgroundColor background color of thumb [Icon]
+ * @param thumbTintColor tint color of thumb [Icon]
+ * @param thumbShape shape of thumb [Icon]
+ * @param thumbElevation elevation of thumb [Icon]
+ * @param thumbResource drawable resource that should be used with thumb
+ * @param thumbSize size of the thumb in dp
+ * @param thumbPositionPercent vertical position of thumb if [verticalThumbMove] is false.
+ * It's between [0f-100f] to set thumb's vertical position in layout
+ * @param beforeContent content to be drawn as before Composable
+ * @param afterContent content to be drawn as after Composable
+ * @param beforeLabel label for [beforeContent]. It's [BeforeLabel] by default
+ * @param afterLabel label for [afterContent]. It's [AfterLabel] by default
+ *
+ */
 @Composable
 fun BeforeAfterLayout(
     modifier: Modifier = Modifier,
     enableProgressWithTouch: Boolean = true,
     enableZoom: Boolean = true,
     contentOrder: ContentOrder = ContentOrder.BeforeAfter,
-    verticalThumbMove: Boolean = false,
     lineColor: Color = Color.White,
+    verticalThumbMove: Boolean = false,
+    thumbBackgroundColor: Color = Color.White,
+    thumbTintColor: Color = Color.Gray,
+    thumbShape: Shape = CircleShape,
+    thumbElevation: Dp = 2.dp,
     @DrawableRes thumbResource: Int = R.drawable.baseline_swap_horiz_24,
     thumbSize: Dp = 36.dp,
     @FloatRange(from = 0.0, to = 100.0) thumbPositionPercent: Float = 85f,
     beforeContent: @Composable () -> Unit,
     afterContent: @Composable () -> Unit,
-    beforeLabel: @Composable BoxScope.() -> Unit = { BeforeLabel(contentOrder) },
-    afterLabel: @Composable BoxScope.() -> Unit = { AfterLabel(contentOrder) },
+    beforeLabel: @Composable BoxScope.() -> Unit = { BeforeLabel(contentOrder = contentOrder) },
+    afterLabel: @Composable BoxScope.() -> Unit = { AfterLabel(contentOrder = contentOrder) },
 ) {
     var progress by remember { mutableStateOf(50f) }
 
@@ -66,8 +96,12 @@ fun BeforeAfterLayout(
                 width = dpSize.width,
                 height = dpSize.height,
                 position = offset,
-                verticalThumbMove = verticalThumbMove,
                 lineColor = lineColor,
+                verticalThumbMove = verticalThumbMove,
+                thumbBackgroundColor = thumbBackgroundColor,
+                thumbTintColor = thumbTintColor,
+                thumbShape = thumbShape,
+                thumbElevation = thumbElevation,
                 thumbResource = thumbResource,
                 thumbSize = thumbSize,
                 thumbPositionPercent = thumbPositionPercent
@@ -76,23 +110,53 @@ fun BeforeAfterLayout(
     )
 }
 
+/**
+ * A composable that lays out and draws a given [beforeContent] and [afterContent]
+ * based on [contentOrder]. This overload uses [DefaultOverlay] to draw vertical slider and thumb
+ * and has [progress] and [onProgressChange] which makes it eligible to animate by changing
+ * [progress] value.
+ *
+ * @param enableProgressWithTouch flag to enable drag and change progress with touch
+ * @param enableZoom when enabled images are zoomable and pannable
+ * @param contentOrder order of composables to be drawn
+ * @param progress current position or progress of before/after
+ * @param onProgressChange current position or progress of before/after
+ * @param verticalThumbMove when true thumb can move vertically based on user touch
+ * @param lineColor color if divider line
+ * @param thumbBackgroundColor background color of thumb [Icon]
+ * @param thumbTintColor tint color of thumb [Icon]
+ * @param thumbShape shape of thumb [Icon]
+ * @param thumbElevation elevation of thumb [Icon]
+ * @param thumbResource drawable resource that should be used with thumb
+ * @param thumbSize size of the thumb in dp
+ * @param thumbPositionPercent vertical position of thumb if [verticalThumbMove] is false.
+ * It's between [0f-100f] to set thumb's vertical position in layout
+ * @param beforeContent content to be drawn as before Composable
+ * @param afterContent content to be drawn as after Composable
+ * @param beforeLabel label for [beforeContent]. It's [BeforeLabel] by default
+ * @param afterLabel label for [afterContent]. It's [AfterLabel] by default
+ */
 @Composable
 fun BeforeAfterLayout(
     modifier: Modifier = Modifier,
     enableProgressWithTouch: Boolean = true,
     enableZoom: Boolean = true,
     contentOrder: ContentOrder = ContentOrder.BeforeAfter,
-    verticalThumbMove: Boolean = false,
+    @FloatRange(from = 0.0, to = 100.0) progress: Float = 50f,
+    onProgressChange: ((Float) -> Unit)? = null,
     lineColor: Color = Color.White,
+    verticalThumbMove: Boolean = false,
+    thumbBackgroundColor: Color = Color.White,
+    thumbTintColor: Color = Color.Gray,
+    thumbShape: Shape = CircleShape,
+    thumbElevation: Dp = 2.dp,
     @DrawableRes thumbResource: Int = R.drawable.baseline_swap_horiz_24,
     thumbSize: Dp = 36.dp,
     @FloatRange(from = 0.0, to = 100.0) thumbPositionPercent: Float = 85f,
-    @FloatRange(from = 0.0, to = 100.0) progress: Float = 50f,
-    onProgressChange: ((Float) -> Unit)? = null,
     beforeContent: @Composable () -> Unit,
     afterContent: @Composable () -> Unit,
-    beforeLabel: @Composable BoxScope.() -> Unit = { BeforeLabel(contentOrder) },
-    afterLabel: @Composable BoxScope.() -> Unit = { AfterLabel(contentOrder) },
+    beforeLabel: @Composable BoxScope.() -> Unit = { BeforeLabel(contentOrder = contentOrder) },
+    afterLabel: @Composable BoxScope.() -> Unit = { AfterLabel(contentOrder = contentOrder) },
 ) {
 
     Layout(
@@ -111,8 +175,12 @@ fun BeforeAfterLayout(
                 width = dpSize.width,
                 height = dpSize.height,
                 position = offset,
-                verticalThumbMove = verticalThumbMove,
                 lineColor = lineColor,
+                verticalThumbMove = verticalThumbMove,
+                thumbBackgroundColor = thumbBackgroundColor,
+                thumbTintColor = thumbTintColor,
+                thumbShape = thumbShape,
+                thumbElevation = thumbElevation,
                 thumbResource = thumbResource,
                 thumbSize = thumbSize,
                 thumbPositionPercent = thumbPositionPercent
@@ -121,6 +189,22 @@ fun BeforeAfterLayout(
     )
 }
 
+/**
+ * A composable that lays out and draws a given [beforeContent] and [afterContent]
+ * based on [contentOrder].
+ *
+ * @param enableProgressWithTouch flag to enable drag and change progress with touch
+ * @param enableZoom when enabled images are zoomable and pannable
+ * @param contentOrder order of composables to be drawn
+
+ * It's between [0f-100f] to set thumb's vertical position in layout
+ * @param beforeContent content to be drawn as before Composable
+ * @param afterContent content to be drawn as after Composable
+ * @param beforeLabel label for [beforeContent]. It's [BeforeLabel] by default
+ * @param afterLabel label for [afterContent]. It's [AfterLabel] by default
+ * @param overlay Composable for drawing overlay over this Composable. It returns dimensions
+ * of ancestor and touch position
+ */
 @Composable
 fun BeforeAfterLayout(
     modifier: Modifier = Modifier,
@@ -129,8 +213,8 @@ fun BeforeAfterLayout(
     contentOrder: ContentOrder = ContentOrder.BeforeAfter,
     beforeContent: @Composable () -> Unit,
     afterContent: @Composable () -> Unit,
-    beforeLabel: @Composable BoxScope.() -> Unit = { BeforeLabel(contentOrder) },
-    afterLabel: @Composable BoxScope.() -> Unit = { AfterLabel(contentOrder) },
+    beforeLabel: @Composable BoxScope.() -> Unit = { BeforeLabel(contentOrder = contentOrder) },
+    afterLabel: @Composable BoxScope.() -> Unit = { AfterLabel(contentOrder = contentOrder) },
     overlay: @Composable ((DpSize, Offset) -> Unit)?
 ) {
     var progress by remember { mutableStateOf(50f) }
@@ -152,6 +236,23 @@ fun BeforeAfterLayout(
     )
 }
 
+/**
+ * A composable that lays out and draws a given [beforeContent] and [afterContent]
+ * based on [contentOrder].
+ *
+ * @param enableProgressWithTouch flag to enable drag and change progress with touch
+ * @param enableZoom when enabled images are zoomable and pannable
+ * @param contentOrder order of composables to be drawn
+ * @param progress current position or progress of before/after
+ * @param onProgressChange current position or progress of before/after
+ * It's between [0f-100f] to set thumb's vertical position in layout
+ * @param beforeContent content to be drawn as before Composable
+ * @param afterContent content to be drawn as after Composable
+ * @param beforeLabel label for [beforeContent]. It's [BeforeLabel] by default
+ * @param afterLabel label for [afterContent]. It's [AfterLabel] by default
+ * @param overlay Composable for drawing overlay over this Composable. It returns dimensions
+ * of ancestor and touch position
+ */
 @Composable
 fun BeforeAfterLayout(
     modifier: Modifier = Modifier,
@@ -162,8 +263,8 @@ fun BeforeAfterLayout(
     contentOrder: ContentOrder = ContentOrder.BeforeAfter,
     beforeContent: @Composable () -> Unit,
     afterContent: @Composable () -> Unit,
-    beforeLabel: @Composable BoxScope.() -> Unit = { BeforeLabel(contentOrder) },
-    afterLabel: @Composable BoxScope.() -> Unit = { AfterLabel(contentOrder) },
+    beforeLabel: @Composable (BoxScope.() -> Unit)? = { BeforeLabel(contentOrder = contentOrder) },
+    afterLabel: @Composable (BoxScope.() -> Unit)? = { AfterLabel(contentOrder = contentOrder) },
     overlay: @Composable ((DpSize, Offset) -> Unit)?
 ) {
 
@@ -192,8 +293,8 @@ private fun Layout(
     contentOrder: ContentOrder = ContentOrder.BeforeAfter,
     beforeContent: @Composable () -> Unit,
     afterContent: @Composable () -> Unit,
-    beforeLabel: @Composable BoxScope.() -> Unit = { BeforeLabel(contentOrder) },
-    afterLabel: @Composable BoxScope.() -> Unit = { AfterLabel(contentOrder) },
+    beforeLabel: @Composable (BoxScope.() -> Unit)?,
+    afterLabel: @Composable (BoxScope.() -> Unit)?,
     overlay: @Composable ((DpSize, Offset) -> Unit)?
 ) {
     DimensionSubcomposeLayout(
@@ -346,7 +447,7 @@ private fun Layout(
                     this.shape = shapeAfter
                 }
 
-            BeforeAfterLayoutImpl(
+            LayoutImpl(
                 modifier = parentModifier,
                 beforeModifier = beforeModifier,
                 afterModifier = afterModifier,
@@ -356,6 +457,7 @@ private fun Layout(
                 beforeLabel = beforeLabel,
                 afterLabel = afterLabel,
                 overlay = overlay,
+                contentOrder = contentOrder,
                 boxWidthInDp = boxWidthInDp,
                 boxHeightInDp = boxHeightInDp,
                 rawOffset = rawOffset
@@ -365,16 +467,17 @@ private fun Layout(
 }
 
 @Composable
-private fun BeforeAfterLayoutImpl(
+private fun LayoutImpl(
     modifier: Modifier,
     beforeModifier: Modifier,
     afterModifier: Modifier,
     graphicsModifier: Modifier,
     beforeContent: @Composable () -> Unit,
     afterContent: @Composable () -> Unit,
-    beforeLabel: @Composable BoxScope.() -> Unit,
-    afterLabel: @Composable BoxScope.() -> Unit,
+    beforeLabel: @Composable (BoxScope.() -> Unit)? = null,
+    afterLabel: @Composable (BoxScope.() -> Unit)? = null,
     overlay: @Composable ((DpSize, Offset) -> Unit)? = null,
+    contentOrder: ContentOrder,
     boxWidthInDp: Dp,
     boxHeightInDp: Dp,
     rawOffset: Offset,
@@ -382,23 +485,35 @@ private fun BeforeAfterLayoutImpl(
     Box(modifier = modifier) {
 
         // BEFORE
-        Box(modifier = beforeModifier) {
-            Box(
-                modifier = Modifier.then(graphicsModifier)
-            ) {
-                beforeContent()
+        val before = @Composable {
+            Box(if (contentOrder == ContentOrder.BeforeAfter) beforeModifier else afterModifier) {
+                Box(
+                    modifier = Modifier.then(graphicsModifier)
+                ) {
+                    beforeContent()
+                }
+                beforeLabel?.invoke(this)
             }
-            beforeLabel()
         }
 
         // AFTER
-        Box(afterModifier) {
-            Box(
-                modifier = Modifier.then(graphicsModifier)
-            ) {
-                afterContent()
+        val after = @Composable {
+            Box(if (contentOrder == ContentOrder.BeforeAfter) afterModifier else beforeModifier) {
+                Box(
+                    modifier = Modifier.then(graphicsModifier)
+                ) {
+                    afterContent()
+                }
+                afterLabel?.invoke(this)
             }
-            afterLabel()
+        }
+
+        if (contentOrder == ContentOrder.BeforeAfter) {
+            before()
+            after()
+        } else {
+            after()
+            before()
         }
     }
 

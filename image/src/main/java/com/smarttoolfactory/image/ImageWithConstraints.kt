@@ -21,6 +21,8 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
+import com.smarttoolfactory.image.util.getParentSize
+import com.smarttoolfactory.image.util.getScaledBitmapRect
 
 
 /**

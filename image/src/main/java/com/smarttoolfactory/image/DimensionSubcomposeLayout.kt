@@ -8,7 +8,6 @@ import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.layout.SubcomposeMeasureScope
 import androidx.compose.ui.unit.Constraints
-import com.smarttoolfactory.image.transform.SlotsEnum
 
 /**
  * SubcomposeLayout that [SubcomposeMeasureScope.subcompose]s [mainContent]

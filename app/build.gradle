@@ -79,6 +79,9 @@ dependencies {
     // Coil
     implementation("io.coil-kt:coil-compose:2.1.0")
 
+    // ExoPlayer
+    implementation 'com.google.android.exoplayer:exoplayer:2.18.0'
+
     def accompanist_version = "0.24.12-rc"
     // Accompanist
     implementation "com.google.accompanist:accompanist-systemuicontroller:$accompanist_version"

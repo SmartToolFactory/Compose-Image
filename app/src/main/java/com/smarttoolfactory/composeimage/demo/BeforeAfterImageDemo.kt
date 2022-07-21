@@ -8,9 +8,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
@@ -22,10 +20,10 @@ import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.smarttoolfactory.composeimage.ContentScaleSelectionMenu
 import com.smarttoolfactory.composeimage.R
 import com.smarttoolfactory.image.beforeafter.BeforeAfterImage
 import com.smarttoolfactory.image.beforeafter.ContentOrder
-import com.smarttoolfactory.image.beforeafter.Label
 import kotlin.math.roundToInt
 
 @Composable
@@ -45,19 +43,19 @@ fun BeforeAfterImageDemo() {
         )
 
         val imageBefore2 = ImageBitmap.imageResource(
-            LocalContext.current.resources, R.drawable.image_before_after_elements_a
-        )
-
-        val imageAfter2 = ImageBitmap.imageResource(
-            LocalContext.current.resources, R.drawable.image_before_after_elements_b
-        )
-
-        val imageBefore3 = ImageBitmap.imageResource(
             LocalContext.current.resources, R.drawable.landscape5_before
         )
 
-        val imageAfter3 = ImageBitmap.imageResource(
+        val imageAfter2 = ImageBitmap.imageResource(
             LocalContext.current.resources, R.drawable.landscape5
+        )
+
+        val imageBefore3 = ImageBitmap.imageResource(
+            LocalContext.current.resources, R.drawable.image_before_after_elements_a
+        )
+
+        val imageAfter3 = ImageBitmap.imageResource(
+            LocalContext.current.resources, R.drawable.image_before_after_elements_b
         )
 
         Text(
@@ -68,6 +66,12 @@ fun BeforeAfterImageDemo() {
             modifier = Modifier.padding(8.dp)
         )
 
+        var contentScale by remember { mutableStateOf(ContentScale.FillBounds) }
+        ContentScaleSelectionMenu(contentScale = contentScale) {
+            contentScale = it
+        }
+
+
         Text(
             text = "Order",
             fontSize = 16.sp,
@@ -76,54 +80,28 @@ fun BeforeAfterImageDemo() {
             modifier = Modifier.padding(8.dp)
         )
 
-        Box {
-            BeforeAfterImage(
-                modifier = Modifier
-                    .shadow(1.dp, RoundedCornerShape(10.dp))
-                    .fillMaxWidth()
-                    .aspectRatio(4 / 3f),
-                beforeImage = imageBefore,
-                afterImage = imageAfter,
-                contentScale = ContentScale.FillBounds
-            )
-            Label(
-                text = "BEFORE",
-                modifier = Modifier
-                    .padding(8.dp)
-                    .align(Alignment.TopStart)
-            )
-            Label(
-                text = "AFTER", modifier = Modifier
-                    .padding(8.dp)
-                    .align(Alignment.TopEnd)
-            )
-        }
+        BeforeAfterImage(
+            modifier = Modifier
+                .shadow(1.dp, RoundedCornerShape(10.dp))
+                .fillMaxWidth()
+                .aspectRatio(4 / 3f),
+            beforeImage = imageBefore,
+            afterImage = imageAfter,
+            contentScale = contentScale
+        )
 
         Spacer(modifier = Modifier.height(40.dp))
 
-        Box {
-            BeforeAfterImage(
-                modifier = Modifier
-                    .shadow(1.dp, RoundedCornerShape(10.dp))
-                    .fillMaxWidth()
-                    .aspectRatio(4 / 3f),
-                beforeImage = imageBefore,
-                afterImage = imageAfter,
-                contentOrder = ContentOrder.AfterBefore,
-                contentScale = ContentScale.FillBounds
-            )
-            Label(
-                text = "AFTER",
-                modifier = Modifier
-                    .padding(8.dp)
-                    .align(Alignment.TopStart)
-            )
-            Label(
-                text = "BEFORE", modifier = Modifier
-                    .padding(8.dp)
-                    .align(Alignment.TopEnd)
-            )
-        }
+        BeforeAfterImage(
+            modifier = Modifier
+                .shadow(1.dp, RoundedCornerShape(10.dp))
+                .fillMaxWidth()
+                .aspectRatio(4 / 3f),
+            beforeImage = imageBefore,
+            afterImage = imageAfter,
+            contentOrder = ContentOrder.AfterBefore,
+            contentScale = contentScale
+        )
 
         Spacer(modifier = Modifier.height(40.dp))
         Text(
@@ -134,29 +112,16 @@ fun BeforeAfterImageDemo() {
             modifier = Modifier.padding(8.dp)
         )
 
-        Box {
-            BeforeAfterImage(
-                modifier = Modifier
-                    .shadow(1.dp, RoundedCornerShape(10.dp))
-                    .fillMaxWidth()
-                    .aspectRatio(4 / 3f),
-                beforeImage = imageBefore3,
-                afterImage = imageAfter3,
-                contentOrder = ContentOrder.AfterBefore,
-                contentScale = ContentScale.FillBounds
-            )
-            Label(
-                text = "AFTER",
-                modifier = Modifier
-                    .padding(8.dp)
-                    .align(Alignment.TopStart)
-            )
-            Label(
-                text = "BEFORE", modifier = Modifier
-                    .padding(8.dp)
-                    .align(Alignment.TopEnd)
-            )
-        }
+        BeforeAfterImage(
+            modifier = Modifier
+                .shadow(1.dp, RoundedCornerShape(10.dp))
+                .fillMaxWidth()
+                .aspectRatio(4 / 3f),
+            beforeImage = imageBefore2,
+            afterImage = imageAfter2,
+            contentOrder = ContentOrder.AfterBefore,
+            contentScale = contentScale
+        )
 
 
         Spacer(modifier = Modifier.height(40.dp))
@@ -189,11 +154,13 @@ fun BeforeAfterImageDemo() {
                 .border(3.dp, Color(0xffE91E63), RoundedCornerShape(10.dp))
                 .fillMaxWidth()
                 .aspectRatio(4 / 3f),
-            beforeImage = imageBefore2,
-            afterImage = imageAfter2,
+            beforeImage = imageBefore3,
+            afterImage = imageAfter3,
             progress = progress,
             onProgressChange = {},
-            contentScale = ContentScale.FillBounds
+            contentScale = contentScale,
+            beforeLabel = {},
+            afterLabel = {},
         ) {
             Text(
                 "${(progress).roundToInt()}%",

@@ -86,16 +86,10 @@ fun Modifier.zoom(
 
                     zoomLevel = newZoomLevel
 
-                    coroutineScope.launch {
-                        zoomState.animatePanTo(Offset.Zero)
-                    }
-
-                    coroutineScope.launch {
-                        zoomState.animateZoomTo(newZoom)
-                    }
-
-                    coroutineScope.launch {
-                        zoomState.animateRotationTo(zoomState.rotationInitial)
+                    coroutineScope.run {
+                        launch { zoomState.animatePanTo(Offset.Zero) }
+                        launch { zoomState.animateZoomTo(newZoom) }
+                        launch { zoomState.animateRotationTo(zoomState.rotationInitial) }
                     }
                 }
             )
@@ -199,16 +193,10 @@ fun Modifier.zoom(
 
                     zoomLevel = newZoomLevel
 
-                    coroutineScope.launch {
-                        zoomState.animatePanTo(Offset.Zero)
-                    }
-
-                    coroutineScope.launch {
-                        zoomState.animateZoomTo(newZoom)
-                    }
-
-                    coroutineScope.launch {
-                        zoomState.animateRotationTo(zoomState.rotationInitial)
+                    coroutineScope.run {
+                        launch { zoomState.animatePanTo(Offset.Zero) }
+                        launch { zoomState.animateZoomTo(newZoom) }
+                        launch { zoomState.animateRotationTo(zoomState.rotationInitial) }
                     }
                 }
             )
@@ -312,16 +300,10 @@ fun Modifier.zoom(
 
                     zoomLevel = newZoomLevel
 
-                    coroutineScope.launch {
-                        zoomState.animatePanTo(Offset.Zero)
-                    }
-
-                    coroutineScope.launch {
-                        zoomState.animateZoomTo(newZoom)
-                    }
-
-                    coroutineScope.launch {
-                        zoomState.animateRotationTo(zoomState.rotationInitial)
+                    coroutineScope.run {
+                        launch { zoomState.animatePanTo(Offset.Zero) }
+                        launch { zoomState.animateZoomTo(newZoom) }
+                        launch { zoomState.animateRotationTo(zoomState.rotationInitial) }
                     }
                 }
             )

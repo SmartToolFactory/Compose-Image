@@ -160,8 +160,8 @@ open class ZoomState internal constructor(
     initialRotation: Float = 0f,
     minZoom: Float = 1f,
     maxZoom: Float = 5f,
-    private val zoomEnabled: Boolean = true,
-    private val panEnabled: Boolean = true,
+    internal val zoomEnabled: Boolean = true,
+    internal val panEnabled: Boolean = true,
     internal val rotationEnabled: Boolean = true,
     internal val limitPan: Boolean = false
 ) {

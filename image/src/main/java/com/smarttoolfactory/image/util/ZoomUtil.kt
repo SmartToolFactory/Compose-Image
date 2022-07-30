@@ -54,4 +54,3 @@ internal fun GraphicsLayerScope.update(zoomState: ZoomState) {
     // Set rotation
     this.rotationZ = zoomState.rotation
 }
-

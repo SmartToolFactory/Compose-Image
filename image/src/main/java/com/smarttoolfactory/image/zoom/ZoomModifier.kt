@@ -5,7 +5,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.draw.clipToBounds
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import com.smarttoolfactory.gesture.detectTransformGestures
@@ -86,10 +85,11 @@ fun Modifier.zoom(
 
                     zoomLevel = newZoomLevel
 
-                    coroutineScope.run {
-                        launch { zoomState.animatePanTo(Offset.Zero) }
-                        launch { zoomState.animateZoomTo(newZoom) }
-                        launch { zoomState.animateRotationTo(zoomState.rotationInitial) }
+                    coroutineScope.launch {
+                        zoomState.onDoubleTap(
+                            zoom = newZoom,
+                            rotation = zoomState.rotationInitial
+                        )
                     }
                 }
             )
@@ -193,10 +193,11 @@ fun Modifier.zoom(
 
                     zoomLevel = newZoomLevel
 
-                    coroutineScope.run {
-                        launch { zoomState.animatePanTo(Offset.Zero) }
-                        launch { zoomState.animateZoomTo(newZoom) }
-                        launch { zoomState.animateRotationTo(zoomState.rotationInitial) }
+                    coroutineScope.launch {
+                        zoomState.onDoubleTap(
+                            zoom = newZoom,
+                            rotation = zoomState.rotationInitial
+                        )
                     }
                 }
             )
@@ -300,10 +301,11 @@ fun Modifier.zoom(
 
                     zoomLevel = newZoomLevel
 
-                    coroutineScope.run {
-                        launch { zoomState.animatePanTo(Offset.Zero) }
-                        launch { zoomState.animateZoomTo(newZoom) }
-                        launch { zoomState.animateRotationTo(zoomState.rotationInitial) }
+                    coroutineScope.launch {
+                        zoomState.onDoubleTap(
+                            zoom = newZoom,
+                            rotation = zoomState.rotationInitial
+                        )
                     }
                 }
             )
@@ -368,8 +370,8 @@ fun Modifier.zoom(
  * enabling rotation, pan or zoom and contains current [ZoomData]
  */
 fun Modifier.zoom(
-    key1: Any? ,
-    key2: Any? ,
+    key1: Any?,
+    key2: Any?,
     zoomState: ZoomState,
     clip: Boolean = true,
 ) = zoom(

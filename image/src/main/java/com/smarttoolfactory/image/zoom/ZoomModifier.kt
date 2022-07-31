@@ -86,7 +86,7 @@ fun Modifier.zoom(
                     zoomLevel = newZoomLevel
 
                     coroutineScope.launch {
-                        zoomState.onDoubleTap(
+                        zoomState.resetWithAnimation(
                             zoom = newZoom,
                             rotation = zoomState.rotationInitial
                         )
@@ -194,7 +194,7 @@ fun Modifier.zoom(
                     zoomLevel = newZoomLevel
 
                     coroutineScope.launch {
-                        zoomState.onDoubleTap(
+                        zoomState.resetWithAnimation(
                             zoom = newZoom,
                             rotation = zoomState.rotationInitial
                         )
@@ -302,7 +302,7 @@ fun Modifier.zoom(
                     zoomLevel = newZoomLevel
 
                     coroutineScope.launch {
-                        zoomState.onDoubleTap(
+                        zoomState.resetWithAnimation(
                             zoom = newZoom,
                             rotation = zoomState.rotationInitial
                         )

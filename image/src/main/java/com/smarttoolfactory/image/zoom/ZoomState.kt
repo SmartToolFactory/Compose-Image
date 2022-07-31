@@ -237,7 +237,7 @@ open class ZoomState internal constructor(
         }
     }
 
-    internal open suspend fun onDoubleTap(
+    internal open suspend fun resetWithAnimation(
         pan: Offset = Offset.Zero,
         zoom: Float = 1f,
         rotation: Float = 0f

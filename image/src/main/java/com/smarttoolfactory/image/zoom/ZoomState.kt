@@ -196,7 +196,7 @@ open class ZoomState internal constructor(
             rotation = animatableRotation.value
         )
 
-    open fun boundPan(lowerBound: Offset?, upperBound: Offset?) {
+    open fun updateBounds(lowerBound: Offset?, upperBound: Offset?) {
         animatablePan.updateBounds(lowerBound, upperBound)
     }
 
@@ -247,37 +247,37 @@ open class ZoomState internal constructor(
         launch { animateRotationTo(rotation) }
     }
 
-    internal suspend fun animatePanTo(pan: Offset) = coroutineScope {
+    internal suspend fun animatePanTo(pan: Offset)  {
         if (panEnabled) {
             animatablePan.animateTo(pan)
         }
     }
 
-    internal suspend fun animateZoomTo(zoom: Float) = coroutineScope {
+    internal suspend fun animateZoomTo(zoom: Float)  {
         if (zoomEnabled) {
             animatableZoom.animateTo(zoom)
         }
     }
 
-    internal suspend fun animateRotationTo(rotation: Float) = coroutineScope {
+    internal suspend fun animateRotationTo(rotation: Float)  {
         if (rotationEnabled) {
             animatableRotation.animateTo(rotation)
         }
     }
 
-    internal suspend fun snapPanTo(offset: Offset) = coroutineScope {
+    internal suspend fun snapPanTo(offset: Offset)  {
         if (panEnabled) {
             animatablePan.snapTo(offset)
         }
     }
 
-    internal suspend fun snapZoomTo(zoom: Float) = coroutineScope {
+    internal suspend fun snapZoomTo(zoom: Float)  {
         if (zoomEnabled) {
             animatableZoom.snapTo(zoom)
         }
     }
 
-    internal suspend fun snapRotationTo(rotation: Float) = coroutineScope {
+    internal suspend fun snapRotationTo(rotation: Float)  {
         if (rotationEnabled) {
             animatableRotation.snapTo(rotation)
         }

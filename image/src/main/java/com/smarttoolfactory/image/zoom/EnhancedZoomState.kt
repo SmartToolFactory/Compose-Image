@@ -34,7 +34,7 @@ import kotlinx.coroutines.launch
  */
 @Composable
 fun rememberEnhancedZoomState(
-    size: Size,
+    size: IntSize,
     initialZoom: Float = 1f,
     initialRotation: Float = 0f,
     minZoom: Float = 1f,
@@ -80,7 +80,7 @@ fun rememberEnhancedZoomState(
  */
 @Composable
 fun rememberEnhancedZoomState(
-    size: Size,
+    size: IntSize,
     initialZoom: Float = 1f,
     initialRotation: Float = 0f,
     minZoom: Float = 1f,
@@ -126,7 +126,7 @@ fun rememberEnhancedZoomState(
  */
 @Composable
 fun rememberEnhancedZoomState(
-    size: Size,
+    size: IntSize,
     initialZoom: Float = 1f,
     initialRotation: Float = 0f,
     minZoom: Float = 1f,
@@ -164,7 +164,7 @@ fun rememberEnhancedZoomState(
  * @param rotationEnabled when set to true rotation is enabled
  */
 open class EnhancedZoomState constructor(
-    var size: Size,
+    var size: IntSize,
     initialZoom: Float = 1f,
     initialRotation: Float = 0f,
     minZoom: Float = .5f,
@@ -181,7 +181,8 @@ open class EnhancedZoomState constructor(
     val isPanning = animatablePan.isRunning
     val isRotating = animatableRotation.isRunning
 
-    var rectDraw = Rect(offset = Offset.Zero, size = size)
+    var rectDraw =
+        Rect(offset = Offset.Zero, size = Size(size.width.toFloat(), size.height.toFloat()))
     var rectImage = rectDraw.copy()
     var rectCrop = rectDraw
 
@@ -196,6 +197,9 @@ open class EnhancedZoomState constructor(
             cropRect = rectCrop
         )
 
+    private fun getBounds(): Offset {
+        return getBounds(size)
+    }
 
     // Touch gestures
     internal open suspend fun onDown(change: PointerInputChange) = coroutineScope {
@@ -211,20 +215,56 @@ open class EnhancedZoomState constructor(
     }
 
     // Transform Gestures
-    internal open suspend fun onGestureStart() = coroutineScope {
+    internal open suspend fun onGestureStart(change: PointerInputChange) = coroutineScope {
 
     }
 
-    internal open suspend fun onGesture() = coroutineScope {
+    internal open suspend fun onGesture(
+        centroid: Offset,
+        pan: Offset,
+        zoom: Float,
+        rotation: Float,
+        mainPointer: PointerInputChange,
+        changes: List<PointerInputChange>
+    ) = coroutineScope {
 
+        updateZoomState(
+            size = size,
+            gestureZoom = zoom,
+            gesturePan = pan,
+            gestureRotate = rotation
+        )
+
+        // Fling Gesture
+        if (changes.size == 1) {
+            addPosition(
+                mainPointer.uptimeMillis,
+                mainPointer.position
+            )
+        }
     }
 
     internal suspend fun onGestureEnd() {
-        val velocity = velocityTracker.calculateVelocity()
-        fling(Offset(velocity.x, velocity.y))
+        fling()
+        resetToValidBounds()
     }
 
-    internal fun addPosition(timeMillis: Long, position: Offset) {
+    private suspend fun resetToValidBounds() = coroutineScope {
+
+        val zoom = zoom.coerceAtLeast(1f)
+        val bounds = getBounds()
+
+        val pan = Offset(
+            pan.x.coerceIn(-bounds.x, bounds.x),
+            pan.y.coerceIn(-bounds.y, bounds.y)
+        )
+
+        resetWithAnimation(pan = pan,zoom = zoom)
+    }
+
+
+    // Fling gesture
+    private fun addPosition(timeMillis: Long, position: Offset) {
         velocityTracker.addPosition(
             timeMillis = timeMillis,
             position = position
@@ -232,12 +272,24 @@ open class EnhancedZoomState constructor(
     }
 
 
-    private suspend fun fling(velocity: Offset) = coroutineScope {
+    private suspend fun fling() = coroutineScope {
+        val velocityTracker = velocityTracker.calculateVelocity()
+        val velocity = Offset(velocityTracker.x, velocityTracker.y)
+
         launch {
             val animationResult = animatablePan.animateDecay(
                 velocity,
-                exponentialDecay()
+                exponentialDecay(),
+                block = {
+//                    val pan = this.value
+//                    val bounds  = getBounds()
+//                    if(pan.x < bounds.x || pan.y < bounds.y){
+//                        throw CancellationException()
+//                    }
+
+                }
             )
+
 
 //            if (!animationResult.endState.isRunning) {
 //                resetTracking()
@@ -246,7 +298,7 @@ open class EnhancedZoomState constructor(
     }
 
 
-    internal fun resetTracking() {
+    private fun resetTracking() {
         velocityTracker.resetTracking()
     }
 

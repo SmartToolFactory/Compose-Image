@@ -42,57 +42,24 @@ fun Modifier.enhancedZoom(
                     onDown(enhancedZoomState.enhancedZoomData)
                 },
                 onGestureEnd = {
-
-                    // Reset to bounds gesture
-                    val zoom = enhancedZoomState.zoom.coerceAtLeast(1f)
-                    val pan = enhancedZoomState.pan
-
-                    val bounds = enhancedZoomState.getBounds(size)
-
-//                    val newOffset = Offset(
-//                        pan.x.coerceIn(-bounds.x, bounds.x),
-//                        pan.y.coerceIn(-bounds.y, bounds.y)
-//                    )
-//
-//                    coroutineScope.run {
-//                        enhancedZoomState.resetTracking()
-//                        launch { enhancedZoomState.animateZoomTo(zoom) }
-//                        launch { enhancedZoomState.animatePanTo(newOffset) }
-//                    }
-
-                    // Fling Gesture
                     coroutineScope.launch {
                         enhancedZoomState.onGestureEnd()
                     }
 
                     onUp(enhancedZoomState.enhancedZoomData)
                 },
-                onGesture = { _, gesturePan, gestureZoom, gestureRotate, mainPointer, pointerList ->
+                onGesture = { centroid, pan, zoom, rotate, mainPointer, pointerList ->
 
                     coroutineScope.launch {
 
-                        enhancedZoomState.updateZoomState(
-                            size = size,
-                            gestureZoom = gestureZoom,
-                            gesturePan = gesturePan,
-                            gestureRotate = gestureRotate
+                        enhancedZoomState.onGesture(
+                            centroid,
+                            pan,
+                            zoom,
+                            rotate,
+                            mainPointer,
+                            pointerList
                         )
-
-                        // Fling Gesture
-                        if (pointerList.size == 1) {
-
-//                            val bounds = enhancedZoomState.getBounds(size)
-//
-//                            enhancedZoomState.boundPan(
-//                                lowerBound = Offset(-bounds.x, -bounds.y),
-//                                upperBound = Offset(bounds.x, bounds.y)
-//                            )
-
-                            enhancedZoomState.addPosition(
-                                mainPointer.uptimeMillis,
-                                mainPointer.position
-                            )
-                        }
 
                         onMove(enhancedZoomState.enhancedZoomData)
                     }
@@ -104,7 +71,7 @@ fun Modifier.enhancedZoom(
             detectTapGestures(
                 onDoubleTap = {
                     coroutineScope.launch {
-                        enhancedZoomState.onDoubleTap()
+                        enhancedZoomState.resetWithAnimation()
                     }
                 }
             )

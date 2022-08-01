@@ -1,8 +1,7 @@
 package com.smarttoolfactory.image.zoom
 
 import androidx.compose.animation.core.exponentialDecay
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
@@ -11,7 +10,6 @@ import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.ui.input.pointer.util.VelocityTracker
 import androidx.compose.ui.unit.IntSize
 import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.launch
 
 
 /**
@@ -181,10 +179,11 @@ open class EnhancedZoomState constructor(
     val isPanning = animatablePan.isRunning
     val isRotating = animatableRotation.isRunning
 
+    val isAnimationRunning = isZooming || isPanning || isRotating
+
     var rectDraw =
         Rect(offset = Offset.Zero, size = Size(size.width.toFloat(), size.height.toFloat()))
-    var rectImage = rectDraw.copy()
-    var rectCrop = rectDraw
+    var rectCrop by mutableStateOf(rectDraw.copy())
 
     private val velocityTracker = VelocityTracker()
 
@@ -202,22 +201,14 @@ open class EnhancedZoomState constructor(
     }
 
     // Touch gestures
-    internal open suspend fun onDown(change: PointerInputChange) = coroutineScope {
+    open suspend fun onDown(change: PointerInputChange) {}
 
-    }
+    open suspend fun onMove(change: PointerInputChange) {}
 
-    internal open suspend fun onMove(change: PointerInputChange) = coroutineScope {
-
-    }
-
-    internal open suspend fun onUp(change: PointerInputChange) = coroutineScope {
-
-    }
+    open suspend fun onUp(change: PointerInputChange) {}
 
     // Transform Gestures
-    internal open suspend fun onGestureStart(change: PointerInputChange) = coroutineScope {
-
-    }
+    internal open suspend fun onGestureStart(change: PointerInputChange) {}
 
     internal open suspend fun onGesture(
         centroid: Offset,
@@ -244,13 +235,25 @@ open class EnhancedZoomState constructor(
         }
     }
 
-    internal suspend fun onGestureEnd() {
-        fling()
+    internal suspend fun onGestureEnd(onAnimationEnd: () -> Unit) {
+        if (zoom > 1) {
+            fling()
+        }
         resetToValidBounds()
+        onAnimationEnd()
     }
 
-    private suspend fun resetToValidBounds() = coroutineScope {
+    // Double Tap
+    internal suspend fun onDoubleTap(onAnimationEnd: () -> Unit) {
+        resetTracking()
+        resetWithAnimation()
+        onAnimationEnd()
+    }
 
+    /**
+     * Resets to bounds with animation and resets tracking for fling animation
+     */
+    private suspend fun resetToValidBounds() {
         val zoom = zoom.coerceAtLeast(1f)
         val bounds = getBounds()
 
@@ -259,7 +262,8 @@ open class EnhancedZoomState constructor(
             pan.y.coerceIn(-bounds.y, bounds.y)
         )
 
-        resetWithAnimation(pan = pan,zoom = zoom)
+        resetWithAnimation(pan = pan, zoom = zoom)
+        resetTracking()
     }
 
 
@@ -271,32 +275,17 @@ open class EnhancedZoomState constructor(
         )
     }
 
-
-    private suspend fun fling() = coroutineScope {
+    private suspend fun fling() {
         val velocityTracker = velocityTracker.calculateVelocity()
         val velocity = Offset(velocityTracker.x, velocityTracker.y)
 
-        launch {
-            val animationResult = animatablePan.animateDecay(
-                velocity,
-                exponentialDecay(),
-                block = {
-//                    val pan = this.value
-//                    val bounds  = getBounds()
-//                    if(pan.x < bounds.x || pan.y < bounds.y){
-//                        throw CancellationException()
-//                    }
-
-                }
+        animatablePan.animateDecay(
+            velocity,
+            exponentialDecay(
+                absVelocityThreshold = 20f
             )
-
-
-//            if (!animationResult.endState.isRunning) {
-//                resetTracking()
-//            }
-        }
+        )
     }
-
 
     private fun resetTracking() {
         velocityTracker.resetTracking()
@@ -315,11 +304,9 @@ open class EnhancedZoomState constructor(
             0f
         }
 
-
         if (panEnabled) {
             val newOffset = pan + gesturePan.times(zoom)
             snapPanTo(newOffset)
-            rectImage.translate(newOffset)
         }
 
         if (zoomEnabled) {
@@ -329,5 +316,59 @@ open class EnhancedZoomState constructor(
         if (rotationEnabled) {
             snapRotationTo(rotation)
         }
+
+        val width = size.width
+        val height = size.height
+        val offsetX = (width * (zoom - 1) / 2f).coerceAtLeast(0f) - pan.x
+        val offsetY = (height * (zoom - 1) / 2f).coerceAtLeast(0f) - pan.y
+
+        rectCrop = getCropRect(
+            bitmapWidth = 1024,
+            bitmapHeight = 768,
+            imageWidth = width.toFloat(),
+            imageHeight = height.toFloat(),
+            pan = Offset(
+                x = offsetX / zoom,
+                y = offsetY / zoom,
+            ),
+            zoom = zoom,
+            rectBounds = rectDraw
+        )
+        println(
+            "🔥 EnhancedZoomState updateZoomState()\n" +
+                    "offsetX: $offsetX, offsetY: $offsetY" +
+                    "size: $size, pan: $pan, zoom: $zoom\n" +
+                    "rectCrop: $rectCrop"
+        )
     }
+}
+
+/**
+ * Get rectangle of current transformation of [pan], [zoom] and current bounds of the Composable's
+ * selected area as [rectBounds]
+ */
+fun getCropRect(
+    bitmapWidth: Int,
+    bitmapHeight: Int,
+    imageWidth: Float,
+    imageHeight: Float,
+    pan: Offset,
+    zoom: Float,
+    rectBounds: Rect
+): Rect {
+    val widthRatio = bitmapWidth / imageWidth
+    val heightRatio = bitmapHeight / imageHeight
+
+    val width = (widthRatio * rectBounds.width / zoom).coerceIn(0f, bitmapWidth.toFloat())
+    val height = (heightRatio * rectBounds.height / zoom).coerceIn(0f, bitmapHeight.toFloat())
+
+    val offsetXInBitmap = (widthRatio * (pan.x + rectBounds.left / zoom))
+        .coerceIn(0f, bitmapWidth - width)
+    val offsetYInBitmap = heightRatio * (pan.y + rectBounds.top / zoom)
+        .coerceIn(0f, bitmapHeight - height)
+
+    return Rect(
+        offset = Offset(offsetXInBitmap, offsetYInBitmap),
+        size = Size(width, height)
+    )
 }

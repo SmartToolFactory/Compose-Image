@@ -191,9 +191,9 @@ open class ZoomState internal constructor(
 
     val zoomData: ZoomData
         get() = ZoomData(
-            zoom = animatableZoom.value,
-            pan = animatablePan.value,
-            rotation = animatableRotation.value
+            zoom = zoom,
+            pan = pan,
+            rotation = rotation
         )
 
     open fun updateBounds(lowerBound: Offset?, upperBound: Offset?) {
@@ -247,37 +247,37 @@ open class ZoomState internal constructor(
         launch { animateRotationTo(rotation) }
     }
 
-    internal suspend fun animatePanTo(pan: Offset)  {
+    internal suspend fun animatePanTo(pan: Offset) {
         if (panEnabled) {
             animatablePan.animateTo(pan)
         }
     }
 
-    internal suspend fun animateZoomTo(zoom: Float)  {
+    internal suspend fun animateZoomTo(zoom: Float) {
         if (zoomEnabled) {
             animatableZoom.animateTo(zoom)
         }
     }
 
-    internal suspend fun animateRotationTo(rotation: Float)  {
+    internal suspend fun animateRotationTo(rotation: Float) {
         if (rotationEnabled) {
             animatableRotation.animateTo(rotation)
         }
     }
 
-    internal suspend fun snapPanTo(offset: Offset)  {
+    internal suspend fun snapPanTo(offset: Offset) {
         if (panEnabled) {
             animatablePan.snapTo(offset)
         }
     }
 
-    internal suspend fun snapZoomTo(zoom: Float)  {
+    internal suspend fun snapZoomTo(zoom: Float) {
         if (zoomEnabled) {
             animatableZoom.snapTo(zoom)
         }
     }
 
-    internal suspend fun snapRotationTo(rotation: Float)  {
+    internal suspend fun snapRotationTo(rotation: Float) {
         if (rotationEnabled) {
             animatableRotation.snapTo(rotation)
         }

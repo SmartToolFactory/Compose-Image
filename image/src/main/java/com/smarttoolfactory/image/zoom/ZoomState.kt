@@ -189,6 +189,17 @@ open class ZoomState internal constructor(
     val rotation: Float
         get() = animatableRotation.value
 
+    val isZooming: Boolean
+        get() = animatableZoom.isRunning
+
+    val isPanning: Boolean
+        get() = animatablePan.isRunning
+
+    val isRotating: Boolean
+        get() = animatableRotation.isRunning
+
+    val isAnimationRunning = isZooming || isPanning || isRotating
+
     val zoomData: ZoomData
         get() = ZoomData(
             zoom = zoom,

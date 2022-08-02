@@ -11,30 +11,28 @@ import com.smarttoolfactory.image.util.update
 import kotlinx.coroutines.launch
 
 fun Modifier.enhancedZoom(
-    vararg keys: Any?,
-    touchRegionSize: Float,
-    minDimension: Float,
     enhancedZoomState: EnhancedZoomState,
-    onDown: (EnhancedZoomData) -> Unit,
-    onMove: (EnhancedZoomData) -> Unit,
-    onUp: (EnhancedZoomData) -> Unit,
+    key: Any? = Unit,
+    onDown: ((EnhancedZoomData) -> Unit)? = null,
+    onMove: ((EnhancedZoomData) -> Unit)? = null,
+    onUp: ((EnhancedZoomData) -> Unit)? = null,
 ) = composed(
 
     factory = {
 
         val coroutineScope = rememberCoroutineScope()
 
-        val transformModifier = Modifier.pointerInput(keys) {
+        val transformModifier = Modifier.pointerInput(key) {
 
             detectTransformGestures(
                 consume = true,
                 onGestureStart = {
-                    onDown(enhancedZoomState.enhancedZoomData)
+                    onDown?.invoke(enhancedZoomState.enhancedZoomData)
                 },
                 onGestureEnd = {
                     coroutineScope.launch {
                         enhancedZoomState.onGestureEnd {
-                            onUp(enhancedZoomState.enhancedZoomData)
+                            onUp?.invoke(enhancedZoomState.enhancedZoomData)
                         }
                     }
                 },
@@ -51,17 +49,17 @@ fun Modifier.enhancedZoom(
                         )
                     }
 
-                    onMove(enhancedZoomState.enhancedZoomData)
+                    onMove?.invoke(enhancedZoomState.enhancedZoomData)
                 }
             )
         }
 
-        val tapModifier = Modifier.pointerInput(keys) {
+        val tapModifier = Modifier.pointerInput(key) {
             detectTapGestures(
                 onDoubleTap = {
                     coroutineScope.launch {
                         enhancedZoomState.onDoubleTap {
-                            onUp(enhancedZoomState.enhancedZoomData)
+                            onUp?.invoke(enhancedZoomState.enhancedZoomData)
                         }
                     }
                 }
@@ -82,8 +80,6 @@ fun Modifier.enhancedZoom(
     inspectorInfo = {
         name = "enhancedZoom"
         // add name and value of each argument
-        properties["touchRegionRadius"] = touchRegionSize
-        properties["minDimension"] = minDimension
         properties["onDown"] = onDown
         properties["onMove"] = onMove
         properties["onUp"] = onUp

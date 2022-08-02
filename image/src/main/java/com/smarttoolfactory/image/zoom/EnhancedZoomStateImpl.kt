@@ -8,6 +8,7 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.ui.input.pointer.util.VelocityTracker
 import androidx.compose.ui.unit.IntSize
+import com.smarttoolfactory.image.util.coerceIn
 import com.smarttoolfactory.image.util.getCropRect
 import kotlinx.coroutines.coroutineScope
 
@@ -31,15 +32,22 @@ open class EnhancedZoomState constructor(
     maxZoom: Float = 5f,
     val flingGestureEnabled: Boolean = true,
     val moveToBoundsEnabled: Boolean = true,
-    override var zoomEnabled: Boolean = true,
-    override var panEnabled: Boolean = true,
-    override var rotationEnabled: Boolean = true,
-    override var limitPan: Boolean = false
+    zoomEnabled: Boolean = true,
+    panEnabled: Boolean = true,
+    rotationEnabled: Boolean = false,
+    limitPan: Boolean = false
 ) : ZoomState(
-    1f, 1f, minZoom, maxZoom, zoomEnabled
+    initialZoom = initialZoom,
+    initialRotation = 1f,
+    minZoom = minZoom,
+    maxZoom = maxZoom,
+    zoomEnabled = zoomEnabled,
+    panEnabled = panEnabled,
+    rotationEnabled = rotationEnabled,
+    limitPan = limitPan
 ) {
 
-    var rectDraw = Rect(
+    private val rectDraw = Rect(
         offset = Offset.Zero,
         size = Size(containerSize.width.toFloat(), containerSize.height.toFloat())
     )
@@ -59,14 +67,18 @@ open class EnhancedZoomState constructor(
         return getBounds(containerSize)
     }
 
-    // Touch gestures
+    /*
+        Touch Gesture Events
+     */
     open suspend fun onDown(change: PointerInputChange) {}
 
     open suspend fun onMove(change: PointerInputChange) {}
 
     open suspend fun onUp(change: PointerInputChange) {}
 
-    // Transform Gestures
+    /*
+        Transform Gesture Events
+     */
     internal open suspend fun onGestureStart(change: PointerInputChange) {}
 
     open suspend fun onGesture(
@@ -86,25 +98,28 @@ open class EnhancedZoomState constructor(
         )
 
         // Fling Gesture
-        if (changes.size == 1) {
-            addPosition(
-                mainPointer.uptimeMillis,
-                mainPointer.position
-            )
+        if (flingGestureEnabled) {
+            if (changes.size == 1) {
+                addPosition(mainPointer.uptimeMillis, mainPointer.position)
+            }
         }
     }
 
-    suspend fun onGestureEnd(onAnimationEnd: () -> Unit) {
-        if (zoom > 1) {
+    suspend fun onGestureEnd(onFinish: () -> Unit) {
+        if (flingGestureEnabled && zoom > 1) {
             fling()
         }
-        resetToValidBounds()
-        onAnimationEnd()
+        if (moveToBoundsEnabled) {
+            resetToValidBounds()
+        }
+        onFinish()
     }
 
     // Double Tap
     suspend fun onDoubleTap(onAnimationEnd: () -> Unit) {
-        resetTracking()
+        if (flingGestureEnabled) {
+            resetTracking()
+        }
         resetWithAnimation()
         onAnimationEnd()
     }
@@ -115,18 +130,15 @@ open class EnhancedZoomState constructor(
     private suspend fun resetToValidBounds() {
         val zoom = zoom.coerceAtLeast(1f)
         val bounds = getBounds()
-
-        val pan = Offset(
-            pan.x.coerceIn(-bounds.x, bounds.x),
-            pan.y.coerceIn(-bounds.y, bounds.y)
-        )
-
+        val pan = pan.coerceIn(-bounds.x..bounds.x, -bounds.y..bounds.y)
         resetWithAnimation(pan = pan, zoom = zoom)
         resetTracking()
     }
 
 
-    // Fling gesture
+    /*
+        Fling gesture
+     */
     private fun addPosition(timeMillis: Long, position: Offset) {
         velocityTracker.addPosition(
             timeMillis = timeMillis,
@@ -148,33 +160,6 @@ open class EnhancedZoomState constructor(
 
     private fun resetTracking() {
         velocityTracker.resetTracking()
-    }
-
-    override suspend fun updateZoomState(
-        size: IntSize,
-        gesturePan: Offset,
-        gestureZoom: Float,
-        gestureRotate: Float,
-    ) {
-        val zoom = (zoom * gestureZoom).coerceIn(zoomMin, zoomMax)
-        val rotation = if (rotationEnabled) {
-            rotation + gestureRotate
-        } else {
-            0f
-        }
-
-        if (panEnabled) {
-            val newOffset = pan + gesturePan.times(zoom)
-            snapPanTo(newOffset)
-        }
-
-        if (zoomEnabled) {
-            snapZoomTo(zoom)
-        }
-
-        if (rotationEnabled) {
-            snapRotationTo(rotation)
-        }
     }
 
     private fun calculateRectBounds(): Rect {
@@ -208,15 +193,6 @@ open class EnhancedZoomState constructor(
             zoom = zoom,
             rectSelection = rectDraw
         )
-
-        println(
-            "😃 EnhancedZoomState calculateRectBounds()\n" +
-                    "offsetX: $offsetX, offsetY: $offsetY\n" +
-                    "totalHeight: ${rect.bottom > imageSize.height}, offset: $offset\n" +
-                    "containerSize: $containerSize, pan: $pan, zoom: $zoom\n" +
-                    "rect: $rect, height: ${rect.height}"
-        )
-
         return rect
     }
 }

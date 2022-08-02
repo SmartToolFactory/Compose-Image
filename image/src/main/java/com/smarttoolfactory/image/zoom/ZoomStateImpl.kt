@@ -22,7 +22,7 @@ import kotlinx.coroutines.launch
  * @param rotationEnabled when set to true rotation is enabled
  */
 @Immutable
-open class ZoomState internal constructor(
+open class ZoomState(
     initialZoom: Float = 1f,
     initialRotation: Float = 0f,
     minZoom: Float = 1f,
@@ -64,7 +64,8 @@ open class ZoomState internal constructor(
     val isRotating: Boolean
         get() = animatableRotation.isRunning
 
-    val isAnimationRunning = isZooming || isPanning || isRotating
+    val isAnimationRunning: Boolean
+        get() = isZooming || isPanning || isRotating
 
     val zoomData: ZoomData
         get() = ZoomData(
@@ -73,42 +74,38 @@ open class ZoomState internal constructor(
             rotation = rotation
         )
 
-    open fun updateBounds(lowerBound: Offset?, upperBound: Offset?) {
+    internal open fun updateBounds(lowerBound: Offset?, upperBound: Offset?) {
         animatablePan.updateBounds(lowerBound, upperBound)
     }
 
-    internal fun getBounds(size: IntSize): Offset {
+    internal open fun getBounds(size: IntSize): Offset {
         val maxX = (size.width * (zoom - 1) / 2f).coerceAtLeast(0f)
         val maxY = (size.height * (zoom - 1) / 2f).coerceAtLeast(0f)
         return Offset(maxX, maxY)
     }
 
-    internal open suspend fun updateZoomState(
+     open suspend fun updateZoomState(
         size: IntSize,
         gesturePan: Offset,
         gestureZoom: Float,
         gestureRotate: Float = 1f,
     ) {
         val zoomChange = (zoom * gestureZoom).coerceIn(zoomMin, zoomMax)
+        snapZoomTo(zoomChange)
         val rotationChange = if (rotationEnabled) {
             rotation + gestureRotate
         } else {
             0f
         }
-
-        snapZoomTo(zoomChange)
         snapRotationTo(rotationChange)
 
         if (panEnabled) {
-            var panChange = pan + gesturePan.times(zoom)
+            val panChange = pan + gesturePan.times(zoom)
             val boundPan = limitPan && !rotationEnabled
 
             if (boundPan) {
                 val bound = getBounds(size)
-                panChange = Offset(
-                    panChange.x.coerceIn(-bound.x, bound.x),
-                    panChange.y.coerceIn(-bound.y, bound.y)
-                )
+                updateBounds(bound.times(-1f), bound)
             }
             snapPanTo(panChange)
         }

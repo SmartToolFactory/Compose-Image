@@ -166,13 +166,14 @@ internal fun BeforeAfterImageImpl(
 
         val transformModifier = Modifier.pointerInput(Unit) {
             detectTransformGestures(
-                onGesture = { _: Offset, panChange: Offset, zoomChange: Float, _, _, _ ->
+                onGesture = { centroid: Offset, panChange: Offset, zoomChange: Float, _, _, _ ->
 
                     coroutineScope.launch {
                         zoomState.updateZoomState(
                             size,
-                            gesturePan = panChange,
-                            gestureZoom = zoomChange
+                            centroid = centroid,
+                            panChange = panChange,
+                            zoomChange = zoomChange
                         )
                     }
                 }

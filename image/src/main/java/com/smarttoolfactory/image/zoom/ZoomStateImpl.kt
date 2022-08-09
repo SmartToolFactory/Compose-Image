@@ -84,30 +84,32 @@ open class ZoomState(
         return Offset(maxX, maxY)
     }
 
-     open suspend fun updateZoomState(
+    open suspend fun updateZoomState(
         size: IntSize,
-        gesturePan: Offset,
-        gestureZoom: Float,
-        gestureRotate: Float = 1f,
+        centroid: Offset,
+        panChange: Offset,
+        zoomChange: Float,
+        rotationChange: Float = 1f,
     ) {
-        val zoomChange = (zoom * gestureZoom).coerceIn(zoomMin, zoomMax)
-        snapZoomTo(zoomChange)
-        val rotationChange = if (rotationEnabled) {
-            rotation + gestureRotate
+        val newZoom = (this.zoom * zoomChange).coerceIn(zoomMin, zoomMax)
+
+        snapZoomTo(newZoom)
+        val newRotation = if (rotationEnabled) {
+            this.rotation + rotationChange
         } else {
             0f
         }
-        snapRotationTo(rotationChange)
+        snapRotationTo(newRotation)
 
         if (panEnabled) {
-            val panChange = pan + gesturePan.times(zoom)
+            val newPan = this.pan + panChange.times(this.zoom)
             val boundPan = limitPan && !rotationEnabled
 
             if (boundPan) {
                 val bound = getBounds(size)
                 updateBounds(bound.times(-1f), bound)
             }
-            snapPanTo(panChange)
+            snapPanTo(newPan)
         }
     }
 

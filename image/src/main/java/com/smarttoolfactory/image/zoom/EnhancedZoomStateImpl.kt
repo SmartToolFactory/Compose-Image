@@ -12,7 +12,6 @@ import com.smarttoolfactory.image.util.coerceIn
 import com.smarttoolfactory.image.util.getCropRect
 import kotlinx.coroutines.coroutineScope
 
-
 /**
  *  * State of the zoom. Allows the developer to change zoom, pan,  translate,
  *  or get current state by
@@ -26,6 +25,78 @@ import kotlinx.coroutines.coroutineScope
  */
 open class EnhancedZoomState constructor(
     val imageSize: IntSize,
+    containerSize: IntSize,
+    initialZoom: Float = 1f,
+    minZoom: Float = .5f,
+    maxZoom: Float = 5f,
+    flingGestureEnabled: Boolean = true,
+    moveToBoundsEnabled: Boolean = true,
+    zoomEnabled: Boolean = true,
+    panEnabled: Boolean = true,
+    rotationEnabled: Boolean = false,
+    limitPan: Boolean = false
+) : BaseEnhancedZoomState(
+    containerSize = containerSize,
+    initialZoom = initialZoom,
+    minZoom = minZoom,
+    maxZoom = maxZoom,
+    flingGestureEnabled = flingGestureEnabled,
+    moveToBoundsEnabled = moveToBoundsEnabled,
+    zoomEnabled = zoomEnabled,
+    panEnabled = panEnabled,
+    rotationEnabled = rotationEnabled,
+    limitPan = limitPan
+) {
+
+    private val rectDraw = Rect(
+        offset = Offset.Zero,
+        size = Size(containerSize.width.toFloat(), containerSize.height.toFloat())
+    )
+
+    val enhancedZoomData: EnhancedZoomData
+        get() = EnhancedZoomData(
+            zoom = animatableZoom.targetValue,
+            pan = animatablePan.targetValue,
+            rotation = animatableRotation.targetValue,
+            drawRect = rectDraw,
+            cropRect = calculateRectBounds()
+        )
+
+    private fun calculateRectBounds(): Rect {
+
+        val width = containerSize.width
+        val height = containerSize.height
+        val zoom = animatableZoom.targetValue
+        val pan = animatablePan.targetValue
+
+        // Offset for interpolating offset from (imageWidth/2,-imageWidth/2) interval
+        // to (0, imageWidth) interval when
+        // transform origin is TransformOrigin(0.5f,0.5f)
+        val horizontalCenterOffset = width * (zoom - 1) / 2f
+        val verticalCenterOffset = height * (zoom - 1) / 2f
+
+        val bounds = getBounds()
+
+        val offsetX = (horizontalCenterOffset - pan.x.coerceIn(-bounds.x, bounds.x))
+            .coerceAtLeast(0f) / zoom
+        val offsetY = (verticalCenterOffset - pan.y.coerceIn(-bounds.y, bounds.y))
+            .coerceAtLeast(0f) / zoom
+
+        val offset = Offset(offsetX, offsetY)
+
+        return getCropRect(
+            bitmapWidth = imageSize.width,
+            bitmapHeight = imageSize.height,
+            containerWidth = width.toFloat(),
+            containerHeight = height.toFloat(),
+            pan = offset,
+            zoom = zoom,
+            rectSelection = rectDraw
+        )
+    }
+}
+
+open class BaseEnhancedZoomState constructor(
     val containerSize: IntSize,
     initialZoom: Float = 1f,
     minZoom: Float = .5f,
@@ -46,24 +117,9 @@ open class EnhancedZoomState constructor(
     rotationEnabled = rotationEnabled,
     limitPan = limitPan
 ) {
-
-    private val rectDraw = Rect(
-        offset = Offset.Zero,
-        size = Size(containerSize.width.toFloat(), containerSize.height.toFloat())
-    )
-
     private val velocityTracker = VelocityTracker()
 
-    val enhancedZoomData: EnhancedZoomData
-        get() = EnhancedZoomData(
-            zoom = animatableZoom.targetValue,
-            pan = animatablePan.targetValue,
-            rotation = animatableRotation.targetValue,
-            drawRect = rectDraw,
-            cropRect = calculateRectBounds()
-        )
-
-    private fun getBounds(): Offset {
+    protected fun getBounds(): Offset {
         return getBounds(containerSize)
     }
 
@@ -74,7 +130,7 @@ open class EnhancedZoomState constructor(
 
     open suspend fun onMove(change: PointerInputChange) {}
 
-    open suspend fun onUp(change: PointerInputChange) {}
+    open suspend fun onUp(change: PointerInputChange, onFinish: () -> Unit) {}
 
     /*
         Transform Gesture Events
@@ -92,9 +148,10 @@ open class EnhancedZoomState constructor(
 
         updateZoomState(
             size = containerSize,
-            gestureZoom = zoom,
-            gesturePan = pan,
-            gestureRotate = rotation
+            centroid = centroid,
+            zoomChange = zoom,
+            panChange = pan,
+            rotationChange = rotation
         )
 
         // Fling Gesture
@@ -160,39 +217,5 @@ open class EnhancedZoomState constructor(
 
     private fun resetTracking() {
         velocityTracker.resetTracking()
-    }
-
-    private fun calculateRectBounds(): Rect {
-
-        val width = containerSize.width
-        val height = containerSize.height
-        val zoom = animatableZoom.targetValue
-        val pan = animatablePan.targetValue
-
-        // Offset for interpolating offset from (imageWidth/2,-imageWidth/2) interval
-        // to (0, imageWidth) interval when
-        // transform origin is TransformOrigin(0.5f,0.5f)
-        val horizontalCenterOffset = width * (zoom - 1) / 2f
-        val verticalCenterOffset = height * (zoom - 1) / 2f
-
-        val bounds = getBounds()
-
-        val offsetX = (horizontalCenterOffset - pan.x.coerceIn(-bounds.x, bounds.x))
-            .coerceAtLeast(0f) / zoom
-        val offsetY = (verticalCenterOffset - pan.y.coerceIn(-bounds.y, bounds.y))
-            .coerceAtLeast(0f) / zoom
-
-        val offset = Offset(offsetX, offsetY)
-
-        val rect = getCropRect(
-            bitmapWidth = imageSize.width,
-            bitmapHeight = imageSize.height,
-            containerWidth = width.toFloat(),
-            containerHeight = height.toFloat(),
-            pan = offset,
-            zoom = zoom,
-            rectSelection = rectDraw
-        )
-        return rect
     }
 }

@@ -40,12 +40,12 @@ fun Modifier.enhancedZoom(
 
                     coroutineScope.launch {
                         enhancedZoomState.onGesture(
-                            centroid,
-                            pan,
-                            zoom,
-                            rotate,
-                            mainPointer,
-                            pointerList
+                            centroid = centroid,
+                            pan = pan,
+                            zoom = zoom,
+                            rotation = rotate,
+                            mainPointer = mainPointer,
+                            changes = pointerList
                         )
                     }
 

@@ -56,14 +56,15 @@ fun Modifier.zoom(
                 onGestureEnd = {
                     onGestureEnd(zoomState.zoomData)
                 },
-                onGesture = { _, gesturePan, gestureZoom, gestureRotate, _, _ ->
+                onGesture = { centroid, pan, zoom, rotation, _, _ ->
 
                     coroutineScope.launch {
                         zoomState.updateZoomState(
                             size = size,
-                            gestureZoom = gestureZoom,
-                            gesturePan = gesturePan,
-                            gestureRotate = gestureRotate
+                            centroid = centroid,
+                            panChange = pan,
+                            zoomChange = zoom,
+                            rotationChange = rotation
                         )
                     }
 
@@ -164,14 +165,15 @@ fun Modifier.zoom(
                 onGestureEnd = {
                     onGestureEnd(zoomState.zoomData)
                 },
-                onGesture = { _, gesturePan, gestureZoom, gestureRotate, _, _ ->
+                onGesture = { centroid, pan, zoom, rotation, _, _ ->
 
                     coroutineScope.launch {
                         zoomState.updateZoomState(
                             size = size,
-                            gestureZoom = gestureZoom,
-                            gesturePan = gesturePan,
-                            gestureRotate = gestureRotate
+                            centroid = centroid,
+                            panChange = pan,
+                            zoomChange = zoom,
+                            rotationChange = rotation
                         )
                     }
 
@@ -272,14 +274,15 @@ fun Modifier.zoom(
                 onGestureEnd = {
                     onGestureEnd(zoomState.zoomData)
                 },
-                onGesture = { _, gesturePan, gestureZoom, gestureRotate, _, _ ->
+                onGesture = { centroid, pan, zoom, rotation, _, _ ->
 
                     coroutineScope.launch {
                         zoomState.updateZoomState(
                             size = size,
-                            gestureZoom = gestureZoom,
-                            gesturePan = gesturePan,
-                            gestureRotate = gestureRotate
+                            centroid = centroid,
+                            panChange = pan,
+                            zoomChange = zoom,
+                            rotationChange = rotation
                         )
                     }
 

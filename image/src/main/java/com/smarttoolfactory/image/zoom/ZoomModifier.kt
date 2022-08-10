@@ -35,9 +35,9 @@ fun Modifier.zoom(
     consume: Boolean = true,
     clip: Boolean = true,
     zoomState: ZoomState,
-    onGestureStart: (ZoomData) -> Unit = {},
-    onGesture: (ZoomData) -> Unit = {},
-    onGestureEnd: (ZoomData) -> Unit = {},
+    onGestureStart: ((ZoomData) -> Unit)? = null,
+    onGesture: ((ZoomData) -> Unit)? = null,
+    onGestureEnd: ((ZoomData) -> Unit)? = null
 ) = composed(
     factory = {
         val coroutineScope = rememberCoroutineScope()
@@ -51,10 +51,10 @@ fun Modifier.zoom(
             detectTransformGestures(
                 consume = consume,
                 onGestureStart = {
-                    onGestureStart(zoomState.zoomData)
+                    onGestureStart?.invoke(zoomState.zoomData)
                 },
                 onGestureEnd = {
-                    onGestureEnd(zoomState.zoomData)
+                    onGestureEnd?.invoke(zoomState.zoomData)
                 },
                 onGesture = { centroid, pan, zoom, rotation, _, _ ->
 
@@ -68,7 +68,7 @@ fun Modifier.zoom(
                         )
                     }
 
-                    onGesture(zoomState.zoomData)
+                    onGesture?.invoke(zoomState.zoomData)
                 }
             )
         }
@@ -144,9 +144,9 @@ fun Modifier.zoom(
     consume: Boolean = true,
     clip: Boolean = true,
     zoomState: ZoomState,
-    onGestureStart: (ZoomData) -> Unit = {},
-    onGesture: (ZoomData) -> Unit = {},
-    onGestureEnd: (ZoomData) -> Unit = {},
+    onGestureStart: ((ZoomData) -> Unit)? = null,
+    onGesture: ((ZoomData) -> Unit)? = null,
+    onGestureEnd: ((ZoomData) -> Unit)? = null
 ) = composed(
     factory = {
         val coroutineScope = rememberCoroutineScope()
@@ -160,10 +160,10 @@ fun Modifier.zoom(
             detectTransformGestures(
                 consume = consume,
                 onGestureStart = {
-                    onGestureStart(zoomState.zoomData)
+                    onGestureStart?.invoke(zoomState.zoomData)
                 },
                 onGestureEnd = {
-                    onGestureEnd(zoomState.zoomData)
+                    onGestureEnd?.invoke(zoomState.zoomData)
                 },
                 onGesture = { centroid, pan, zoom, rotation, _, _ ->
 
@@ -177,7 +177,7 @@ fun Modifier.zoom(
                         )
                     }
 
-                    onGesture(zoomState.zoomData)
+                    onGesture?.invoke(zoomState.zoomData)
                 }
             )
         }
@@ -253,9 +253,9 @@ fun Modifier.zoom(
     consume: Boolean = true,
     clip: Boolean = true,
     zoomState: ZoomState,
-    onGestureStart: (ZoomData) -> Unit = {},
-    onGesture: (ZoomData) -> Unit = {},
-    onGestureEnd: (ZoomData) -> Unit = {},
+    onGestureStart: ((ZoomData) -> Unit)? = null,
+    onGesture: ((ZoomData) -> Unit)? = null,
+    onGestureEnd: ((ZoomData) -> Unit)? = null
 ) = composed(
     factory = {
         val coroutineScope = rememberCoroutineScope()
@@ -269,10 +269,10 @@ fun Modifier.zoom(
             detectTransformGestures(
                 consume = consume,
                 onGestureStart = {
-                    onGestureStart(zoomState.zoomData)
+                    onGestureStart?.invoke(zoomState.zoomData)
                 },
                 onGestureEnd = {
-                    onGestureEnd(zoomState.zoomData)
+                    onGestureEnd?.invoke(zoomState.zoomData)
                 },
                 onGesture = { centroid, pan, zoom, rotation, _, _ ->
 
@@ -286,7 +286,7 @@ fun Modifier.zoom(
                         )
                     }
 
-                    onGesture(zoomState.zoomData)
+                    onGesture?.invoke(zoomState.zoomData)
                 }
             )
         }
@@ -357,9 +357,9 @@ fun Modifier.zoom(
     clip = clip,
     consume = true,
     zoomState = zoomState,
-    onGestureStart = {},
-    onGestureEnd = {},
-    onGesture = {}
+    onGestureStart = null,
+    onGestureEnd = null,
+    onGesture = null
 )
 
 /**
@@ -383,9 +383,9 @@ fun Modifier.zoom(
     clip = clip,
     consume = true,
     zoomState = zoomState,
-    onGestureStart = {},
-    onGestureEnd = {},
-    onGesture = {}
+    onGestureStart = null,
+    onGestureEnd = null,
+    onGesture = null
 )
 
 /**
@@ -407,7 +407,14 @@ fun Modifier.zoom(
     clip = clip,
     consume = true,
     zoomState = zoomState,
-    onGestureStart = {},
-    onGestureEnd = {},
-    onGesture = {}
+    onGestureStart = null,
+    onGestureEnd = null,
+    onGesture = null
 )
+
+internal val ZoomState.zoomData: ZoomData
+    get() = ZoomData(
+        zoom = zoom,
+        pan = pan,
+        rotation = rotation
+    )

@@ -67,17 +67,14 @@ open class ZoomState(
     val isAnimationRunning: Boolean
         get() = isZooming || isPanning || isRotating
 
-    val zoomData: ZoomData
-        get() = ZoomData(
-            zoom = zoom,
-            pan = pan,
-            rotation = rotation
-        )
-
     internal open fun updateBounds(lowerBound: Offset?, upperBound: Offset?) {
         animatablePan.updateBounds(lowerBound, upperBound)
     }
 
+    /**
+     * Get bounds of Composables that can be panned based on zoom level
+     * @param size is size of Composable that this modifier is applied to.
+     */
     internal open fun getBounds(size: IntSize): Offset {
         val maxX = (size.width * (zoom - 1) / 2f).coerceAtLeast(0f)
         val maxY = (size.height * (zoom - 1) / 2f).coerceAtLeast(0f)
@@ -113,6 +110,9 @@ open class ZoomState(
         }
     }
 
+    /**
+     * Reset [pan], [zoom] and [rotation] with animation.
+     */
     internal open suspend fun resetWithAnimation(
         pan: Offset = Offset.Zero,
         zoom: Float = 1f,

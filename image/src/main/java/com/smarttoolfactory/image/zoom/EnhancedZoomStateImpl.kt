@@ -109,7 +109,7 @@ open class BaseEnhancedZoomState constructor(
     limitPan: Boolean = false
 ) : ZoomState(
     initialZoom = initialZoom,
-    initialRotation = 1f,
+    initialRotation = 0f,
     minZoom = minZoom,
     maxZoom = maxZoom,
     zoomEnabled = zoomEnabled,

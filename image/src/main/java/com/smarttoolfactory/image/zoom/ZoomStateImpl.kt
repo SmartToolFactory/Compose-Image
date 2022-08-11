@@ -11,15 +11,15 @@ import kotlinx.coroutines.launch
 
 
 /**
- *  * State of the zoom. Allows the developer to change zoom, pan,  translate,
+ *  * State of the enhanced. Allows to change zoom, pan,  translate,
  *  or get current state by
  * calling methods on this object. To be hosted and passed to [Modifier.zoom]
- * @param limitPan limits pan to bounds of parent Composable. Using this flag prevents creating
- * empty space on sides or edges of parent.
-
  * @param zoomEnabled when set to true zoom is enabled
  * @param panEnabled when set to true pan is enabled
  * @param rotationEnabled when set to true rotation is enabled
+ * @param limitPan limits pan to bounds of parent Composable. Using this flag prevents creating
+ * empty space on sides or edges of parent.
+ *
  */
 @Stable
 open class ZoomState(

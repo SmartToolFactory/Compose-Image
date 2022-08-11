@@ -141,7 +141,6 @@ private fun ZoomableImageDemo(contentScale: ContentScale) {
             .fillMaxWidth()
             .aspectRatio(4 / 3f)
             .zoom(
-                Unit,
                 zoomState = rememberZoomState(
                     limitPan = false,
                     rotationEnabled = true

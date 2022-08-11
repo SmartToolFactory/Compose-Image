@@ -2,34 +2,48 @@ package com.smarttoolfactory.image.zoom
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.IntSize
 
 /**
- * * Create and [remember] the [ZoomState] based on the currently appropriate transform
+ * Create and [remember] the [EnhancedZoomState] based on the currently appropriate transform
  * configuration to allow changing pan, zoom, and rotation.
+ *
+ * Allows to change zoom, pan,  translate, or get current state by
+ * calling methods on this object. To be hosted and passed to [Modifier.enhancedZoom].
+ * Also contains [EnhancedZoomData] about current transformation area of Composable and
+ * visible are of image being zoomed, rotated, or panned. If any animation
+ * is going on current [EnhancedZoomState.isAnimationRunning] is true
+ * and [EnhancedZoomData] returns rectangle
+ * that belongs to end of animation.
  *
  *  [key1] is used to reset remember block to initial calculations. This can be used
  * when image, contentScale or any property changes which requires values to be reset to initial
  * values
- *
  * @param initialZoom zoom set initially
- * @param initialRotation rotation set initially
- * @param minZoom minimum zoom value this Composable can possess
- * @param maxZoom maximum zoom value this Composable can possess
- * @param limitPan limits pan to bounds of parent Composable. Using this flag prevents creating
- * empty space on sides or edges of parent
+ * @param minZoom minimum zoom value
+ * @param maxZoom maximum zoom value
+ * @param flingGestureEnabled when set to true dragging pointer builds up velocity. When last
+ * pointer leaves Composable a movement invoked against friction till velocity drops down
+ * to threshold
+ * @param moveToBoundsEnabled when set to true if image zoom is lower than initial zoom or
+ * panned out of image boundaries moves back to bounds with animation.
+ * ##Note
+ * Currently rotating back to borders is not available
  * @param zoomEnabled when set to true zoom is enabled
  * @param panEnabled when set to true pan is enabled
  * @param rotationEnabled when set to true rotation is enabled
+ * @param limitPan limits pan to bounds of parent Composable. Using this flag prevents creating
+ * empty space on sides or edges of parent
  */
 @Composable
 fun rememberEnhancedZoomState(
     imageSize: IntSize,
-    containerSize: IntSize,
     initialZoom: Float = 1f,
-    initialRotation: Float = 0f,
     minZoom: Float = 1f,
     maxZoom: Float = 5f,
+    flingGestureEnabled: Boolean = false,
+    moveToBoundsEnabled: Boolean = true,
     zoomEnabled: Boolean = true,
     panEnabled: Boolean = true,
     rotationEnabled: Boolean = false,
@@ -39,10 +53,11 @@ fun rememberEnhancedZoomState(
     return remember(key1) {
         EnhancedZoomState(
             imageSize = imageSize,
-            containerSize = containerSize,
             initialZoom = initialZoom,
             minZoom = minZoom,
             maxZoom = maxZoom,
+            flingGestureEnabled = flingGestureEnabled,
+            moveToBoundsEnabled = moveToBoundsEnabled,
             zoomEnabled = zoomEnabled,
             panEnabled = panEnabled,
             rotationEnabled = rotationEnabled,
@@ -52,29 +67,44 @@ fun rememberEnhancedZoomState(
 }
 
 /**
- * * Create and [remember] the [ZoomState] based on the currently appropriate transform
+ * Create and [remember] the [EnhancedZoomState] based on the currently appropriate transform
  * configuration to allow changing pan, zoom, and rotation.
+ *
+ * Allows to change zoom, pan,  translate, or get current state by
+ * calling methods on this object. To be hosted and passed to [Modifier.enhancedZoom].
+ * Also contains [EnhancedZoomData] about current transformation area of Composable and
+ * visible are of image being zoomed, rotated, or panned. If any animation
+ * is going on current [EnhancedZoomState.isAnimationRunning] is true
+ * and [EnhancedZoomData] returns rectangle
+ * that belongs to end of animation.
  *
  *  [key1] or [key2] are used to reset remember block to initial calculations. This can be used
  * when image, contentScale or any property changes which requires values to be reset to initial
  * values
- *
  * @param initialZoom zoom set initially
- * @param minZoom minimum zoom value this Composable can possess
- * @param maxZoom maximum zoom value this Composable can possess
- * @param limitPan limits pan to bounds of parent Composable. Using this flag prevents creating
- * empty space on sides or edges of parent
+ * @param minZoom minimum zoom value
+ * @param maxZoom maximum zoom value
+ * @param flingGestureEnabled when set to true dragging pointer builds up velocity. When last
+ * pointer leaves Composable a movement invoked against friction till velocity drops down
+ * to threshold
+ * @param moveToBoundsEnabled when set to true if image zoom is lower than initial zoom or
+ * panned out of image boundaries moves back to bounds with animation.
+ * ##Note
+ * Currently rotating back to borders is not available
  * @param zoomEnabled when set to true zoom is enabled
  * @param panEnabled when set to true pan is enabled
  * @param rotationEnabled when set to true rotation is enabled
+ * @param limitPan limits pan to bounds of parent Composable. Using this flag prevents creating
+ * empty space on sides or edges of parent
  */
 @Composable
 fun rememberEnhancedZoomState(
     imageSize: IntSize,
-    containerSize: IntSize,
     initialZoom: Float = 1f,
     minZoom: Float = 1f,
     maxZoom: Float = 5f,
+    flingGestureEnabled: Boolean = false,
+    moveToBoundsEnabled: Boolean = true,
     zoomEnabled: Boolean = true,
     panEnabled: Boolean = true,
     rotationEnabled: Boolean = false,
@@ -85,10 +115,11 @@ fun rememberEnhancedZoomState(
     return remember(key1, key2) {
         EnhancedZoomState(
             imageSize = imageSize,
-            containerSize = containerSize,
             initialZoom = initialZoom,
             minZoom = minZoom,
             maxZoom = maxZoom,
+            flingGestureEnabled = flingGestureEnabled,
+            moveToBoundsEnabled = moveToBoundsEnabled,
             zoomEnabled = zoomEnabled,
             panEnabled = panEnabled,
             rotationEnabled = rotationEnabled,
@@ -98,17 +129,32 @@ fun rememberEnhancedZoomState(
 }
 
 /**
- * * Create and [remember] the [ZoomState] based on the currently appropriate transform
+ * Create and [remember] the [EnhancedZoomState] based on the currently appropriate transform
  * configuration to allow changing pan, zoom, and rotation.
  *
+ * Allows to change zoom, pan,  translate, or get current state by
+ * calling methods on this object. To be hosted and passed to [Modifier.enhancedZoom].
+ * Also contains [EnhancedZoomData] about current transformation area of Composable and
+ * visible are of image being zoomed, rotated, or panned. If any animation
+ * is going on current [EnhancedZoomState.isAnimationRunning] is true
+ * and [EnhancedZoomData] returns rectangle
+ * that belongs to end of animation.
+ *
  * @param initialZoom zoom set initially
- * @param minZoom minimum zoom value this Composable can possess
- * @param maxZoom maximum zoom value this Composable can possess
- * @param limitPan limits pan to bounds of parent Composable. Using this flag prevents creating
- * empty space on sides or edges of parent
+ * @param minZoom minimum zoom value
+ * @param maxZoom maximum zoom value
+ * @param flingGestureEnabled when set to true dragging pointer builds up velocity. When last
+ * pointer leaves Composable a movement invoked against friction till velocity drops down
+ * to threshold
+ * @param moveToBoundsEnabled when set to true if image zoom is lower than initial zoom or
+ * panned out of image boundaries moves back to bounds with animation.
+ * ##Note
+ * Currently rotating back to borders is not available
  * @param zoomEnabled when set to true zoom is enabled
  * @param panEnabled when set to true pan is enabled
  * @param rotationEnabled when set to true rotation is enabled
+ * @param limitPan limits pan to bounds of parent Composable. Using this flag prevents creating
+ * empty space on sides or edges of parent
  * @param keys are used to reset remember block to initial calculations. This can be used
  * when image, contentScale or any property changes which requires values to be reset to initial
  * values
@@ -116,10 +162,11 @@ fun rememberEnhancedZoomState(
 @Composable
 fun rememberEnhancedZoomState(
     imageSize: IntSize,
-    containerSize: IntSize,
     initialZoom: Float = 1f,
     minZoom: Float = 1f,
     maxZoom: Float = 5f,
+    flingGestureEnabled: Boolean = false,
+    moveToBoundsEnabled: Boolean = true,
     zoomEnabled: Boolean = true,
     panEnabled: Boolean = true,
     rotationEnabled: Boolean = false,
@@ -129,10 +176,11 @@ fun rememberEnhancedZoomState(
     return remember(keys) {
         EnhancedZoomState(
             imageSize = imageSize,
-            containerSize = containerSize,
             initialZoom = initialZoom,
             minZoom = minZoom,
             maxZoom = maxZoom,
+            flingGestureEnabled = flingGestureEnabled,
+            moveToBoundsEnabled = moveToBoundsEnabled,
             zoomEnabled = zoomEnabled,
             panEnabled = panEnabled,
             rotationEnabled = rotationEnabled,

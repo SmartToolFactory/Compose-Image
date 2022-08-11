@@ -13,8 +13,8 @@ import androidx.compose.runtime.remember
  *
  * @param initialZoom zoom set initially
  * @param initialRotation rotation set initially
- * @param minZoom minimum zoom value this Composable can possess
- * @param maxZoom maximum zoom value this Composable can possess
+ * @param minZoom minimum zoom value
+ * @param maxZoom maximum zoom value
  * @param limitPan limits pan to bounds of parent Composable. Using this flag prevents creating
  * empty space on sides or edges of parent
  * @param zoomEnabled when set to true zoom is enabled
@@ -57,8 +57,8 @@ fun rememberZoomState(
  *
  * @param initialZoom zoom set initially
  * @param initialRotation rotation set initially
- * @param minZoom minimum zoom value this Composable can possess
- * @param maxZoom maximum zoom value this Composable can possess
+ * @param minZoom minimum zoom value
+ * @param maxZoom maximum zoom value
  * @param limitPan limits pan to bounds of parent Composable. Using this flag prevents creating
  * empty space on sides or edges of parent
  * @param zoomEnabled when set to true zoom is enabled
@@ -98,8 +98,8 @@ fun rememberZoomState(
  *
  * @param initialZoom zoom set initially
  * @param initialRotation rotation set initially
- * @param minZoom minimum zoom value this Composable can possess
- * @param maxZoom maximum zoom value this Composable can possess
+ * @param minZoom minimum zoom value
+ * @param maxZoom maximum zoom value
  * @param limitPan limits pan to bounds of parent Composable. Using this flag prevents creating
  * empty space on sides or edges of parent
  * @param zoomEnabled when set to true zoom is enabled

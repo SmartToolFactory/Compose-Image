@@ -13,30 +13,45 @@ import com.smarttoolfactory.image.util.getCropRect
 import kotlinx.coroutines.coroutineScope
 
 /**
- *  * State of the zoom. Allows the developer to change zoom, pan,  translate,
- *  or get current state by
- * calling methods on this object. To be hosted and passed to [Modifier.zoom]
- * @param limitPan limits pan to bounds of parent Composable. Using this flag prevents creating
- * empty space on sides or edges of parent.
-
+ *  * State of the enhanced zoom that uses animations and fling
+ *  to animate to bounds or have movement after pointers are up.
+ *  Allows to change zoom, pan,  translate, or get current state by
+ * calling methods on this object. To be hosted and passed to [Modifier.enhancedZoom].
+ * Also contains [EnhancedZoomData] about current transformation area of Composable and
+ * visible are of image being zoomed, rotated, or panned. If any animation
+ * is going on current [isAnimationRunning] is true and [EnhancedZoomData] returns rectangle
+ * that belongs to end of animation.
+ *
+ * @param imageSize size of the image that is zoomed or transformed. Size of the image
+ * is required to get [Rect] of visible area after current transformation.
+ * @param initialZoom zoom set initially
+ * @param minZoom minimum zoom value
+ * @param maxZoom maximum zoom value
+ * @param flingGestureEnabled when set to true dragging pointer builds up velocity. When last
+ * pointer leaves Composable a movement invoked against friction till velocity drops down
+ * to threshold
+ * @param moveToBoundsEnabled when set to true if image zoom is lower than initial zoom or
+ * panned out of image boundaries moves back to bounds with animation.
+ * ##Note
+ * Currently rotating back to borders is not available
  * @param zoomEnabled when set to true zoom is enabled
  * @param panEnabled when set to true pan is enabled
  * @param rotationEnabled when set to true rotation is enabled
+ * @param limitPan limits pan to bounds of parent Composable. Using this flag prevents creating
+ * empty space on sides or edges of parent
  */
 open class EnhancedZoomState constructor(
     val imageSize: IntSize,
-    containerSize: IntSize,
     initialZoom: Float = 1f,
     minZoom: Float = .5f,
     maxZoom: Float = 5f,
-    flingGestureEnabled: Boolean = true,
+    flingGestureEnabled: Boolean = false,
     moveToBoundsEnabled: Boolean = true,
     zoomEnabled: Boolean = true,
     panEnabled: Boolean = true,
     rotationEnabled: Boolean = false,
     limitPan: Boolean = false
 ) : BaseEnhancedZoomState(
-    containerSize = containerSize,
     initialZoom = initialZoom,
     minZoom = minZoom,
     maxZoom = maxZoom,
@@ -48,24 +63,25 @@ open class EnhancedZoomState constructor(
     limitPan = limitPan
 ) {
 
-    private val rectDraw = Rect(
-        offset = Offset.Zero,
-        size = Size(containerSize.width.toFloat(), containerSize.height.toFloat())
-    )
+    private val rectDraw: Rect
+        get() = Rect(
+            offset = Offset.Zero,
+            size = Size(size.width.toFloat(), size.height.toFloat())
+        )
 
     val enhancedZoomData: EnhancedZoomData
         get() = EnhancedZoomData(
             zoom = animatableZoom.targetValue,
             pan = animatablePan.targetValue,
             rotation = animatableRotation.targetValue,
-            drawRect = rectDraw,
-            cropRect = calculateRectBounds()
+            imageRegion = rectDraw,
+            visibleRegion = calculateRectBounds()
         )
 
     private fun calculateRectBounds(): Rect {
 
-        val width = containerSize.width
-        val height = containerSize.height
+        val width = size.width
+        val height = size.height
         val zoom = animatableZoom.targetValue
         val pan = animatablePan.targetValue
 
@@ -97,7 +113,6 @@ open class EnhancedZoomState constructor(
 }
 
 open class BaseEnhancedZoomState constructor(
-    val containerSize: IntSize,
     initialZoom: Float = 1f,
     minZoom: Float = .5f,
     maxZoom: Float = 5f,
@@ -119,24 +134,6 @@ open class BaseEnhancedZoomState constructor(
 ) {
     private val velocityTracker = VelocityTracker()
 
-    protected fun getBounds(): Offset {
-        return getBounds(containerSize)
-    }
-
-    /*
-        Touch Gesture Events
-     */
-    open suspend fun onDown(change: PointerInputChange) {}
-
-    open suspend fun onMove(change: PointerInputChange) {}
-
-    open suspend fun onUp(change: PointerInputChange, onFinish: () -> Unit) {}
-
-    /*
-        Transform Gesture Events
-     */
-    internal open suspend fun onGestureStart(change: PointerInputChange) {}
-
     open suspend fun onGesture(
         centroid: Offset,
         pan: Offset,
@@ -147,7 +144,6 @@ open class BaseEnhancedZoomState constructor(
     ) = coroutineScope {
 
         updateZoomState(
-            size = containerSize,
             centroid = centroid,
             zoomChange = zoom,
             panChange = pan,
@@ -181,6 +177,7 @@ open class BaseEnhancedZoomState constructor(
         onAnimationEnd()
     }
 
+    // TODO Add resetting back to bounds for rotated state as well
     /**
      * Resets to bounds with animation and resets tracking for fling animation
      */
@@ -192,7 +189,6 @@ open class BaseEnhancedZoomState constructor(
         resetTracking()
     }
 
-
     /*
         Fling gesture
      */
@@ -203,6 +199,10 @@ open class BaseEnhancedZoomState constructor(
         )
     }
 
+    /**
+     * Create a fling gesture when user removes finger from scree to have continuous movement
+     * until [velocityTracker] speed reached to lower bound
+     */
     private suspend fun fling() {
         val velocityTracker = velocityTracker.calculateVelocity()
         val velocity = Offset(velocityTracker.x, velocityTracker.y)

@@ -31,7 +31,7 @@ import kotlinx.coroutines.launch
  * of this modifier
  */
 fun Modifier.zoom(
-    key: Any?,
+    key: Any? = Unit,
     consume: Boolean = true,
     clip: Boolean = true,
     zoomState: ZoomState,
@@ -48,6 +48,11 @@ fun Modifier.zoom(
         var zoomLevel by remember { mutableStateOf(ZoomLevel.Min) }
 
         val transformModifier = Modifier.pointerInput(key) {
+
+            // Pass size of this Composable this Modifier is attached for constraining operations
+            // inside this bounds
+            zoomState.size = this.size
+
             detectTransformGestures(
                 consume = consume,
                 onGestureStart = {
@@ -60,7 +65,6 @@ fun Modifier.zoom(
 
                     coroutineScope.launch {
                         zoomState.updateZoomState(
-                            size = size,
                             centroid = centroid,
                             panChange = pan,
                             zoomChange = zoom,
@@ -74,6 +78,9 @@ fun Modifier.zoom(
         }
 
         val tapModifier = Modifier.pointerInput(key) {
+            // Pass size of this Composable this Modifier is attached for constraining operations
+            // inside this bounds
+            zoomState.size = this.size
             detectTapGestures(
                 onDoubleTap = {
 
@@ -157,6 +164,9 @@ fun Modifier.zoom(
         var zoomLevel by remember { mutableStateOf(ZoomLevel.Min) }
 
         val transformModifier = Modifier.pointerInput(key1, key2) {
+            // Pass size of this Composable this Modifier is attached for constraining operations
+            // inside this bounds
+            zoomState.size = this.size
             detectTransformGestures(
                 consume = consume,
                 onGestureStart = {
@@ -169,7 +179,6 @@ fun Modifier.zoom(
 
                     coroutineScope.launch {
                         zoomState.updateZoomState(
-                            size = size,
                             centroid = centroid,
                             panChange = pan,
                             zoomChange = zoom,
@@ -183,6 +192,9 @@ fun Modifier.zoom(
         }
 
         val tapModifier = Modifier.pointerInput(key1, key2) {
+            // Pass size of this Composable this Modifier is attached for constraining operations
+            // inside this bounds
+            zoomState.size = this.size
             detectTapGestures(
                 onDoubleTap = {
 
@@ -266,6 +278,9 @@ fun Modifier.zoom(
         var zoomLevel by remember { mutableStateOf(ZoomLevel.Min) }
 
         val transformModifier = Modifier.pointerInput(keys) {
+            // Pass size of this Composable this Modifier is attached for constraining operations
+            // inside this bounds
+            zoomState.size = this.size
             detectTransformGestures(
                 consume = consume,
                 onGestureStart = {
@@ -278,7 +293,6 @@ fun Modifier.zoom(
 
                     coroutineScope.launch {
                         zoomState.updateZoomState(
-                            size = size,
                             centroid = centroid,
                             panChange = pan,
                             zoomChange = zoom,
@@ -292,6 +306,9 @@ fun Modifier.zoom(
         }
 
         val tapModifier = Modifier.pointerInput(keys) {
+            // Pass size of this Composable this Modifier is attached for constraining operations
+            // inside this bounds
+            zoomState.size = this.size
             detectTapGestures(
                 onDoubleTap = {
 

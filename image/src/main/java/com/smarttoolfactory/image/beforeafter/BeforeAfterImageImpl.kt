@@ -165,12 +165,14 @@ internal fun BeforeAfterImageImpl(
         val coroutineScope = rememberCoroutineScope()
 
         val transformModifier = Modifier.pointerInput(Unit) {
+            // Pass size of this Composable this Modifier is attached for constraining operations
+            // inside this bounds
+            zoomState.size = this.size
             detectTransformGestures(
                 onGesture = { centroid: Offset, panChange: Offset, zoomChange: Float, _, _, _ ->
 
                     coroutineScope.launch {
                         zoomState.updateZoomState(
-                            size,
                             centroid = centroid,
                             panChange = panChange,
                             zoomChange = zoomChange
@@ -181,6 +183,9 @@ internal fun BeforeAfterImageImpl(
         }
 
         val touchModifier = Modifier.pointerInput(Unit) {
+            // Pass size of this Composable this Modifier is attached for constraining operations
+            // inside this bounds
+            zoomState.size = this.size
             detectMotionEvents(
                 onDown = {
                     val position = it.position
@@ -208,11 +213,7 @@ internal fun BeforeAfterImageImpl(
             detectTapGestures(
                 onDoubleTap = {
                     coroutineScope.launch {
-                        zoomState.animatePanTo(Offset.Zero)
-                    }
-
-                    coroutineScope.launch {
-                        zoomState.animateZoomTo(1f)
+                        zoomState.resetWithAnimation()
                     }
                 }
             )

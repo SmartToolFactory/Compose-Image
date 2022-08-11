@@ -17,13 +17,12 @@ data class ZoomData(
 
 /**
  * Class that contains current zoom, pan and rotation, and rectangle of zoomed and panned area
- * information
  */
 @Immutable
 data class EnhancedZoomData(
     val zoom: Float = 1f,
     val pan: Offset = Offset.Zero,
     val rotation: Float = 0f,
-    val drawRect: Rect,
-    val cropRect: Rect
+    val imageRegion: Rect,
+    val visibleRegion: Rect
 )

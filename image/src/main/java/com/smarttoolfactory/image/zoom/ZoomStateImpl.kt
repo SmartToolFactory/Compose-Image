@@ -2,7 +2,7 @@ package com.smarttoolfactory.image.zoom
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.VectorConverter
-import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.Stable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.IntSize
@@ -21,7 +21,7 @@ import kotlinx.coroutines.launch
  * @param panEnabled when set to true pan is enabled
  * @param rotationEnabled when set to true rotation is enabled
  */
-@Immutable
+@Stable
 open class ZoomState(
     initialZoom: Float = 1f,
     initialRotation: Float = 0f,
@@ -41,6 +41,8 @@ open class ZoomState(
     internal val animatablePan = Animatable(Offset.Zero, Offset.VectorConverter)
     internal val animatableZoom = Animatable(zoomInitial)
     internal val animatableRotation = Animatable(rotationInitial)
+
+    internal var size: IntSize = IntSize.Zero
 
     init {
         require(zoomMax >= zoomMin)
@@ -81,8 +83,14 @@ open class ZoomState(
         return Offset(maxX, maxY)
     }
 
+    /**
+     * Get bounds of Composables that can be panned based on zoom level using [size]
+     */
+    protected fun getBounds(): Offset {
+        return getBounds(size)
+    }
+
     open suspend fun updateZoomState(
-        size: IntSize,
         centroid: Offset,
         panChange: Offset,
         zoomChange: Float,

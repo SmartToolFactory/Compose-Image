@@ -1,4 +1,4 @@
-package com.smarttoolfactory.composeimage.demo
+package com.smarttoolfactory.composeimage.demo.zoom
 
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*

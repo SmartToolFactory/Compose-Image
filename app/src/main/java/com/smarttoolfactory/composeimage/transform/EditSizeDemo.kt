@@ -1,4 +1,4 @@
-package com.smarttoolfactory.composeimage.demo
+package com.smarttoolfactory.composeimage.transform
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -17,10 +17,10 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import com.smarttoolfactory.composeimage.R
 import com.smarttoolfactory.image.transform.HandlePlacement
-import com.smarttoolfactory.image.transform.TransformLayout
+import com.smarttoolfactory.image.transform.MorphLayout
 
 @Composable
-fun EditScaleDemo() {
+fun EditSizeDemo() {
     Column(
         modifier = Modifier
             .background(Color(0xff424242))
@@ -48,10 +48,9 @@ fun EditScaleDemo() {
         val density = LocalDensity.current
         val size = (500 / density.density).dp
 
-        TransformLayout(
-            modifier = Modifier
-                .size(size)
-                .zIndex(zIndex1),
+        MorphLayout(
+            modifier = Modifier.size(size),
+            containerModifier = Modifier.zIndex(zIndex1),
             enabled = enabled,
             onDown = {
                 zIndex1 = 1f
@@ -67,8 +66,8 @@ fun EditScaleDemo() {
             )
         }
 
-        TransformLayout(
-            modifier = Modifier.zIndex(zIndex2),
+        MorphLayout(
+            containerModifier = Modifier.zIndex(zIndex2),
             handleRadius = 20.dp,
             enabled = enabled,
             handlePlacement = HandlePlacement.Side,
@@ -86,10 +85,9 @@ fun EditScaleDemo() {
             )
         }
 
-        TransformLayout(
-            modifier = Modifier
-                .size(width = 300.dp, height = 200.dp)
-                .zIndex(zIndex3),
+        MorphLayout(
+            modifier = Modifier.size(width = 300.dp, height = 200.dp),
+            containerModifier = Modifier.zIndex(zIndex3),
             enabled = enabled,
             handlePlacement = HandlePlacement.Both,
             onDown = {
@@ -106,7 +104,7 @@ fun EditScaleDemo() {
             )
         }
 
-        TransformLayout(
+        MorphLayout(
             enabled = enabled
         ) {
             Text(

@@ -1,4 +1,4 @@
-package com.smarttoolfactory.composeimage.demo
+package com.smarttoolfactory.composeimage.demo.beforeafter
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect

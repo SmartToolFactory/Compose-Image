@@ -65,7 +65,9 @@ private fun EnhancedZoomModifierSample(imageBitmap: ImageBitmap) {
         )
 
         Text(
-            text = "Modifier.zoom(clip = true, limitPan = false, moveToBoundsEnabled = true)",
+            text = "clip = true\n" +
+                    "limitPan = false\n" +
+                    "moveToBoundsEnabled = true",
             fontSize = 16.sp,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.primary,
@@ -93,7 +95,9 @@ private fun EnhancedZoomModifierSample(imageBitmap: ImageBitmap) {
 
         Spacer(modifier = Modifier.height(40.dp))
         Text(
-            text = "Modifier.zoom(clip = true, limitPan = true, moveToBoundsEnabled = true)",
+            text = "clip = true\n" +
+                    "limitPan = true\n" +
+                    "moveToBoundsEnabled = true",
             fontSize = 16.sp,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.primary,
@@ -121,8 +125,10 @@ private fun EnhancedZoomModifierSample(imageBitmap: ImageBitmap) {
 
         Spacer(modifier = Modifier.height(40.dp))
         Text(
-            text = "Modifier.zoom(clip = true, limitPan = true, moveToBoundsEnabled = true" +
-                    "flingGestureEnabled = true)",
+            text = "clip = true\n" +
+                    "limitPan = true\n" +
+                    "moveToBoundsEnabled = true\n" +
+                    "flingGestureEnabled = true",
             fontSize = 16.sp,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.primary,
@@ -150,8 +156,10 @@ private fun EnhancedZoomModifierSample(imageBitmap: ImageBitmap) {
 
         Spacer(modifier = Modifier.height(40.dp))
         Text(
-            text = "Modifier.zoom(clip = true, rotate = true,  moveToBoundsEnabled = false, " +
-                    "flingGestureEnabled = true)",
+            text = "clip = true\n" +
+                    "rotate = true\n" +
+                    "moveToBoundsEnabled = false\n" +
+                    "flingGestureEnabled = true",
             fontSize = 16.sp,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.primary,

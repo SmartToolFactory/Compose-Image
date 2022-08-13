@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.smarttoolfactory.composeimage.ContentScaleSelectionMenu
 import com.smarttoolfactory.composeimage.R
+import com.smarttoolfactory.composeimage.TitleMedium
 import com.smarttoolfactory.image.zoom.ZoomableImage
 import com.smarttoolfactory.image.zoom.rememberZoomState
 import com.smarttoolfactory.image.zoom.zoom
@@ -64,13 +65,8 @@ private fun ZoomableImageDemo(contentScale: ContentScale) {
         modifier = Modifier.padding(8.dp)
     )
 
-    Text(
-        text = "clipTransformToContentScale false",
-        fontSize = 16.sp,
-        fontWeight = FontWeight.Bold,
-        color = MaterialTheme.colorScheme.primary,
-        modifier = Modifier.padding(8.dp)
-    )
+    TitleMedium(text = "clipTransformToContentScale false")
+
     ZoomableImage(
         modifier = Modifier
             .background(Color.LightGray)
@@ -83,13 +79,7 @@ private fun ZoomableImageDemo(contentScale: ContentScale) {
 
     Spacer(modifier = Modifier.height(40.dp))
 
-    Text(
-        text = "clipTransformToContentScale true",
-        fontSize = 16.sp,
-        fontWeight = FontWeight.Bold,
-        color = MaterialTheme.colorScheme.primary,
-        modifier = Modifier.padding(8.dp)
-    )
+    TitleMedium(text = "clipTransformToContentScale = true")
     ZoomableImage(
         modifier = Modifier
             .background(Color.LightGray)
@@ -101,14 +91,24 @@ private fun ZoomableImageDemo(contentScale: ContentScale) {
     )
 
     Spacer(modifier = Modifier.height(40.dp))
+    TitleMedium(text = "clip = false\n" +
+            "limitPan = false")
 
-    Text(
-        text = "rotationEnabled true",
-        fontSize = 16.sp,
-        fontWeight = FontWeight.Bold,
-        color = MaterialTheme.colorScheme.primary,
-        modifier = Modifier.padding(8.dp)
+    ZoomableImage(
+        modifier = Modifier
+            .background(Color.LightGray)
+            .fillMaxWidth()
+            .aspectRatio(4 / 3f),
+        imageBitmap = imageBitmapLarge,
+        contentScale = contentScale,
+        clip = false,
+        limitPan = false
+
     )
+
+    Spacer(modifier = Modifier.height(40.dp))
+    TitleMedium(text = "rotatable = true")
+
     ZoomableImage(
         modifier = Modifier
             .background(Color.LightGray)
@@ -117,20 +117,13 @@ private fun ZoomableImageDemo(contentScale: ContentScale) {
         imageBitmap = imageBitmapLarge,
         contentScale = contentScale,
         clipTransformToContentScale = true,
-        rotationEnabled = true
+        rotatable = true
     )
 
     Spacer(modifier = Modifier.height(40.dp))
 
 
-    Text(
-        text = "gesture callbacks",
-        fontSize = 16.sp,
-        fontWeight = FontWeight.Bold,
-        color = MaterialTheme.colorScheme.primary,
-        modifier = Modifier.padding(8.dp)
-    )
-
+    TitleMedium(text = "gesture callbacks")
 
     var text by remember { mutableStateOf("Use pinch or fling gesture\n" +
             "to observe data") }
@@ -143,7 +136,7 @@ private fun ZoomableImageDemo(contentScale: ContentScale) {
             .zoom(
                 zoomState = rememberZoomState(
                     limitPan = false,
-                    rotationEnabled = true
+                    rotatable = true
                 ),
                 clip = true,
                 consume = true,
@@ -186,13 +179,7 @@ private fun ZoomModifierDemo() {
             modifier = Modifier.padding(8.dp)
         )
 
-        Text(
-            text = "Modifier.zoom(clip = true, limitPan = false)",
-            fontSize = 16.sp,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.padding(8.dp)
-        )
+        TitleMedium(text = "Modifier.zoom(clip = true, limitPan = false)")
         Image(
             modifier = Modifier
                 .background(Color.LightGray)
@@ -209,13 +196,7 @@ private fun ZoomModifierDemo() {
         )
 
         Spacer(modifier = Modifier.height(40.dp))
-        Text(
-            text = "Modifier.zoom(clip = true, limitPan = true)",
-            fontSize = 16.sp,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.padding(8.dp)
-        )
+        TitleMedium(text = "Modifier.zoom(clip = true, limitPan = true)")
         Image(
             modifier = Modifier
                 .background(Color.LightGray)
@@ -232,13 +213,7 @@ private fun ZoomModifierDemo() {
         )
 
         Spacer(modifier = Modifier.height(40.dp))
-        Text(
-            text = "Modifier.zoom(clip = true, rotate = true)",
-            fontSize = 16.sp,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.padding(8.dp)
-        )
+        TitleMedium(text = "Modifier.zoom(clip = true, rotate = true)")
         Image(
             modifier = Modifier
                 .background(Color.LightGray)
@@ -247,7 +222,7 @@ private fun ZoomModifierDemo() {
                 .aspectRatio(4 / 3f)
                 .zoom(
                     clip = true,
-                    zoomState = rememberZoomState(rotationEnabled = true),
+                    zoomState = rememberZoomState(rotatable = true),
 
                     ),
             bitmap = imageBitmapLarge,
@@ -256,13 +231,7 @@ private fun ZoomModifierDemo() {
         )
 
         Spacer(modifier = Modifier.height(40.dp))
-        Text(
-            text = "Modifier.zoom(clip = false, rotate = true)",
-            fontSize = 16.sp,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.padding(8.dp)
-        )
+        TitleMedium(text = "Modifier.zoom(clip = false, rotate = true)")
         Image(
             modifier = Modifier
                 .background(Color.LightGray)
@@ -271,7 +240,7 @@ private fun ZoomModifierDemo() {
                 .aspectRatio(4 / 3f)
                 .zoom(
                     clip = false,
-                    zoomState = rememberZoomState(rotationEnabled = true),
+                    zoomState = rememberZoomState(rotatable = true),
                 ),
             bitmap = imageBitmapLarge,
             contentDescription = "",
@@ -279,13 +248,7 @@ private fun ZoomModifierDemo() {
         )
 
         Spacer(modifier = Modifier.height(40.dp))
-        Text(
-            text = "Modifier.zoom(clip = true, limitPan = false)",
-            fontSize = 16.sp,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.padding(8.dp)
-        )
+        TitleMedium(text = "Modifier.zoom(clip = true, limitPan = false)")
         DrawPolygonPath(
             modifier = Modifier
                 .padding(8.dp)
@@ -300,13 +263,7 @@ private fun ZoomModifierDemo() {
         )
 
         Spacer(modifier = Modifier.height(40.dp))
-        Text(
-            text = "Modifier.zoom(clip = false, limitPan = false)",
-            fontSize = 16.sp,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.padding(8.dp)
-        )
+        TitleMedium(text = "Modifier.zoom(clip = false, limitPan = false)")
         DrawPolygonPath(
             modifier = Modifier
                 .padding(8.dp)
@@ -321,13 +278,7 @@ private fun ZoomModifierDemo() {
         )
 
         Spacer(modifier = Modifier.height(40.dp))
-        Text(
-            text = "Modifier.zoom(clip = false, limitPan = true)",
-            fontSize = 16.sp,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.padding(8.dp)
-        )
+        TitleMedium(text = "Modifier.zoom(clip = false, limitPan = true)")
         DrawPolygonPath(
             modifier = Modifier
                 .padding(8.dp)
@@ -344,7 +295,6 @@ private fun ZoomModifierDemo() {
         )
     }
 }
-
 
 @Composable
 private fun DrawPolygonPath(modifier: Modifier) {

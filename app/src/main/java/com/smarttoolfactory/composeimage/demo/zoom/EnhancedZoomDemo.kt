@@ -22,8 +22,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.smarttoolfactory.composeimage.ContentScaleSelectionMenu
 import com.smarttoolfactory.composeimage.R
+import com.smarttoolfactory.composeimage.TitleMedium
 import com.smarttoolfactory.image.zoom.EnhancedZoomData
+import com.smarttoolfactory.image.zoom.EnhancedZoomableImage
 import com.smarttoolfactory.image.zoom.enhancedZoom
 import com.smarttoolfactory.image.zoom.rememberEnhancedZoomState
 
@@ -42,9 +45,98 @@ fun EnhancedZoomDemo() {
             R.drawable.landscape1
         )
 
+        var contentScale by remember { mutableStateOf(ContentScale.Fit) }
+
+        ContentScaleSelectionMenu(contentScale = contentScale) {
+            contentScale = it
+        }
+
+        EnhancedZoomableImageSample(imageBitmap = imageBitmapLarge, contentScale)
         EnhancedZoomModifierSample(imageBitmap = imageBitmapLarge)
         CallbackAndCropSample(imageBitmap = imageBitmapLarge)
     }
+}
+
+@Composable
+private fun EnhancedZoomableImageSample(imageBitmap: ImageBitmap, contentScale: ContentScale) {
+
+    TitleMedium(text = "EnhancedZoomableImage")
+
+    TitleMedium(text = "clipTransformToContentScale false")
+    EnhancedZoomableImage(
+        modifier = Modifier
+            .background(Color.LightGray)
+            .fillMaxWidth()
+            .aspectRatio(4 / 3f),
+        imageBitmap = imageBitmap,
+        contentScale = contentScale,
+        clipTransformToContentScale = false
+    )
+
+    Spacer(modifier = Modifier.height(40.dp))
+
+    TitleMedium(
+        text = "clip = true\n" +
+                "limitPan = false\n" +
+                "moveToBounds = true\n" +
+                "clipTransformToContentScale = true"
+    )
+
+    EnhancedZoomableImage(
+        modifier = Modifier
+            .background(Color.LightGray)
+            .fillMaxWidth()
+            .aspectRatio(4 / 3f),
+        imageBitmap = imageBitmap,
+        contentScale = contentScale,
+        limitPan = false,
+        moveToBounds = true,
+        clipTransformToContentScale = true
+    )
+
+    Spacer(modifier = Modifier.height(40.dp))
+
+    TitleMedium(
+        text = "clip = true\n" +
+                "limitPan = false\n" +
+                "moveToBounds = true\n" +
+                "fling = true"
+    )
+    EnhancedZoomableImage(
+        modifier = Modifier
+            .background(Color.LightGray)
+            .fillMaxWidth()
+            .aspectRatio(4 / 3f),
+        imageBitmap = imageBitmap,
+        contentScale = contentScale,
+        limitPan = false,
+        moveToBounds = true,
+        fling = true
+    )
+
+
+    TitleMedium(
+        text = "clip = false\n" +
+                "limitPan = false\n" +
+                "rotatable = true\n" +
+                "moveToBounds = false\n" +
+                "fling = true"
+    )
+    EnhancedZoomableImage(
+        modifier = Modifier
+            .background(Color.LightGray)
+            .fillMaxWidth()
+            .aspectRatio(4 / 3f),
+        imageBitmap = imageBitmap,
+        contentScale = contentScale,
+        clip = false,
+        limitPan = false,
+        rotatable = true,
+        moveToBounds = false,
+        fling = true
+    )
+
+    Spacer(modifier = Modifier.height(40.dp))
 }
 
 @Composable
@@ -64,14 +156,10 @@ private fun EnhancedZoomModifierSample(imageBitmap: ImageBitmap) {
             modifier = Modifier.padding(8.dp)
         )
 
-        Text(
+        TitleMedium(
             text = "clip = true\n" +
                     "limitPan = false\n" +
-                    "moveToBoundsEnabled = true",
-            fontSize = 16.sp,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.padding(8.dp)
+                    "moveToBounds = true"
         )
         Image(
             modifier = Modifier
@@ -85,7 +173,7 @@ private fun EnhancedZoomModifierSample(imageBitmap: ImageBitmap) {
                         minZoom = .5f,
                         imageSize = IntSize(width, height),
                         limitPan = false,
-                        moveToBoundsEnabled = true
+                        moveToBounds = true
                     )
                 ),
             bitmap = imageBitmap,
@@ -94,14 +182,10 @@ private fun EnhancedZoomModifierSample(imageBitmap: ImageBitmap) {
         )
 
         Spacer(modifier = Modifier.height(40.dp))
-        Text(
+        TitleMedium(
             text = "clip = true\n" +
                     "limitPan = true\n" +
-                    "moveToBoundsEnabled = true",
-            fontSize = 16.sp,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.padding(8.dp)
+                    "moveToBounds = true"
         )
         Image(
             modifier = Modifier
@@ -115,7 +199,7 @@ private fun EnhancedZoomModifierSample(imageBitmap: ImageBitmap) {
                         minZoom = .5f,
                         imageSize = IntSize(width, height),
                         limitPan = true,
-                        moveToBoundsEnabled = true
+                        moveToBounds = true
                     )
                 ),
             bitmap = imageBitmap,
@@ -124,15 +208,11 @@ private fun EnhancedZoomModifierSample(imageBitmap: ImageBitmap) {
         )
 
         Spacer(modifier = Modifier.height(40.dp))
-        Text(
+        TitleMedium(
             text = "clip = true\n" +
                     "limitPan = true\n" +
-                    "moveToBoundsEnabled = true\n" +
-                    "flingGestureEnabled = true",
-            fontSize = 16.sp,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.padding(8.dp)
+                    "moveToBounds = true\n" +
+                    "fling = true"
         )
         Image(
             modifier = Modifier
@@ -145,8 +225,8 @@ private fun EnhancedZoomModifierSample(imageBitmap: ImageBitmap) {
                     enhancedZoomState = rememberEnhancedZoomState(
                         imageSize = IntSize(width, height),
                         limitPan = false,
-                        moveToBoundsEnabled = true,
-                        flingGestureEnabled = true
+                        moveToBounds = false,
+                        fling = true
                     )
                 ),
             bitmap = imageBitmap,
@@ -155,15 +235,11 @@ private fun EnhancedZoomModifierSample(imageBitmap: ImageBitmap) {
         )
 
         Spacer(modifier = Modifier.height(40.dp))
-        Text(
+        TitleMedium(
             text = "clip = true\n" +
                     "rotate = true\n" +
-                    "moveToBoundsEnabled = false\n" +
-                    "flingGestureEnabled = true",
-            fontSize = 16.sp,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.padding(8.dp)
+                    "moveToBounds = false\n" +
+                    "fling = true"
         )
         Image(
             modifier = Modifier
@@ -177,9 +253,9 @@ private fun EnhancedZoomModifierSample(imageBitmap: ImageBitmap) {
                         imageSize = IntSize(width, height),
                         minZoom = .5f,
                         limitPan = true,
-                        rotationEnabled = true,
-                        moveToBoundsEnabled = false,
-                        flingGestureEnabled = true
+                        rotatable = true,
+                        moveToBounds = false,
+                        fling = true
                     )
                 ),
             bitmap = imageBitmap,
@@ -195,13 +271,7 @@ private fun CallbackAndCropSample(imageBitmap: ImageBitmap) {
 
     // ⚠️ getting Rect and creating bitmap on each frame is for demonstration only
     // get rect on up motion and when gesture finished running
-    Text(
-        text = "Callback and Crop",
-        fontSize = 16.sp,
-        fontWeight = FontWeight.Bold,
-        color = MaterialTheme.colorScheme.primary,
-        modifier = Modifier.padding(8.dp)
-    )
+    TitleMedium(text = "Callback and Crop")
 
     var rectCrop by remember {
         mutableStateOf(
@@ -239,7 +309,7 @@ private fun CallbackAndCropSample(imageBitmap: ImageBitmap) {
 
         val zoomState = rememberEnhancedZoomState(
             minZoom = .5f,
-            flingGestureEnabled = true,
+            fling = true,
             imageSize = IntSize(imageBitmap.width, imageBitmap.height)
         )
 
@@ -275,15 +345,18 @@ private fun CallbackAndCropSample(imageBitmap: ImageBitmap) {
                 rect = rectDraw
             )
 
-
-            Text(
-                "isAnimating: ${zoomState.isAnimationRunning}, " +
-                        "isPanAnimating: ${zoomState.isPanning}, " +
-                        "isZooming: ${zoomState.isZooming}\n" +
-                        "rectDraw: $rectDraw\n" +
-                        "rectCrop: $rectCrop",
-                color = Color.Cyan
-            )
+            Column {
+                Text(
+                    text = "isAnimating: ${zoomState.isAnimationRunning}, " +
+                            "isPanAnimating: ${zoomState.isPanning}, " +
+                            "isZooming: ${zoomState.isZooming}",
+                    color = if (zoomState.isAnimationRunning) Color.Red else Color.Green
+                )
+                Text(
+                    text = "rectDraw: $rectDraw\n" +
+                            "rectCrop: $rectCrop", color = Color.Cyan
+                )
+            }
         }
     }
 

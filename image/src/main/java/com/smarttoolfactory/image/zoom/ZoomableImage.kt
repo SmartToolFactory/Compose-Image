@@ -16,10 +16,10 @@ import com.smarttoolfactory.image.ImageWithConstraints
  * Zoomable image that zooms in and out in [ [minZoom], [maxZoom] ] interval and translates
  * zoomed image based on pointer position.
  * Double tap gestures reset image translation and zoom to default values with animation.
- *
  * @param initialZoom zoom set initially
  * @param minZoom minimum zoom value this Composable can possess
  * @param maxZoom maximum zoom value this Composable can possess
+ * @param clip whether image should be clip to bounds of Image
  * @param clipTransformToContentScale when set true zoomable image takes borders of image drawn
  * while zooming in. [contentScale] determines whether will be empty spaces on edges of Composable
  * @param limitPan limits pan to bounds of parent Composable. Using this flag prevents creating
@@ -53,6 +53,7 @@ fun ZoomableImage(
     zoomEnabled: Boolean = true,
     panEnabled: Boolean = true,
     rotationEnabled: Boolean = false,
+    clip: Boolean = true,
     clipTransformToContentScale: Boolean = false,
     consume: Boolean = true,
     onGestureStart: (ZoomData) -> Unit = {},
@@ -76,6 +77,7 @@ fun ZoomableImage(
                 rotationEnabled = rotationEnabled,
             ),
             consume = consume,
+            clip = clip,
             onGestureStart = onGestureStart,
             onGesture = onGesture,
             onGestureEnd = onGestureEnd
@@ -112,8 +114,7 @@ fun ZoomableImage(
  * Zoomable image that zooms in and out in [zoomState.minZoom, zoomState.maxZoom] interval and translates
  * zoomed image based on pointer position.
  * Double tap gestures reset image translation and zoom to default values with animation.
- *
-
+ * @param clip whether image should be clip to bounds of Image
  * @param clipTransformToContentScale when set true zoomable image takes borders of image drawn
  * while zooming in. [contentScale] determines whether will be empty spaces on edges of Composable
  * @param consume flag to prevent other gestures such as scroll, drag or transform to get
@@ -135,6 +136,7 @@ fun ZoomableImage(
     alpha: Float = DefaultAlpha,
     colorFilter: ColorFilter? = null,
     filterQuality: FilterQuality = DrawScope.DefaultFilterQuality,
+    clip: Boolean = true,
     clipTransformToContentScale: Boolean = false,
     zoomState: ZoomState,
     consume: Boolean = true,
@@ -150,6 +152,7 @@ fun ZoomableImage(
             key2 = contentScale,
             zoomState = zoomState,
             consume = consume,
+            clip = clip,
             onGestureStart = onGestureStart,
             onGesture = onGesture,
             onGestureEnd = onGestureEnd

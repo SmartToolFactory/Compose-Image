@@ -14,9 +14,9 @@ import kotlinx.coroutines.launch
  *  * State of the enhanced. Allows to change zoom, pan,  translate,
  *  or get current state by
  * calling methods on this object. To be hosted and passed to [Modifier.zoom]
- * @param zoomEnabled when set to true zoom is enabled
- * @param panEnabled when set to true pan is enabled
- * @param rotationEnabled when set to true rotation is enabled
+ * @param zoomable when set to true zoom is enabled
+ * @param pannable when set to true pan is enabled
+ * @param rotatable when set to true rotation is enabled
  * @param limitPan limits pan to bounds of parent Composable. Using this flag prevents creating
  * empty space on sides or edges of parent.
  *
@@ -27,9 +27,9 @@ open class ZoomState(
     initialRotation: Float = 0f,
     minZoom: Float = 1f,
     maxZoom: Float = 5f,
-    internal open val zoomEnabled: Boolean = true,
-    internal open val panEnabled: Boolean = true,
-    internal open val rotationEnabled: Boolean = true,
+    internal open val zoomable: Boolean = true,
+    internal open val pannable: Boolean = true,
+    internal open val rotatable: Boolean = true,
     internal open val limitPan: Boolean = false
 ) {
 
@@ -99,16 +99,16 @@ open class ZoomState(
         val newZoom = (this.zoom * zoomChange).coerceIn(zoomMin, zoomMax)
 
         snapZoomTo(newZoom)
-        val newRotation = if (rotationEnabled) {
+        val newRotation = if (rotatable) {
             this.rotation + rotationChange
         } else {
             0f
         }
         snapRotationTo(newRotation)
 
-        if (panEnabled) {
+        if (pannable) {
             val newPan = this.pan + panChange.times(this.zoom)
-            val boundPan = limitPan && !rotationEnabled
+            val boundPan = limitPan && !rotatable
 
             if (boundPan) {
                 val bound = getBounds(size)
@@ -132,37 +132,37 @@ open class ZoomState(
     }
 
     internal suspend fun animatePanTo(pan: Offset) {
-        if (panEnabled) {
+        if (pannable) {
             animatablePan.animateTo(pan)
         }
     }
 
     internal suspend fun animateZoomTo(zoom: Float) {
-        if (zoomEnabled) {
+        if (zoomable) {
             animatableZoom.animateTo(zoom)
         }
     }
 
     internal suspend fun animateRotationTo(rotation: Float) {
-        if (rotationEnabled) {
+        if (rotatable) {
             animatableRotation.animateTo(rotation)
         }
     }
 
     internal suspend fun snapPanTo(offset: Offset) {
-        if (panEnabled) {
+        if (pannable) {
             animatablePan.snapTo(offset)
         }
     }
 
     internal suspend fun snapZoomTo(zoom: Float) {
-        if (zoomEnabled) {
+        if (zoomable) {
             animatableZoom.snapTo(zoom)
         }
     }
 
     internal suspend fun snapRotationTo(rotation: Float) {
-        if (rotationEnabled) {
+        if (rotatable) {
             animatableRotation.snapTo(rotation)
         }
     }

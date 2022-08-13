@@ -46,7 +46,7 @@ fun Modifier.enhancedZoom(
 
         val coroutineScope = rememberCoroutineScope()
 
-        val boundPan = enhancedZoomState.limitPan && !enhancedZoomState.rotationEnabled
+        val boundPan = enhancedZoomState.limitPan && !enhancedZoomState.rotatable
         val clipToBounds = (clip || boundPan)
 
         val transformModifier = Modifier.pointerInput(key) {
@@ -158,7 +158,7 @@ fun Modifier.enhancedZoom(
 
         val coroutineScope = rememberCoroutineScope()
 
-        val boundPan = enhancedZoomState.limitPan && !enhancedZoomState.rotationEnabled
+        val boundPan = enhancedZoomState.limitPan && !enhancedZoomState.rotatable
         val clipToBounds = (clip || boundPan)
 
         val transformModifier = Modifier.pointerInput(key1,key2) {
@@ -271,7 +271,7 @@ fun Modifier.enhancedZoom(
 
         val coroutineScope = rememberCoroutineScope()
 
-        val boundPan = enhancedZoomState.limitPan && !enhancedZoomState.rotationEnabled
+        val boundPan = enhancedZoomState.limitPan && !enhancedZoomState.rotatable
         val clipToBounds = (clip || boundPan)
 
         val transformModifier = Modifier.pointerInput(keys) {

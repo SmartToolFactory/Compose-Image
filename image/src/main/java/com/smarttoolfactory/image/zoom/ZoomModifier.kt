@@ -42,7 +42,7 @@ fun Modifier.zoom(
     factory = {
         val coroutineScope = rememberCoroutineScope()
 
-        val boundPan = zoomState.limitPan && !zoomState.rotationEnabled
+        val boundPan = zoomState.limitPan && !zoomState.rotatable
         val clipToBounds = (clip || boundPan)
 
         var zoomLevel by remember { mutableStateOf(ZoomLevel.Min) }
@@ -158,7 +158,7 @@ fun Modifier.zoom(
     factory = {
         val coroutineScope = rememberCoroutineScope()
 
-        val boundPan = zoomState.limitPan && !zoomState.rotationEnabled
+        val boundPan = zoomState.limitPan && !zoomState.rotatable
         val clipToBounds = (clip || boundPan)
 
         var zoomLevel by remember { mutableStateOf(ZoomLevel.Min) }
@@ -272,7 +272,7 @@ fun Modifier.zoom(
     factory = {
         val coroutineScope = rememberCoroutineScope()
 
-        val boundPan = zoomState.limitPan && !zoomState.rotationEnabled
+        val boundPan = zoomState.limitPan && !zoomState.rotatable
         val clipToBounds = (clip || boundPan)
 
         var zoomLevel by remember { mutableStateOf(ZoomLevel.Min) }

@@ -27,16 +27,16 @@ import kotlinx.coroutines.coroutineScope
  * @param initialZoom zoom set initially
  * @param minZoom minimum zoom value
  * @param maxZoom maximum zoom value
- * @param flingGestureEnabled when set to true dragging pointer builds up velocity. When last
+ * @param fling when set to true dragging pointer builds up velocity. When last
  * pointer leaves Composable a movement invoked against friction till velocity drops down
  * to threshold
- * @param moveToBoundsEnabled when set to true if image zoom is lower than initial zoom or
+ * @param moveToBounds when set to true if image zoom is lower than initial zoom or
  * panned out of image boundaries moves back to bounds with animation.
  * ##Note
  * Currently rotating back to borders is not available
- * @param zoomEnabled when set to true zoom is enabled
- * @param panEnabled when set to true pan is enabled
- * @param rotationEnabled when set to true rotation is enabled
+ * @param zoomable when set to true zoom is enabled
+ * @param pannable when set to true pan is enabled
+ * @param rotatable when set to true rotation is enabled
  * @param limitPan limits pan to bounds of parent Composable. Using this flag prevents creating
  * empty space on sides or edges of parent
  */
@@ -45,21 +45,21 @@ open class EnhancedZoomState constructor(
     initialZoom: Float = 1f,
     minZoom: Float = .5f,
     maxZoom: Float = 5f,
-    flingGestureEnabled: Boolean = false,
-    moveToBoundsEnabled: Boolean = true,
-    zoomEnabled: Boolean = true,
-    panEnabled: Boolean = true,
-    rotationEnabled: Boolean = false,
+    fling: Boolean = false,
+    moveToBounds: Boolean = true,
+    zoomable: Boolean = true,
+    pannable: Boolean = true,
+    rotatable: Boolean = false,
     limitPan: Boolean = false
 ) : BaseEnhancedZoomState(
     initialZoom = initialZoom,
     minZoom = minZoom,
     maxZoom = maxZoom,
-    flingGestureEnabled = flingGestureEnabled,
-    moveToBoundsEnabled = moveToBoundsEnabled,
-    zoomEnabled = zoomEnabled,
-    panEnabled = panEnabled,
-    rotationEnabled = rotationEnabled,
+    fling = fling,
+    moveToBounds = moveToBounds,
+    zoomable = zoomable,
+    pannable = pannable,
+    rotatable = rotatable,
     limitPan = limitPan
 ) {
 
@@ -116,20 +116,20 @@ open class BaseEnhancedZoomState constructor(
     initialZoom: Float = 1f,
     minZoom: Float = .5f,
     maxZoom: Float = 5f,
-    val flingGestureEnabled: Boolean = true,
-    val moveToBoundsEnabled: Boolean = true,
-    zoomEnabled: Boolean = true,
-    panEnabled: Boolean = true,
-    rotationEnabled: Boolean = false,
+    val fling: Boolean = true,
+    val moveToBounds: Boolean = true,
+    zoomable: Boolean = true,
+    pannable: Boolean = true,
+    rotatable: Boolean = false,
     limitPan: Boolean = false
 ) : ZoomState(
     initialZoom = initialZoom,
     initialRotation = 0f,
     minZoom = minZoom,
     maxZoom = maxZoom,
-    zoomEnabled = zoomEnabled,
-    panEnabled = panEnabled,
-    rotationEnabled = rotationEnabled,
+    zoomable = zoomable,
+    pannable = pannable,
+    rotatable = rotatable,
     limitPan = limitPan
 ) {
     private val velocityTracker = VelocityTracker()
@@ -151,7 +151,7 @@ open class BaseEnhancedZoomState constructor(
         )
 
         // Fling Gesture
-        if (flingGestureEnabled) {
+        if (fling) {
             if (changes.size == 1) {
                 addPosition(mainPointer.uptimeMillis, mainPointer.position)
             }
@@ -159,10 +159,10 @@ open class BaseEnhancedZoomState constructor(
     }
 
     suspend fun onGestureEnd(onFinish: () -> Unit) {
-        if (flingGestureEnabled && zoom > 1) {
+        if (fling && zoom > 1) {
             fling()
         }
-        if (moveToBoundsEnabled) {
+        if (moveToBounds) {
             resetToValidBounds()
         }
         onFinish()
@@ -170,7 +170,7 @@ open class BaseEnhancedZoomState constructor(
 
     // Double Tap
     suspend fun onDoubleTap(onAnimationEnd: () -> Unit) {
-        if (flingGestureEnabled) {
+        if (fling) {
             resetTracking()
         }
         resetWithAnimation()

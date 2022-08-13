@@ -26,9 +26,9 @@ import com.smarttoolfactory.image.ImageWithConstraints
  * empty space on sides or edges of parent.
  * @param consume flag to prevent other gestures such as scroll, drag or transform to get
  * event propagations
- * @param zoomEnabled when set to true zoom is enabled
- * @param panEnabled when set to true pan is enabled
- * @param rotationEnabled when set to true rotation is enabled
+ * @param zoomable when set to true zoom is enabled
+ * @param pannable when set to true pan is enabled
+ * @param rotatable when set to true rotation is enabled
  * @param onGestureStart callback to to notify gesture has started and return current ZoomData
  * of this modifier
  * @param onGesture callback to notify about ongoing gesture and return current ZoomData
@@ -50,15 +50,15 @@ fun ZoomableImage(
     minZoom: Float = 1f,
     maxZoom: Float = 5f,
     limitPan: Boolean = true,
-    zoomEnabled: Boolean = true,
-    panEnabled: Boolean = true,
-    rotationEnabled: Boolean = false,
+    zoomable: Boolean = true,
+    pannable: Boolean = true,
+    rotatable: Boolean = false,
     clip: Boolean = true,
     clipTransformToContentScale: Boolean = false,
     consume: Boolean = true,
-    onGestureStart: (ZoomData) -> Unit = {},
-    onGesture: (ZoomData) -> Unit = {},
-    onGestureEnd: (ZoomData) -> Unit = {}
+    onGestureStart: ((ZoomData) -> Unit)? = null,
+    onGesture: ((ZoomData) -> Unit)? = null,
+    onGestureEnd: ((ZoomData) -> Unit)? = null
 ) {
 
     val zoomModifier = Modifier
@@ -72,9 +72,9 @@ fun ZoomableImage(
                 minZoom = minZoom,
                 maxZoom = maxZoom,
                 limitPan = limitPan,
-                zoomEnabled = zoomEnabled,
-                panEnabled = panEnabled,
-                rotationEnabled = rotationEnabled,
+                zoomable = zoomable,
+                pannable = pannable,
+                rotatable = rotatable,
             ),
             consume = consume,
             clip = clip,
@@ -140,10 +140,9 @@ fun ZoomableImage(
     clipTransformToContentScale: Boolean = false,
     zoomState: ZoomState,
     consume: Boolean = true,
-    onGestureStart: (ZoomData) -> Unit = {},
-    onGesture: (ZoomData) -> Unit = {},
-    onGestureEnd: (ZoomData) -> Unit = {}
-
+    onGestureStart: ((ZoomData) -> Unit)? = null,
+    onGesture: ((ZoomData) -> Unit)? = null,
+    onGestureEnd: ((ZoomData) -> Unit)? = null
 ) {
 
     val zoomModifier = Modifier

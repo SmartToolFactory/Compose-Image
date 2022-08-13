@@ -23,16 +23,14 @@ import androidx.compose.ui.unit.IntSize
  * @param initialZoom zoom set initially
  * @param minZoom minimum zoom value
  * @param maxZoom maximum zoom value
- * @param flingGestureEnabled when set to true dragging pointer builds up velocity. When last
- * pointer leaves Composable a movement invoked against friction till velocity drops down
+ * @param fling when set to true dragging pointer builds up velocity. When last
+ * pointer leaves Composable a movement invoked against friction till velocity drops below
  * to threshold
- * @param moveToBoundsEnabled when set to true if image zoom is lower than initial zoom or
+ * @param moveToBounds when set to true if image zoom is lower than initial zoom or
  * panned out of image boundaries moves back to bounds with animation.
- * ##Note
- * Currently rotating back to borders is not available
- * @param zoomEnabled when set to true zoom is enabled
- * @param panEnabled when set to true pan is enabled
- * @param rotationEnabled when set to true rotation is enabled
+ * @param zoomable when set to true zoom is enabled
+ * @param pannable when set to true pan is enabled
+ * @param rotatable when set to true rotation is enabled
  * @param limitPan limits pan to bounds of parent Composable. Using this flag prevents creating
  * empty space on sides or edges of parent
  */
@@ -42,11 +40,11 @@ fun rememberEnhancedZoomState(
     initialZoom: Float = 1f,
     minZoom: Float = 1f,
     maxZoom: Float = 5f,
-    flingGestureEnabled: Boolean = false,
-    moveToBoundsEnabled: Boolean = true,
-    zoomEnabled: Boolean = true,
-    panEnabled: Boolean = true,
-    rotationEnabled: Boolean = false,
+    fling: Boolean = false,
+    moveToBounds: Boolean = true,
+    zoomable: Boolean = true,
+    pannable: Boolean = true,
+    rotatable: Boolean = false,
     limitPan: Boolean = false,
     key1: Any? = Unit
 ): EnhancedZoomState {
@@ -56,11 +54,11 @@ fun rememberEnhancedZoomState(
             initialZoom = initialZoom,
             minZoom = minZoom,
             maxZoom = maxZoom,
-            flingGestureEnabled = flingGestureEnabled,
-            moveToBoundsEnabled = moveToBoundsEnabled,
-            zoomEnabled = zoomEnabled,
-            panEnabled = panEnabled,
-            rotationEnabled = rotationEnabled,
+            fling = fling,
+            moveToBounds = moveToBounds,
+            zoomable = zoomable,
+            pannable = pannable,
+            rotatable = rotatable,
             limitPan = limitPan
         )
     }
@@ -84,16 +82,14 @@ fun rememberEnhancedZoomState(
  * @param initialZoom zoom set initially
  * @param minZoom minimum zoom value
  * @param maxZoom maximum zoom value
- * @param flingGestureEnabled when set to true dragging pointer builds up velocity. When last
- * pointer leaves Composable a movement invoked against friction till velocity drops down
+ * @param fling when set to true dragging pointer builds up velocity. When last
+ * pointer leaves Composable a movement invoked against friction till velocity drops below
  * to threshold
- * @param moveToBoundsEnabled when set to true if image zoom is lower than initial zoom or
+ * @param moveToBounds when set to true if image zoom is lower than initial zoom or
  * panned out of image boundaries moves back to bounds with animation.
- * ##Note
- * Currently rotating back to borders is not available
- * @param zoomEnabled when set to true zoom is enabled
- * @param panEnabled when set to true pan is enabled
- * @param rotationEnabled when set to true rotation is enabled
+ * @param zoomable when set to true zoom is enabled
+ * @param pannable when set to true pan is enabled
+ * @param rotatable when set to true rotation is enabled
  * @param limitPan limits pan to bounds of parent Composable. Using this flag prevents creating
  * empty space on sides or edges of parent
  */
@@ -103,11 +99,11 @@ fun rememberEnhancedZoomState(
     initialZoom: Float = 1f,
     minZoom: Float = 1f,
     maxZoom: Float = 5f,
-    flingGestureEnabled: Boolean = false,
-    moveToBoundsEnabled: Boolean = true,
-    zoomEnabled: Boolean = true,
-    panEnabled: Boolean = true,
-    rotationEnabled: Boolean = false,
+    fling: Boolean = false,
+    moveToBounds: Boolean = true,
+    zoomable: Boolean = true,
+    pannable: Boolean = true,
+    rotatable: Boolean = false,
     limitPan: Boolean = false,
     key1: Any?,
     key2: Any?,
@@ -118,11 +114,11 @@ fun rememberEnhancedZoomState(
             initialZoom = initialZoom,
             minZoom = minZoom,
             maxZoom = maxZoom,
-            flingGestureEnabled = flingGestureEnabled,
-            moveToBoundsEnabled = moveToBoundsEnabled,
-            zoomEnabled = zoomEnabled,
-            panEnabled = panEnabled,
-            rotationEnabled = rotationEnabled,
+            fling = fling,
+            moveToBounds = moveToBounds,
+            zoomable = zoomable,
+            pannable = pannable,
+            rotatable = rotatable,
             limitPan = limitPan
         )
     }
@@ -143,16 +139,14 @@ fun rememberEnhancedZoomState(
  * @param initialZoom zoom set initially
  * @param minZoom minimum zoom value
  * @param maxZoom maximum zoom value
- * @param flingGestureEnabled when set to true dragging pointer builds up velocity. When last
- * pointer leaves Composable a movement invoked against friction till velocity drops down
+ * @param fling when set to true dragging pointer builds up velocity. When last
+ * pointer leaves Composable a movement invoked against friction till velocity drops below
  * to threshold
- * @param moveToBoundsEnabled when set to true if image zoom is lower than initial zoom or
+ * @param moveToBounds when set to true if image zoom is lower than initial zoom or
  * panned out of image boundaries moves back to bounds with animation.
- * ##Note
- * Currently rotating back to borders is not available
- * @param zoomEnabled when set to true zoom is enabled
- * @param panEnabled when set to true pan is enabled
- * @param rotationEnabled when set to true rotation is enabled
+ * @param zoomable when set to true zoom is enabled
+ * @param pannable when set to true pan is enabled
+ * @param rotatable when set to true rotation is enabled
  * @param limitPan limits pan to bounds of parent Composable. Using this flag prevents creating
  * empty space on sides or edges of parent
  * @param keys are used to reset remember block to initial calculations. This can be used
@@ -165,11 +159,11 @@ fun rememberEnhancedZoomState(
     initialZoom: Float = 1f,
     minZoom: Float = 1f,
     maxZoom: Float = 5f,
-    flingGestureEnabled: Boolean = false,
-    moveToBoundsEnabled: Boolean = true,
-    zoomEnabled: Boolean = true,
-    panEnabled: Boolean = true,
-    rotationEnabled: Boolean = false,
+    fling: Boolean = false,
+    moveToBounds: Boolean = true,
+    zoomable: Boolean = true,
+    pannable: Boolean = true,
+    rotatable: Boolean = false,
     limitPan: Boolean = false,
     vararg keys: Any?
 ): EnhancedZoomState {
@@ -179,11 +173,11 @@ fun rememberEnhancedZoomState(
             initialZoom = initialZoom,
             minZoom = minZoom,
             maxZoom = maxZoom,
-            flingGestureEnabled = flingGestureEnabled,
-            moveToBoundsEnabled = moveToBoundsEnabled,
-            zoomEnabled = zoomEnabled,
-            panEnabled = panEnabled,
-            rotationEnabled = rotationEnabled,
+            fling = fling,
+            moveToBounds = moveToBounds,
+            zoomable = zoomable,
+            pannable = pannable,
+            rotatable = rotatable,
             limitPan = limitPan
         )
     }

@@ -1,7 +1,6 @@
 package com.smarttoolfactory.image.zoom
 
 import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.VectorConverter
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -38,7 +37,8 @@ open class ZoomState(
     internal val zoomInitial = initialZoom.coerceIn(zoomMin, zoomMax)
     internal val rotationInitial = initialRotation % 360
 
-    internal val animatablePan = Animatable(Offset.Zero, Offset.VectorConverter)
+    internal val animatablePanX = Animatable(0f)
+    internal val animatablePanY = Animatable(0f)
     internal val animatableZoom = Animatable(zoomInitial)
     internal val animatableRotation = Animatable(rotationInitial)
 
@@ -49,7 +49,7 @@ open class ZoomState(
     }
 
     val pan: Offset
-        get() = animatablePan.value
+        get() = Offset(animatablePanX.value, animatablePanY.value)
 
     val zoom: Float
         get() = animatableZoom.value
@@ -61,7 +61,7 @@ open class ZoomState(
         get() = animatableZoom.isRunning
 
     val isPanning: Boolean
-        get() = animatablePan.isRunning
+        get() = animatablePanX.isRunning || animatablePanY.isRunning
 
     val isRotating: Boolean
         get() = animatableRotation.isRunning
@@ -70,7 +70,8 @@ open class ZoomState(
         get() = isZooming || isPanning || isRotating
 
     internal open fun updateBounds(lowerBound: Offset?, upperBound: Offset?) {
-        animatablePan.updateBounds(lowerBound, upperBound)
+        animatablePanX.updateBounds(lowerBound?.x, upperBound?.x)
+        animatablePanY.updateBounds(lowerBound?.y, upperBound?.y)
     }
 
     /**
@@ -86,7 +87,7 @@ open class ZoomState(
     /**
      * Get bounds of Composables that can be panned based on zoom level using [size]
      */
-    protected fun getBounds(): Offset {
+    protected open fun getBounds(): Offset {
         return getBounds(size)
     }
 
@@ -114,7 +115,8 @@ open class ZoomState(
                 val bound = getBounds(size)
                 updateBounds(bound.times(-1f), bound)
             }
-            snapPanTo(newPan)
+            snapPanXto(newPan.x)
+            snapPanYto(newPan.y)
         }
     }
 
@@ -126,14 +128,21 @@ open class ZoomState(
         zoom: Float = 1f,
         rotation: Float = 0f
     ) = coroutineScope {
-        launch { animatePanTo(pan) }
+        launch { animatePanXto(pan.x) }
+        launch { animatePanYto(pan.y) }
         launch { animateZoomTo(zoom) }
         launch { animateRotationTo(rotation) }
     }
 
-    internal suspend fun animatePanTo(pan: Offset) {
+    internal suspend fun animatePanXto(panX: Float) {
         if (pannable) {
-            animatablePan.animateTo(pan)
+            animatablePanX.animateTo(panX)
+        }
+    }
+
+    internal suspend fun animatePanYto(panY: Float) {
+        if (pannable) {
+            animatablePanY.animateTo(panY)
         }
     }
 
@@ -149,9 +158,15 @@ open class ZoomState(
         }
     }
 
-    internal suspend fun snapPanTo(offset: Offset) {
+    internal suspend fun snapPanXto(panX:Float) {
         if (pannable) {
-            animatablePan.snapTo(offset)
+            animatablePanX.snapTo(panX)
+        }
+    }
+
+    internal suspend fun snapPanYto(panY:Float) {
+        if (pannable) {
+            animatablePanY.snapTo(panY)
         }
     }
 

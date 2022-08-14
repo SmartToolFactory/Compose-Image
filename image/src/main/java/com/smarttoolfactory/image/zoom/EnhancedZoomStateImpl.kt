@@ -11,6 +11,7 @@ import androidx.compose.ui.unit.IntSize
 import com.smarttoolfactory.image.util.coerceIn
 import com.smarttoolfactory.image.util.getCropRect
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 
 /**
  *  * State of the enhanced zoom that uses animations and fling
@@ -72,7 +73,7 @@ open class EnhancedZoomState constructor(
     val enhancedZoomData: EnhancedZoomData
         get() = EnhancedZoomData(
             zoom = animatableZoom.targetValue,
-            pan = animatablePan.targetValue,
+            pan = Offset(animatablePanX.targetValue, animatablePanY.targetValue),
             rotation = animatableRotation.targetValue,
             imageRegion = rectDraw,
             visibleRegion = calculateRectBounds()
@@ -83,7 +84,8 @@ open class EnhancedZoomState constructor(
         val width = size.width
         val height = size.height
         val zoom = animatableZoom.targetValue
-        val pan = animatablePan.targetValue
+        val panX = animatablePanX.targetValue
+        val panY = animatablePanY.targetValue
 
         // Offset for interpolating offset from (imageWidth/2,-imageWidth/2) interval
         // to (0, imageWidth) interval when
@@ -93,9 +95,9 @@ open class EnhancedZoomState constructor(
 
         val bounds = getBounds()
 
-        val offsetX = (horizontalCenterOffset - pan.x.coerceIn(-bounds.x, bounds.x))
+        val offsetX = (horizontalCenterOffset - panX.coerceIn(-bounds.x, bounds.x))
             .coerceAtLeast(0f) / zoom
-        val offsetY = (verticalCenterOffset - pan.y.coerceIn(-bounds.y, bounds.y))
+        val offsetY = (verticalCenterOffset - panY.coerceIn(-bounds.y, bounds.y))
             .coerceAtLeast(0f) / zoom
 
         val offset = Offset(offsetX, offsetY)
@@ -203,16 +205,27 @@ open class BaseEnhancedZoomState constructor(
      * Create a fling gesture when user removes finger from scree to have continuous movement
      * until [velocityTracker] speed reached to lower bound
      */
-    private suspend fun fling() {
+    private suspend fun fling() = coroutineScope {
         val velocityTracker = velocityTracker.calculateVelocity()
         val velocity = Offset(velocityTracker.x, velocityTracker.y)
 
-        animatablePan.animateDecay(
-            velocity,
-            exponentialDecay(
-                absVelocityThreshold = 20f
+        launch {
+            animatablePanX.animateDecay(
+                velocity.x,
+                exponentialDecay(
+                    absVelocityThreshold = 20f
+                )
             )
-        )
+        }
+
+        launch {
+            animatablePanY.animateDecay(
+                velocity.y,
+                exponentialDecay(
+                    absVelocityThreshold = 20f
+                )
+            )
+        }
     }
 
     private fun resetTracking() {

@@ -298,7 +298,7 @@ private fun ZoomModifierDemo() {
 
 @Composable
 private fun DrawPolygonPath(modifier: Modifier) {
-    var sides by remember { mutableStateOf(3f) }
+    var sides by remember { mutableStateOf(6f) }
     var cornerRadius by remember { mutableStateOf(1f) }
 
     Canvas(modifier = modifier) {

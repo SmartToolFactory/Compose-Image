@@ -51,6 +51,18 @@ fun EnhancedZoomDemo() {
             contentScale = it
         }
 
+//        EnhancedZoomableImage(
+//            modifier=Modifier.fillMaxSize(),
+//            contentScale= ContentScale.FillBounds,
+//            imageBitmap = imageBitmapLarge, zoomState = rememberEnhancedZoomState(
+//            imageSize = IntSize(imageBitmapLarge.width, imageBitmapLarge.height),
+//            limitPan = true,
+//            fling = true,
+//            moveToBounds = false,
+//            minZoom = 1f,
+//            maxZoom = 10f
+//        ))
+
         EnhancedZoomableImageSample(imageBitmap = imageBitmapLarge, contentScale)
         EnhancedZoomModifierSample(imageBitmap = imageBitmapLarge)
         CallbackAndCropSample(imageBitmap = imageBitmapLarge)

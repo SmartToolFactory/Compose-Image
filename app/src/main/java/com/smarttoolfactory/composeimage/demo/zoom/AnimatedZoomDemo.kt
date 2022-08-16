@@ -10,13 +10,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.smarttoolfactory.image.zoom.AnimatedZoomLayout2
+import com.smarttoolfactory.image.zoom.AnimatedZoomLayout
 
 @Composable
 fun AnimatedZoomDemo() {
 
     Column(modifier = Modifier.fillMaxSize()) {
-        AnimatedZoomLayout2(
+        AnimatedZoomLayout(
             modifier = Modifier
                 .fillMaxSize()
                 .border(2.dp, Color.Green)
@@ -31,19 +31,5 @@ fun AnimatedZoomDemo() {
                 " asads dasdasdasd asdasdasd",
             )
         }
-
-//        AnimatedZoomLayout2(
-//            modifier = Modifier
-//                .fillMaxWidth()
-//
-//                .border(2.dp, Color.Green)
-//        ) {
-//            Text(
-//                modifier = Modifier
-//                    .size(100.dp)
-//                    .background(Color.Yellow),
-//                text = "Hello World",
-//            )
-//        }
     }
 }

@@ -158,13 +158,13 @@ open class ZoomState(
         }
     }
 
-    internal suspend fun snapPanXto(panX:Float) {
+    internal suspend fun snapPanXto(panX: Float) {
         if (pannable) {
             animatablePanX.snapTo(panX)
         }
     }
 
-    internal suspend fun snapPanYto(panY:Float) {
+    internal suspend fun snapPanYto(panY: Float) {
         if (pannable) {
             animatablePanY.snapTo(panY)
         }

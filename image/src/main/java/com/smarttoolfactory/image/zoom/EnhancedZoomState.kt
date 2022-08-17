@@ -167,7 +167,7 @@ fun rememberEnhancedZoomState(
     limitPan: Boolean = false,
     vararg keys: Any?
 ): EnhancedZoomState {
-    return remember(keys) {
+    return remember(*keys) {
         EnhancedZoomState(
             imageSize = imageSize,
             initialZoom = initialZoom,

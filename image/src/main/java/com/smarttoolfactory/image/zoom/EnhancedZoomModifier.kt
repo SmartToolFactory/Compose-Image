@@ -1,7 +1,7 @@
 package com.smarttoolfactory.image.zoom
 
 import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.draw.clipToBounds
@@ -55,7 +55,7 @@ fun Modifier.enhancedZoom(
         val coroutineScope = rememberCoroutineScope()
 
         // Current Zoom level
-        var zoomLevel = ZoomLevel.Min
+        var zoomLevel by remember { mutableStateOf(ZoomLevel.Min) }
 
         // Whether panning should be limited to bounds of gesture area or not
         val boundPan = enhancedZoomState.limitPan && !enhancedZoomState.rotatable
@@ -115,8 +115,8 @@ fun Modifier.enhancedZoom(
             detectTapGestures(
                 onDoubleTap = {
                     coroutineScope.launch {
-                        val newZoom = zoomOnDoubleTap(zoomLevel)
                         zoomLevel = getNextZoomLevel(zoomLevel)
+                        val newZoom = zoomOnDoubleTap(zoomLevel)
                         enhancedZoomState.onDoubleTap(zoom = newZoom) {
                             onGestureEnd?.invoke(enhancedZoomState.enhancedZoomData)
                         }
@@ -187,7 +187,7 @@ fun Modifier.enhancedZoom(
     factory = {
         val coroutineScope = rememberCoroutineScope()
         // Current Zoom level
-        var zoomLevel = ZoomLevel.Min
+        var zoomLevel by remember { mutableStateOf(ZoomLevel.Min) }
 
         // Whether panning should be limited to bounds of gesture area or not
         val boundPan = enhancedZoomState.limitPan && !enhancedZoomState.rotatable
@@ -246,8 +246,8 @@ fun Modifier.enhancedZoom(
             detectTapGestures(
                 onDoubleTap = {
                     coroutineScope.launch {
-                        val newZoom = zoomOnDoubleTap(zoomLevel)
                         zoomLevel = getNextZoomLevel(zoomLevel)
+                        val newZoom = zoomOnDoubleTap(zoomLevel)
                         enhancedZoomState.onDoubleTap(zoom = newZoom) {
                             onGestureEnd?.invoke(enhancedZoomState.enhancedZoomData)
                         }
@@ -280,7 +280,6 @@ fun Modifier.enhancedZoom(
         properties["onUp"] = onGestureEnd
     }
 )
-
 
 /**
  * Modifier that zooms in or out of Composable set to. This zoom modifier has option
@@ -322,7 +321,7 @@ fun Modifier.enhancedZoom(
         val coroutineScope = rememberCoroutineScope()
 
         // Current Zoom level
-        var zoomLevel = ZoomLevel.Min
+        var zoomLevel by remember { mutableStateOf(ZoomLevel.Min) }
 
         // Whether panning should be limited to bounds of gesture area or not
         val boundPan = enhancedZoomState.limitPan && !enhancedZoomState.rotatable
@@ -330,7 +329,7 @@ fun Modifier.enhancedZoom(
         // If we bound to touch area or clip is true Modifier.clipToBounds is used
         val clipToBounds = (clip || boundPan)
 
-        val transformModifier = Modifier.pointerInput(keys) {
+        val transformModifier = Modifier.pointerInput(*keys) {
             // Pass size of this Composable this Modifier is attached for constraining operations
             // inside this bounds
             enhancedZoomState.size = this.size
@@ -374,15 +373,15 @@ fun Modifier.enhancedZoom(
             )
         }
 
-        val tapModifier = Modifier.pointerInput(keys) {
+        val tapModifier = Modifier.pointerInput(*keys) {
             // Pass size of this Composable this Modifier is attached for constraining operations
             // inside this bounds
             enhancedZoomState.size = this.size
             detectTapGestures(
                 onDoubleTap = {
                     coroutineScope.launch {
-                        val newZoom = zoomOnDoubleTap(zoomLevel)
                         zoomLevel = getNextZoomLevel(zoomLevel)
+                        val newZoom = zoomOnDoubleTap(zoomLevel)
                         enhancedZoomState.onDoubleTap(zoom = newZoom) {
                             onGestureEnd?.invoke(enhancedZoomState.enhancedZoomData)
                         }

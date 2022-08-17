@@ -77,7 +77,11 @@ fun EnhancedZoomableImage(
 
     val zoomModifier = Modifier
         .enhancedZoom(
+            key1= imageBitmap,
+            key2 = contentScale,
             enhancedZoomState = rememberEnhancedZoomState(
+                key1 = imageBitmap,
+                key2 = contentScale,
                 imageSize = IntSize(imageBitmap.width, imageBitmap.height),
                 initialZoom = initialZoom,
                 minZoom = minZoom,

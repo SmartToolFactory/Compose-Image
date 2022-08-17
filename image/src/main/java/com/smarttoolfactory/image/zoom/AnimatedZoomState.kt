@@ -185,7 +185,7 @@ fun rememberAnimatedZoomState(
 
     val density = LocalDensity.current
 
-    return remember(keys) {
+    return remember(*keys) {
 
         val size = if (contentSize == DpSize.Zero) {
             IntSize.Zero

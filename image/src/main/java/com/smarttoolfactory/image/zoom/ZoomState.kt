@@ -121,7 +121,7 @@ fun rememberZoomState(
     limitPan: Boolean = false,
     vararg keys: Any?
 ): ZoomState {
-    return remember(keys) {
+    return remember(*keys) {
         ZoomState(
             initialZoom = initialZoom,
             initialRotation = initialRotation,

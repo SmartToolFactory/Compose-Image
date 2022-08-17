@@ -1,7 +1,7 @@
 package com.smarttoolfactory.image.zoom
 
 import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.draw.clipToBounds
@@ -43,7 +43,7 @@ fun Modifier.zoom(
         val coroutineScope = rememberCoroutineScope()
 
         // Current Zoom level
-        var zoomLevel = ZoomLevel.Min
+        var zoomLevel by remember { mutableStateOf(ZoomLevel.Min) }
 
         // Whether panning should be limited to bounds of gesture area or not
         val boundPan = zoomState.limitPan && !zoomState.rotatable
@@ -163,7 +163,7 @@ fun Modifier.zoom(
         val coroutineScope = rememberCoroutineScope()
 
         // Current Zoom level
-        var zoomLevel = ZoomLevel.Min
+        var zoomLevel by remember { mutableStateOf(ZoomLevel.Min) }
 
         // Whether panning should be limited to bounds of gesture area or not
         val boundPan = zoomState.limitPan && !zoomState.rotatable
@@ -281,7 +281,7 @@ fun Modifier.zoom(
         val coroutineScope = rememberCoroutineScope()
 
         // Current Zoom level
-        var zoomLevel = ZoomLevel.Min
+        var zoomLevel by remember { mutableStateOf(ZoomLevel.Min) }
 
         // Whether panning should be limited to bounds of gesture area or not
         val boundPan = zoomState.limitPan && !zoomState.rotatable
@@ -289,7 +289,7 @@ fun Modifier.zoom(
         // If we bound to touch area or clip is true Modifier.clipToBounds is used
         val clipToBounds = (clip || boundPan)
 
-        val transformModifier = Modifier.pointerInput(keys) {
+        val transformModifier = Modifier.pointerInput(*keys) {
             // Pass size of this Composable this Modifier is attached for constraining operations
             // inside this bounds
             zoomState.size = this.size
@@ -317,7 +317,7 @@ fun Modifier.zoom(
             )
         }
 
-        val tapModifier = Modifier.pointerInput(keys) {
+        val tapModifier = Modifier.pointerInput(*keys) {
             // Pass size of this Composable this Modifier is attached for constraining operations
             // inside this bounds
             zoomState.size = this.size

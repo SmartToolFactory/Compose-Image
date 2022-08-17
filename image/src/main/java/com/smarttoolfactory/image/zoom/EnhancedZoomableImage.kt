@@ -4,6 +4,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.DefaultAlpha
 import androidx.compose.ui.graphics.FilterQuality
@@ -14,7 +15,7 @@ import androidx.compose.ui.unit.IntSize
 import com.smarttoolfactory.image.ImageWithConstraints
 
 /**
- * Zoomable image that zooms in and out in [ [minZoom], [maxZoom] ] interval and translates
+ * Zoomable image that zooms in and out in [ [minZoom], [maxZoom] ] interval and pans
  * zoomed image based on pointer position.
  * Double tap gestures reset image translation and zoom to default values with animation.
  *
@@ -28,8 +29,6 @@ import com.smarttoolfactory.image.ImageWithConstraints
  * to threshold
  * @param moveToBounds when set to true if image zoom is lower than initial zoom or
  * panned out of image boundaries moves back to bounds with animation.
- * @param consume flag to prevent other gestures such as scroll, drag or transform to get
- * event propagations
  * @param zoomable when set to true zoom is enabled
  * @param pannable when set to true pan is enabled
  * @param rotatable when set to true rotation is enabled
@@ -37,6 +36,10 @@ import com.smarttoolfactory.image.ImageWithConstraints
  * drawn
  * @param clipTransformToContentScale when set true zoomable image takes borders of image drawn
  * while zooming in. [contentScale] determines whether will be empty spaces on edges of Composable
+ * @param zoomOnDoubleTap lambda that returns current [ZoomLevel] and based on current level
+ * enables developer to define zoom on double tap gesture
+ * @param enabled lambda can be used selectively enable or disable pan and intercepting with
+ * scroll, drag or lists or pagers using current zoom, pan or rotation values
  * @param onGestureStart callback to to notify gesture has started and return current ZoomData
  * of this modifier
  * @param onGesture callback to notify about ongoing gesture and return current ZoomData
@@ -64,11 +67,12 @@ fun EnhancedZoomableImage(
     pannable: Boolean = true,
     rotatable: Boolean = false,
     clip: Boolean = true,
+    enabled: (Float, Offset, Float) -> Boolean = DefaultEnabled,
+    zoomOnDoubleTap: (ZoomLevel) -> Float = DefaultOnDoubleTap,
     clipTransformToContentScale: Boolean = false,
-    consume: Boolean = true,
     onGestureStart: ((EnhancedZoomData) -> Unit)? = null,
-    onGesture: ((EnhancedZoomData) -> Unit)?  = null,
-    onGestureEnd: ((EnhancedZoomData) -> Unit)?  = null
+    onGesture: ((EnhancedZoomData) -> Unit)? = null,
+    onGestureEnd: ((EnhancedZoomData) -> Unit)? = null
 ) {
 
     val zoomModifier = Modifier
@@ -85,8 +89,9 @@ fun EnhancedZoomableImage(
                 pannable = pannable,
                 rotatable = rotatable
             ),
-            consume = consume,
             clip = clip,
+            enabled = enabled,
+            zoomOnDoubleTap = zoomOnDoubleTap,
             onGestureStart = onGestureStart,
             onGesture = onGesture,
             onGestureEnd = onGestureEnd
@@ -120,17 +125,18 @@ fun EnhancedZoomableImage(
 }
 
 /**
- * Zoomable image that zooms in and out in [zoomState.minZoom, zoomState.maxZoom] interval 
- * and translates
- * zoomed image based on pointer position.
+ * Zoomable image that zooms in and out in [zoomState.minZoom, zoomState.maxZoom] interval
+ * and pans zoomed image based on pointer position.
  * Double tap gestures reset image translation and zoom to default values with animation.
  *
  * @param clip when set to true clips to parent bounds. Anything outside parent bounds is not
  * drawn
  * @param clipTransformToContentScale when set true zoomable image takes borders of image drawn
  * while zooming in. [contentScale] determines whether will be empty spaces on edges of Composable
- * @param consume flag to prevent other gestures such as scroll, drag or transform to get
- * event propagations
+ * @param zoomOnDoubleTap lambda that returns current [ZoomLevel] and based on current level
+ * enables developer to define zoom on double tap gesture
+ * @param enabled lambda can be used selectively enable or disable pan and intercepting with
+ * scroll, drag or lists or pagers using current zoom, pan or rotation values
  * @param onGestureStart callback to to notify gesture has started and return current ZoomData
  * of this modifier
  * @param onGesture callback to notify about ongoing gesture and return current ZoomData
@@ -150,18 +156,20 @@ fun EnhancedZoomableImage(
     filterQuality: FilterQuality = DrawScope.DefaultFilterQuality,
     clip: Boolean = true,
     clipTransformToContentScale: Boolean = false,
-    zoomState: EnhancedZoomState,
-    consume: Boolean = true,
+    enhancedZoomState: EnhancedZoomState,
+    enabled: (Float, Offset, Float) -> Boolean = DefaultEnabled,
+    zoomOnDoubleTap: (ZoomLevel) -> Float = enhancedZoomState.DefaultOnDoubleTap,
     onGestureStart: ((EnhancedZoomData) -> Unit)? = null,
-    onGesture: ((EnhancedZoomData) -> Unit)?  = null,
-    onGestureEnd: ((EnhancedZoomData) -> Unit)?  = null
+    onGesture: ((EnhancedZoomData) -> Unit)? = null,
+    onGestureEnd: ((EnhancedZoomData) -> Unit)? = null
 ) {
 
     val zoomModifier = Modifier
         .enhancedZoom(
-            enhancedZoomState = zoomState,
-            consume = consume,
+            enhancedZoomState = enhancedZoomState,
             clip = clip,
+            enabled = enabled,
+            zoomOnDoubleTap = zoomOnDoubleTap,
             onGestureStart = onGestureStart,
             onGesture = onGesture,
             onGestureEnd = onGestureEnd
@@ -193,5 +201,3 @@ fun EnhancedZoomableImage(
         }
     }
 }
-
-

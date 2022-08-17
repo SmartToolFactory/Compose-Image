@@ -5,37 +5,49 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import com.smarttoolfactory.gesture.detectTransformGestures
+import com.smarttoolfactory.image.util.getNextZoomLevel
 import com.smarttoolfactory.image.util.update
 import kotlinx.coroutines.launch
 
 /**
-* Modifier that zooms in or out of Composable set to. This zoom modifier has option
-* to move back to bounds with an animation or option to have fling gesture when user removes
-* from screen while velocity is higher than threshold to have smooth touch effect.
-*
-* @param key is used for [Modifier.pointerInput] to restart closure when any keys assigned
-* change
-* @param consume flag to prevent other gestures such as scroll, drag or transform to get
-* @param clip when set to true clips to parent bounds. Anything outside parent bounds is not
-* drawn
-* empty space on sides or edges of parent.
-* [EnhancedZoomData]  of this modifier
-*/
+ * Modifier that zooms in or out of Composable set to. This zoom modifier has option
+ * to move back to bounds with an animation or option to have fling gesture when user removes
+ * from screen while velocity is higher than threshold to have smooth touch effect.
+ *
+ * @param key is used for [Modifier.pointerInput] to restart closure when any keys assigned
+ * change
+ * @param clip when set to true clips to parent bounds. Anything outside parent bounds is not
+ * drawn
+ * @param animatedZoomState State of the zoom that contains option to set initial, min, max zoom,
+ * enabling rotation, pan or zoom
+ * @param zoomOnDoubleTap lambda that returns current [ZoomLevel] and based on current level
+ * enables developer to define zoom on double tap gesture
+ * @param enabled lambda can be used selectively enable or disable pan and intercepting with
+ * scroll, drag or lists or pagers using current zoom, pan or rotation values
+ */
 fun Modifier.animatedZoom(
     key: Any? = Unit,
-    consume: Boolean = true,
     clip: Boolean = true,
     animatedZoomState: AnimatedZoomState,
+    enabled: (Float, Offset, Float) -> Boolean = DefaultEnabled,
+    zoomOnDoubleTap: (ZoomLevel) -> Float = animatedZoomState.DefaultOnDoubleTap,
 ) = composed(
 
     factory = {
 
         val coroutineScope = rememberCoroutineScope()
 
+        // Current Zoom level
+        var zoomLevel = ZoomLevel.Min
+
+        // Whether panning should be limited to bounds of gesture area or not
         val boundPan = animatedZoomState.limitPan && !animatedZoomState.rotatable
+
+        // If we bound to touch area or clip is true Modifier.clipToBounds is used
         val clipToBounds = (clip || boundPan)
 
         val transformModifier = Modifier.pointerInput(key) {
@@ -43,7 +55,7 @@ fun Modifier.animatedZoom(
             // inside this bounds
             animatedZoomState.size = this.size
             detectTransformGestures(
-                consume = consume,
+                consume = false,
                 onGestureEnd = {
                     coroutineScope.launch {
                         animatedZoomState.onGestureEnd {
@@ -52,15 +64,24 @@ fun Modifier.animatedZoom(
                 },
                 onGesture = { centroid, pan, zoom, rotate, mainPointer, pointerList ->
 
+                    val currentZoom = animatedZoomState.zoom
+                    val currentPan = animatedZoomState.pan
+                    val currentRotation = animatedZoomState.rotation
+                    val gestureEnabled = enabled(currentZoom, currentPan, currentRotation)
+
                     coroutineScope.launch {
                         animatedZoomState.onGesture(
                             centroid = centroid,
-                            pan = pan,
+                            pan = if (gestureEnabled) pan else Offset.Zero,
                             zoom = zoom,
                             rotation = rotate,
                             mainPointer = mainPointer,
                             changes = pointerList
                         )
+
+                        if (gestureEnabled) {
+                            mainPointer.consume()
+                        }
                     }
                 }
             )
@@ -73,7 +94,9 @@ fun Modifier.animatedZoom(
             detectTapGestures(
                 onDoubleTap = {
                     coroutineScope.launch {
-                        animatedZoomState.onDoubleTap {}
+                        val newZoom = zoomOnDoubleTap(zoomLevel)
+                        zoomLevel = getNextZoomLevel(zoomLevel)
+                        animatedZoomState.onDoubleTap(zoom = newZoom) {}
                     }
                 }
             )

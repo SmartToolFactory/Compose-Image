@@ -18,7 +18,7 @@ internal fun calculateZoom(
     val newZoom: Float
 
     when (zoomLevel) {
-        ZoomLevel.Initial -> {
+        ZoomLevel.Mid -> {
             newZoomLevel = ZoomLevel.Max
             newZoom = max.coerceAtMost(3f)
         }
@@ -27,11 +27,23 @@ internal fun calculateZoom(
             newZoom = if (min == initial) (min + max.coerceAtMost(3f)) / 2 else min
         }
         else -> {
-            newZoomLevel = ZoomLevel.Initial
+            newZoomLevel = ZoomLevel.Mid
             newZoom = initial.coerceAtMost(2f)
         }
     }
     return Pair(newZoomLevel, newZoom)
+}
+
+internal fun getNextZoomLevel(zoomLevel: ZoomLevel): ZoomLevel = when (zoomLevel) {
+    ZoomLevel.Mid -> {
+        ZoomLevel.Max
+    }
+    ZoomLevel.Max -> {
+        ZoomLevel.Min
+    }
+    else -> {
+        ZoomLevel.Mid
+    }
 }
 
 /**

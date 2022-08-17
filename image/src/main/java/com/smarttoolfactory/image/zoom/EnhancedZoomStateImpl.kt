@@ -136,6 +136,8 @@ open class BaseEnhancedZoomState constructor(
 ) {
     private val velocityTracker = VelocityTracker()
 
+    private var doubleTapped = false
+
     open suspend fun onGesture(
         centroid: Offset,
         pan: Offset,
@@ -144,6 +146,8 @@ open class BaseEnhancedZoomState constructor(
         mainPointer: PointerInputChange,
         changes: List<PointerInputChange>
     ) = coroutineScope {
+
+        doubleTapped = false
 
         updateZoomState(
             centroid = centroid,
@@ -160,22 +164,36 @@ open class BaseEnhancedZoomState constructor(
         }
     }
 
-    suspend fun onGestureEnd(onFinish: () -> Unit) {
-        if (fling && zoom > 1) {
-            fling()
+    open suspend fun onGestureStart() = coroutineScope {}
+
+    open suspend fun onGestureEnd(onFinish: () -> Unit) {
+
+        // Gesture end might be called after second tap and we don't want to fling
+        // or animate back to valid bounds when doubled tapped
+        if (!doubleTapped) {
+            if (fling && zoom > 1) {
+                fling()
+            }
+            if (moveToBounds) {
+                resetToValidBounds()
+            }
+            onFinish()
         }
-        if (moveToBounds) {
-            resetToValidBounds()
-        }
-        onFinish()
     }
 
     // Double Tap
-    suspend fun onDoubleTap(onAnimationEnd: () -> Unit) {
+    suspend fun onDoubleTap(
+        pan: Offset = Offset.Zero,
+        zoom: Float = 1f,
+        rotation: Float = 0f,
+        onAnimationEnd: () -> Unit
+    ) {
+        doubleTapped = true
+
         if (fling) {
             resetTracking()
         }
-        resetWithAnimation()
+        resetWithAnimation(pan = pan, zoom = zoom, rotation = rotation)
         onAnimationEnd()
     }
 

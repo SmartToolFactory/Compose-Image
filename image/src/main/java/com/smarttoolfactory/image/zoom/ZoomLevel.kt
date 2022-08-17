@@ -6,5 +6,5 @@ import androidx.compose.ui.Modifier
  * Enum class for zoom levels to use with [Modifier.zoom]
  */
 enum class ZoomLevel {
-    Initial, Min, Max
+    Min, Mid, Max
 }

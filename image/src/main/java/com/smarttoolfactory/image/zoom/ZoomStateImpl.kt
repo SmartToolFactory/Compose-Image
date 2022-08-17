@@ -45,6 +45,7 @@ open class ZoomState(
     internal var size: IntSize = IntSize.Zero
 
     init {
+        animatableZoom.updateBounds(zoomMin, zoomMax)
         require(zoomMax >= zoomMin)
     }
 
@@ -148,7 +149,8 @@ open class ZoomState(
 
     internal suspend fun animateZoomTo(zoom: Float) {
         if (zoomable) {
-            animatableZoom.animateTo(zoom)
+            val newZoom = zoom.coerceIn(zoomMin, zoomMax)
+            animatableZoom.animateTo(newZoom)
         }
     }
 
@@ -172,7 +174,7 @@ open class ZoomState(
 
     internal suspend fun snapZoomTo(zoom: Float) {
         if (zoomable) {
-            animatableZoom.snapTo(zoom)
+            animatableZoom.snapTo(zoom.coerceIn(zoomMin, zoomMax))
         }
     }
 

@@ -40,8 +40,6 @@ open class AnimatedZoomState constructor(
 
         val maxX = ((contentWidth * zoom - size.width) / 2f).coerceAtLeast(0f)
         val maxY = ((contentHeight * zoom - size.height) / 2f).coerceAtLeast(0f)
-
-        println("🎾 GetBounds zoom:$zoom, size: $size, maxX: $maxX, maxY: $maxY")
         return Offset(maxX, maxY)
     }
 }

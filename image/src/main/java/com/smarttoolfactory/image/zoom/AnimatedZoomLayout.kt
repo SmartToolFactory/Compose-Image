@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.Placeable
@@ -19,13 +20,42 @@ import com.smarttoolfactory.image.SlotsEnum
 
 /**
  * Layout that can zoom, rotate, pan its content with fling and moving back to bounds animation.
+ * @param clip when set to true clips to parent bounds. Anything outside parent bounds is not
+ * drawn
+ * @param minZoom minimum zoom value
+ * @param maxZoom maximum zoom value
+ * @param fling when set to true dragging pointer builds up velocity. When last
+ * pointer leaves Composable a movement invoked against friction till velocity drops below
+ * to threshold
+ * @param moveToBounds when set to true if image zoom is lower than initial zoom or
+ * panned out of image boundaries moves back to bounds with animation.
+ * @param zoomable when set to true zoom is enabled
+ * @param pannable when set to true pan is enabled
+ * @param rotatable when set to true rotation is enabled
+ * @param limitPan limits pan to bounds of parent Composable. Using this flag prevents creating
+ * empty space on sides or edges of parent
+ * @param zoomOnDoubleTap lambda that returns current [ZoomLevel] and based on current level
+ * enables developer to define zoom on double tap gesture
+ * @param enabled lambda can be used selectively enable or disable pan and intercepting with
+ * scroll, drag or lists or pagers using current zoom, pan or rotation values
  */
 @Composable
 fun AnimatedZoomLayout(
     modifier: Modifier = Modifier,
+    clip: Boolean = true,
+    initialZoom: Float = 1f,
+    minZoom: Float = 1f,
+    maxZoom: Float = 3f,
+    fling: Boolean = true,
+    moveToBounds: Boolean = false,
+    zoomable: Boolean = true,
+    pannable: Boolean = true,
+    rotatable: Boolean = false,
+    limitPan: Boolean = true,
+    enabled: (Float, Offset, Float) -> Boolean = DefaultEnabled,
+    zoomOnDoubleTap: (ZoomLevel) -> Float = DefaultOnDoubleTap,
     content: @Composable () -> Unit
 ) {
-
     AnimatedZoomSubcomposeLayout(
         modifier = modifier,
         mainContent = { content() }
@@ -35,9 +65,19 @@ fun AnimatedZoomLayout(
                 .fillMaxSize()
                 .border(5.dp, Color.Red)
                 .animatedZoom(
+                    enabled = enabled,
+                    clip = clip,
+                    zoomOnDoubleTap = zoomOnDoubleTap,
                     animatedZoomState = rememberAnimatedZoomState(
-                        minZoom = .5f,
-                        maxZoom = 30f,
+                        minZoom = minZoom,
+                        maxZoom = maxZoom,
+                        initialZoom = initialZoom,
+                        fling = fling,
+                        moveToBounds = moveToBounds,
+                        zoomable = zoomable,
+                        pannable = pannable,
+                        rotatable = rotatable,
+                        limitPan = limitPan,
                         contentSize = it
                     ),
                 ),

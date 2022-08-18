@@ -3,6 +3,7 @@ package com.smarttoolfactory.image.zoom
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.unit.IntRect
 
 /**
  * class that contains current zoom, pan and rotation information
@@ -24,5 +25,5 @@ data class EnhancedZoomData(
     val pan: Offset = Offset.Zero,
     val rotation: Float = 0f,
     val imageRegion: Rect,
-    val visibleRegion: Rect
+    val visibleRegion: IntRect
 )

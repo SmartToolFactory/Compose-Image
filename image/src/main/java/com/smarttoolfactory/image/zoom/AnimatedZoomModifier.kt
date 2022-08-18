@@ -79,10 +79,10 @@ fun Modifier.animatedZoom(
                             mainPointer = mainPointer,
                             changes = pointerList
                         )
+                    }
 
-                        if (gestureEnabled) {
-                            mainPointer.consume()
-                        }
+                    if (gestureEnabled) {
+                        mainPointer.consume()
                     }
                 }
             )
@@ -189,10 +189,10 @@ fun Modifier.animatedZoom(
                             mainPointer = mainPointer,
                             changes = pointerList
                         )
+                    }
 
-                        if (gestureEnabled) {
-                            mainPointer.consume()
-                        }
+                    if (gestureEnabled) {
+                        mainPointer.consume()
                     }
                 }
             )

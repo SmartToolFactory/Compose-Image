@@ -7,6 +7,7 @@ import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.ui.input.pointer.util.VelocityTracker
+import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
 import com.smarttoolfactory.image.util.coerceIn
 import com.smarttoolfactory.image.util.getCropRect
@@ -79,7 +80,7 @@ open class EnhancedZoomState constructor(
             visibleRegion = calculateRectBounds()
         )
 
-    private fun calculateRectBounds(): Rect {
+    private fun calculateRectBounds(): IntRect {
 
         val width = size.width
         val height = size.height

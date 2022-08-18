@@ -15,13 +15,12 @@ import com.google.android.exoplayer2.ui.PlayerView
 @Composable
 fun MyPlayer(modifier: Modifier, uri: String) {
     val context = LocalContext.current
-    val player = SimpleExoPlayer.Builder(context).build()
+    val player = remember {
+        SimpleExoPlayer.Builder(context).build()
+    }
     val playerView = remember {
         PlayerView(context)
     }
-
-
-    println("🚀 MyPlayer URI $uri, player: $player, playerView: $playerView")
 
     LaunchedEffect(player, uri) {
         playerView.useController = false

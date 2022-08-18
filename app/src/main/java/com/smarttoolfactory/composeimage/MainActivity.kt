@@ -18,11 +18,21 @@ import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.PagerState
 import com.google.accompanist.pager.rememberPagerState
-import com.smarttoolfactory.composeimage.demo.*
+import com.smarttoolfactory.composeimage.demo.ImageWithConstraintsDemo
+import com.smarttoolfactory.composeimage.demo.ThumbnailDemo
+import com.smarttoolfactory.composeimage.demo.beforeafter.BeforeAfterImageDemo
+import com.smarttoolfactory.composeimage.demo.beforeafter.BeforeAfterLayoutDemo
+import com.smarttoolfactory.composeimage.demo.transform.EditScaleDemo
+import com.smarttoolfactory.composeimage.demo.transform.EditSizeDemo
+import com.smarttoolfactory.composeimage.demo.zoom.AnimatedZoomDemo
+import com.smarttoolfactory.composeimage.demo.zoom.EnhancedZoomCropDemo
+import com.smarttoolfactory.composeimage.demo.zoom.EnhancedZoomDemo
+import com.smarttoolfactory.composeimage.demo.zoom.ZoomDemo
 import com.smarttoolfactory.composeimage.ui.theme.ComposeImageTheme
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -91,9 +101,12 @@ private fun HomeContent() {
                 1 -> ThumbnailDemo()
                 2 -> EditScaleDemo()
                 3 -> EditSizeDemo()
-                4 -> ZoomDemo()
-                5 -> BeforeAfterImageDemo()
-                else -> BeforeAfterLayoutDemo()
+                4 -> BeforeAfterImageDemo()
+                5 -> BeforeAfterLayoutDemo()
+                6 -> ZoomDemo()
+                7 -> EnhancedZoomDemo()
+                8 -> EnhancedZoomCropDemo()
+                else -> AnimatedZoomDemo()
             }
         }
     }
@@ -105,7 +118,10 @@ internal val tabList =
         "Image Thumbnail",
         "Editable Scale",
         "Editable Size",
-        "Zoom",
         "Before/After Image",
         "Before/After Layout",
+        "Zoom",
+        "Enhanced Zoom",
+        "Enhanced Zoom Crop",
+        "Animated Zoom"
     )

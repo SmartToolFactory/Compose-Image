@@ -199,7 +199,7 @@ private fun CropSample(
     Button(
         modifier = Modifier
             .padding(8.dp)
-            .fillMaxSize(),
+            .fillMaxWidth(),
         onClick = { showDialog = true }) {
         Text("Crop")
     }

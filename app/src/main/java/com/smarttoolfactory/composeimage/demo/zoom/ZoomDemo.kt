@@ -10,6 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.layout.ContentScale
@@ -24,101 +25,40 @@ import com.smarttoolfactory.composeimage.TitleMedium
 import com.smarttoolfactory.image.zoom.ZoomableImage
 import com.smarttoolfactory.image.zoom.rememberZoomState
 import com.smarttoolfactory.image.zoom.zoom
+import kotlin.math.cos
 import kotlin.math.roundToInt
+import kotlin.math.sin
 
-/**
- * This demo uses checkbox to change properties in one place
- */
 @Composable
-fun ZoomDemo2() {
+fun ZoomDemo() {
 
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .verticalScroll(rememberScrollState())
             .background(Color(0xffECEFF1))
     ) {
+
+        var contentScale by remember { mutableStateOf(ContentScale.Fit) }
 
         val imageBitmap = ImageBitmap.imageResource(
             LocalContext.current.resources,
             R.drawable.landscape4
         )
 
-        var contentScale by remember { mutableStateOf(ContentScale.Fit) }
-
         ContentScaleSelectionMenu(contentScale = contentScale) {
             contentScale = it
         }
 
-        var limitPan by remember { mutableStateOf(true) }
-        var zoomable by remember { mutableStateOf(true) }
-        var pannable by remember { mutableStateOf(true) }
-        var rotatable by remember { mutableStateOf(true) }
-        var clip by remember { mutableStateOf(true) }
-        var clipTransformToContentScale by remember { mutableStateOf(true) }
-        var consume by remember { mutableStateOf(true) }
-
-        CheckBoxWithTitle(
-            label = "Limit Pan(Rotation should be disabled)",
-            state = limitPan,
-            onStateChange = { limitPan = it })
-        CheckBoxWithTitle(label = "Zoomable", state = zoomable, onStateChange = { zoomable = it })
-        CheckBoxWithTitle(label = "Pannable", state = pannable, onStateChange = { pannable = it })
-        CheckBoxWithTitle(
-            label = "Rotatable",
-            state = rotatable,
-            onStateChange = { rotatable = it })
-        CheckBoxWithTitle(label = "clip(Limit pan forces clip)", state = clip, onStateChange = { clip = it })
-        CheckBoxWithTitle(
-            label = "clipTransformToContentScale",
-            state = clipTransformToContentScale,
-            onStateChange = { clipTransformToContentScale = it }
-        )
-        CheckBoxWithTitle(label = "consume", state = consume, onStateChange = { consume = it })
-
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState())
-        ) {
-            ZoomableImageDemo(
-                imageBitmap = imageBitmap,
-                contentScale = contentScale,
-                limitPan = limitPan,
-                zoomable = zoomable,
-                pannable = pannable,
-                rotatable = rotatable,
-                clip = clip,
-                clipTransformToContentScale = clipTransformToContentScale,
-                consume = consume
-            )
-
-            ZoomModifierDemo(
-                imageBitmap = imageBitmap,
-                contentScale = contentScale,
-                limitPan = limitPan,
-                zoomable = zoomable,
-                pannable = pannable,
-                rotatable = rotatable,
-                clip = clip,
-                clipTransformToContentScale = clipTransformToContentScale,
-                consume = consume,
-            )
-        }
+        ZoomableImageDemo(contentScale, imageBitmap)
+        ZoomModifierDemo(imageBitmap)
+        ZoomGestureCallbackDemo(imageBitmap)
     }
 }
 
 @Composable
-private fun ZoomableImageDemo(
-    imageBitmap: ImageBitmap,
-    contentScale: ContentScale,
-    limitPan: Boolean,
-    zoomable: Boolean,
-    pannable: Boolean,
-    rotatable: Boolean,
-    clip: Boolean,
-    clipTransformToContentScale: Boolean,
-    consume: Boolean
-) {
+private fun ZoomableImageDemo(contentScale: ContentScale, imageBitmap: ImageBitmap) {
+
     Text(
         text = "ZoomableImage",
         fontSize = 20.sp,
@@ -127,7 +67,7 @@ private fun ZoomableImageDemo(
         modifier = Modifier.padding(8.dp)
     )
 
-    TitleMedium(text = "Parameter version")
+    TitleMedium(text = "clipTransformToContentScale false")
 
     ZoomableImage(
         modifier = Modifier
@@ -136,17 +76,27 @@ private fun ZoomableImageDemo(
             .aspectRatio(4 / 3f),
         imageBitmap = imageBitmap,
         contentScale = contentScale,
-        limitPan = limitPan,
-        zoomable = zoomable,
-        pannable = pannable,
-        rotatable = rotatable,
-        clip = clip,
-        clipTransformToContentScale = clipTransformToContentScale,
-        consume = consume
+        clipTransformToContentScale = false
     )
 
-    Spacer(modifier = Modifier.height(20.dp))
-    TitleMedium(text = "rememberZoomState version")
+    Spacer(modifier = Modifier.height(40.dp))
+
+    TitleMedium(text = "clipTransformToContentScale = true")
+    ZoomableImage(
+        modifier = Modifier
+            .background(Color.LightGray)
+            .fillMaxWidth()
+            .aspectRatio(4 / 3f),
+        imageBitmap = imageBitmap,
+        contentScale = contentScale,
+        clipTransformToContentScale = true
+    )
+
+    Spacer(modifier = Modifier.height(40.dp))
+    TitleMedium(
+        text = "clip = false\n" +
+                "limitPan = false"
+    )
 
     ZoomableImage(
         modifier = Modifier
@@ -155,27 +105,31 @@ private fun ZoomableImageDemo(
             .aspectRatio(4 / 3f),
         imageBitmap = imageBitmap,
         contentScale = contentScale,
-        zoomState = rememberZoomState(
-            limitPan = limitPan,
-            zoomable = zoomable,
-            pannable = pannable,
-            rotatable = rotatable,
-            keys = arrayOf(
-                limitPan,
-                zoomable,
-                pannable,
-                rotatable,
-                clip,
-                clipTransformToContentScale
-            )
-        ),
-        clip = clip,
-        clipTransformToContentScale = clipTransformToContentScale,
-        consume = consume
+        clip = false,
+        limitPan = false
+
     )
 
-    Spacer(modifier = Modifier.height(20.dp))
-    TitleMedium(text = "gesture callbacks")
+    Spacer(modifier = Modifier.height(40.dp))
+    TitleMedium(text = "rotatable = true")
+
+    ZoomableImage(
+        modifier = Modifier
+            .background(Color.LightGray)
+            .fillMaxWidth()
+            .aspectRatio(4 / 3f),
+        imageBitmap = imageBitmap,
+        contentScale = contentScale,
+        clipTransformToContentScale = true,
+        rotatable = true
+    )
+
+    Spacer(modifier = Modifier.height(40.dp))
+}
+
+@Composable
+private fun ZoomGestureCallbackDemo(imageBitmap: ImageBitmap) {
+        TitleMedium(text = "gesture callbacks")
 
     var text by remember {
         mutableStateOf(
@@ -217,30 +171,11 @@ private fun ZoomableImageDemo(
 }
 
 @Composable
-private fun ZoomModifierDemo(
-    imageBitmap: ImageBitmap,
-    contentScale: ContentScale,
-    limitPan: Boolean,
-    zoomable: Boolean,
-    pannable: Boolean,
-    rotatable: Boolean,
-    clip: Boolean,
-    clipTransformToContentScale: Boolean,
-    consume: Boolean
-) {
+private fun ZoomModifierDemo(imageBitmap: ImageBitmap) {
     Column(
         modifier = Modifier
     ) {
 
-        val keys = arrayOf(
-            contentScale,
-            limitPan,
-            zoomable,
-            pannable,
-            rotatable,
-            clip,
-            clipTransformToContentScale
-        )
 
         Text(
             text = "Zoom Modifier",
@@ -250,7 +185,7 @@ private fun ZoomModifierDemo(
             modifier = Modifier.padding(8.dp)
         )
 
-        TitleMedium(text = "Modifier.zoom() applied to Image")
+        TitleMedium(text = "Modifier.zoom(clip = true, limitPan = false)")
         Image(
             modifier = Modifier
                 .background(Color.LightGray)
@@ -258,24 +193,83 @@ private fun ZoomModifierDemo(
                 .fillMaxWidth()
                 .aspectRatio(4 / 3f)
                 .zoom(
-                    keys = keys,
-                    clip = clip,
-                    consume = consume,
-                    zoomState = rememberZoomState(
-                        limitPan = limitPan,
-                        zoomable = zoomable,
-                        pannable = pannable,
-                        rotatable = rotatable,
-                        keys = keys
-                    ),
+                    clip = true,
+                    zoomState = rememberZoomState(limitPan = false),
                 ),
             bitmap = imageBitmap,
             contentDescription = "",
-            contentScale = contentScale
+            contentScale = ContentScale.FillBounds
         )
 
         Spacer(modifier = Modifier.height(40.dp))
-        TitleMedium(text = "Modifier.zoom applied to Canvas")
+        TitleMedium(text = "Modifier.zoom(clip = true, limitPan = true)")
+        Image(
+            modifier = Modifier
+                .background(Color.LightGray)
+                .border(2.dp, Color.Red)
+                .fillMaxWidth()
+                .aspectRatio(4 / 3f)
+                .zoom(
+                    clip = true,
+                    zoomState = rememberZoomState(limitPan = true),
+                ),
+            bitmap = imageBitmap,
+            contentDescription = "",
+            contentScale = ContentScale.FillBounds
+        )
+
+        Spacer(modifier = Modifier.height(40.dp))
+        TitleMedium(text = "Modifier.zoom(clip = true, rotate = true)")
+        Image(
+            modifier = Modifier
+                .background(Color.LightGray)
+                .border(2.dp, Color.Red)
+                .fillMaxWidth()
+                .aspectRatio(4 / 3f)
+                .zoom(
+                    clip = true,
+                    zoomState = rememberZoomState(rotatable = true),
+
+                    ),
+            bitmap = imageBitmap,
+            contentDescription = "",
+            contentScale = ContentScale.FillBounds
+        )
+
+        Spacer(modifier = Modifier.height(40.dp))
+        TitleMedium(text = "Modifier.zoom(clip = false, rotate = true)")
+        Image(
+            modifier = Modifier
+                .background(Color.LightGray)
+                .border(2.dp, Color.Red)
+                .fillMaxWidth()
+                .aspectRatio(4 / 3f)
+                .zoom(
+                    clip = false,
+                    zoomState = rememberZoomState(rotatable = true),
+                ),
+            bitmap = imageBitmap,
+            contentDescription = "",
+            contentScale = ContentScale.FillBounds
+        )
+
+        Spacer(modifier = Modifier.height(40.dp))
+        TitleMedium(text = "Modifier.zoom(clip = true, limitPan = false)")
+        DrawPolygonPath(
+            modifier = Modifier
+                .padding(8.dp)
+                .shadow(1.dp)
+                .background(Color.White)
+                .fillMaxWidth()
+                .height(200.dp)
+                .zoom(
+                    clip = true,
+                    zoomState = rememberZoomState(limitPan = false),
+                )
+        )
+
+        Spacer(modifier = Modifier.height(40.dp))
+        TitleMedium(text = "Modifier.zoom(clip = false, limitPan = false)")
         DrawPolygonPath(
             modifier = Modifier
                 .padding(8.dp)
@@ -284,16 +278,25 @@ private fun ZoomModifierDemo(
                 .fillMaxWidth()
                 .height(200.dp)
                 .zoom(
-                    keys = keys,
-                    clip = clip,
-                    consume = consume,
+                    clip = false,
+                    zoomState = rememberZoomState(limitPan = false),
+                )
+        )
+
+        Spacer(modifier = Modifier.height(40.dp))
+        TitleMedium(text = "Modifier.zoom(clip = false, limitPan = true)")
+        DrawPolygonPath(
+            modifier = Modifier
+                .padding(8.dp)
+                .shadow(1.dp, clip = false)
+                .background(Color.White)
+                .fillMaxWidth()
+                .height(200.dp)
+                .zoom(
+                    clip = false,
                     zoomState = rememberZoomState(
-                        limitPan = limitPan,
-                        zoomable = zoomable,
-                        pannable = pannable,
-                        rotatable = rotatable,
-                        keys = keys
-                    ),
+                        limitPan = true
+                    )
                 )
         )
     }
@@ -341,3 +344,21 @@ private fun DrawPolygonPath(modifier: Modifier) {
     }
 }
 
+
+fun createPolygonPath(cx: Float, cy: Float, sides: Int, radius: Float): Path {
+    val angle = 2.0 * Math.PI / sides
+
+    return Path().apply {
+        moveTo(
+            cx + (radius * cos(0.0)).toFloat(),
+            cy + (radius * sin(0.0)).toFloat()
+        )
+        for (i in 1 until sides) {
+            lineTo(
+                cx + (radius * cos(angle * i)).toFloat(),
+                cy + (radius * sin(angle * i)).toFloat()
+            )
+        }
+        close()
+    }
+}

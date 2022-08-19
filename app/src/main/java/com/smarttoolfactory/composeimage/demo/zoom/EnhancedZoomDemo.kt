@@ -26,6 +26,9 @@ import com.smarttoolfactory.image.zoom.rememberEnhancedZoomState
 @Composable
 fun EnhancedZoomDemo() {
 
+    println("⛺️ EnhancedZoomDemo")
+
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -40,6 +43,7 @@ fun EnhancedZoomDemo() {
 
         var contentScale by remember { mutableStateOf(ContentScale.Fit) }
 
+        Spacer(modifier = Modifier.height(40.dp))
         ContentScaleSelectionMenu(contentScale = contentScale) {
             contentScale = it
         }
@@ -53,22 +57,6 @@ fun EnhancedZoomDemo() {
 private fun EnhancedZoomableImageSample(imageBitmap: ImageBitmap, contentScale: ContentScale) {
 
     TitleMedium(text = "EnhancedZoomableImage")
-
-    TitleMedium(text = "clipTransformToContentScale false")
-    EnhancedZoomableImage(
-        modifier = Modifier
-            .background(Color.LightGray)
-            .fillMaxWidth()
-            .aspectRatio(4 / 3f),
-        imageBitmap = imageBitmap,
-        contentScale = contentScale,
-        clipTransformToContentScale = false,
-        enabled = { zoom, pan, rotation ->
-            (zoom > 1.2f)
-        }
-    )
-
-    Spacer(modifier = Modifier.height(40.dp))
 
     TitleMedium(
         text = "clip = true\n" +

@@ -33,6 +33,8 @@ import com.smarttoolfactory.image.ImageWithConstraints
 @Composable
 fun ImageWithConstraintsDemo() {
 
+    println("🔥 ImageWithConstraintsDemo")
+
     val imageBitmapLarge = ImageBitmap.imageResource(
         LocalContext.current.resources, R.drawable.landscape2
     )

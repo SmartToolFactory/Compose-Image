@@ -42,13 +42,16 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    HomeContent()
+                    // Uncomment to display demos on pager in one screen
+//                    HomeContent()
+                    DemoNavGraph()
                 }
             }
         }
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @ExperimentalPagerApi
 @Composable
 private fun HomeContent() {
@@ -99,29 +102,30 @@ private fun HomeContent() {
             when (page) {
                 0 -> ImageWithConstraintsDemo()
                 1 -> ThumbnailDemo()
-                2 -> EditScaleDemo()
-                3 -> EditSizeDemo()
-                4 -> BeforeAfterImageDemo()
-                5 -> BeforeAfterLayoutDemo()
-                6 -> ZoomDemo()
-                7 -> EnhancedZoomDemo()
-                8 -> EnhancedZoomCropDemo()
-                else -> AnimatedZoomDemo()
+                2 -> ZoomDemo()
+                3 -> EnhancedZoomDemo()
+                4 -> EnhancedZoomCropDemo()
+                5 -> AnimatedZoomDemo()
+                6 -> BeforeAfterImageDemo()
+                7 -> BeforeAfterLayoutDemo()
+                8 -> EditScaleDemo()
+                else -> EditSizeDemo()
             }
         }
     }
 }
 
+
 internal val tabList =
     listOf(
         "Image Constraints",
         "Image Thumbnail",
-        "Editable Scale",
-        "Editable Size",
-        "Before/After Image",
-        "Before/After Layout",
         "Zoom",
         "Enhanced Zoom",
         "Enhanced Zoom Crop",
-        "Animated Zoom"
+        "Animated Zoom",
+        "Before/After Image",
+        "Before/After Layout",
+        "Editable Scale",
+        "Editable Size",
     )

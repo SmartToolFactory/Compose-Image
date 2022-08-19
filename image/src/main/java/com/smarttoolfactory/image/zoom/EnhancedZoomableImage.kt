@@ -160,6 +160,8 @@ fun EnhancedZoomableImage(
     filterQuality: FilterQuality = DrawScope.DefaultFilterQuality,
     clip: Boolean = true,
     clipTransformToContentScale: Boolean = false,
+    moveToBounds: Boolean,
+    fling: Boolean,
     enhancedZoomState: EnhancedZoomState,
     enabled: (Float, Offset, Float) -> Boolean = DefaultEnabled,
     zoomOnDoubleTap: (ZoomLevel) -> Float = enhancedZoomState.DefaultOnDoubleTap,

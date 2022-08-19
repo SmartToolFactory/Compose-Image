@@ -40,6 +40,10 @@ import com.smarttoolfactory.image.zoom.rememberEnhancedZoomState
  */
 @Composable
 fun EnhancedZoomCropDemo() {
+
+    println("⛺️ EnhancedZoomCropDemo")
+
+
     val imageBitmap = ImageBitmap.imageResource(
         LocalContext.current.resources,
         R.drawable.landscape1

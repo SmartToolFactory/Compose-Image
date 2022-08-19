@@ -15,7 +15,9 @@ import com.smarttoolfactory.image.zoom.AnimatedZoomLayout
 @Composable
 fun AnimatedZoomDemo() {
 
-    Column(modifier = Modifier.fillMaxSize()) {
+    println("⛺️ AnimatedZoomDemo")
+
+    Column(modifier = Modifier.fillMaxSize().background(Color(0xff607D8B))) {
         AnimatedZoomLayout(
             modifier = Modifier.fillMaxSize(),
             enabled = { zoom, pan, rotation ->
@@ -24,14 +26,14 @@ fun AnimatedZoomDemo() {
         ) {
             Text(
                 modifier = Modifier
-                    .size(300.dp, height = 400.dp)
-                    .background(Color.Yellow),
+                    .size(300.dp)
+                    .background(Color(0xffE91E63)),
                 text = "This Composable can be zoomed, rotated, or can moved.\n\n" +
                         "Also can move back to correct bounds if size \n" +
-                        " of content is passed" +
-                        "as parameter to Modifier.animatedZoom\n\n" +
-                        "Fling gesture when last pointer is up",
-                fontSize = 20.sp
+                        " of its content is passed " +
+                        "as parameter to Modifier.animatedZoom",
+                fontSize = 20.sp,
+                color = Color.White
             )
         }
     }

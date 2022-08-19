@@ -8,24 +8,21 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.PathEffect
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.smarttoolfactory.composeimage.ContentScaleSelectionMenu
 import com.smarttoolfactory.composeimage.R
 import com.smarttoolfactory.composeimage.TitleMedium
-import com.smarttoolfactory.image.zoom.ZoomableImage
-import com.smarttoolfactory.image.zoom.rememberZoomState
-import com.smarttoolfactory.image.zoom.zoom
-import kotlin.math.roundToInt
+import com.smarttoolfactory.image.zoom.EnhancedZoomableImage
+import com.smarttoolfactory.image.zoom.enhancedZoom
+import com.smarttoolfactory.image.zoom.rememberEnhancedZoomState
 
 /**
  * This demo uses checkbox to change properties in one place
@@ -33,7 +30,7 @@ import kotlin.math.roundToInt
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun ZoomDemo2() {
+fun EnhancedZoomDemo2() {
     val bottomSheetScaffoldState = rememberBottomSheetScaffoldState(
         bottomSheetState = BottomSheetState(BottomSheetValue.Collapsed)
     )
@@ -45,8 +42,9 @@ fun ZoomDemo2() {
     var pannable by remember { mutableStateOf(true) }
     var rotatable by remember { mutableStateOf(true) }
     var clip by remember { mutableStateOf(true) }
+    var moveToBounds by remember { mutableStateOf(true) }
+    var fling by remember { mutableStateOf(true) }
     var clipTransformToContentScale by remember { mutableStateOf(true) }
-    var consume by remember { mutableStateOf(true) }
 
     BottomSheetScaffold(
         scaffoldState = bottomSheetScaffoldState,
@@ -58,6 +56,7 @@ fun ZoomDemo2() {
         ),
         sheetGesturesEnabled = true,
         sheetContent = {
+
             SheetContent(
                 contentScale = contentScale,
                 onContentScaleChange = { contentScale = it },
@@ -69,12 +68,14 @@ fun ZoomDemo2() {
                 onPannableChange = { pannable = it },
                 rotatable = rotatable,
                 onRotatableChange = { rotatable = it },
+                moveToBounds = moveToBounds,
+                onMoveToBoundsChange = { moveToBounds = it },
+                fling = fling,
+                onFlingChange = { fling = it },
                 clip = clip,
                 onClipChange = { clip = it },
                 clipTransformToContentScale = clipTransformToContentScale,
                 onClipTransformToContentScale = { clipTransformToContentScale = it },
-                consume = consume,
-                onConsumeChange = { consume = it }
             )
         },
         drawerGesturesEnabled = true,
@@ -89,9 +90,10 @@ fun ZoomDemo2() {
             zoomable,
             pannable,
             rotatable,
+            moveToBounds,
+            fling,
             clip,
-            clipTransformToContentScale,
-            consume
+            clipTransformToContentScale
         )
     }
 }
@@ -108,14 +110,15 @@ private fun SheetContent(
     onPannableChange: (Boolean) -> Unit,
     rotatable: Boolean,
     onRotatableChange: (Boolean) -> Unit,
+    moveToBounds: Boolean,
+    onMoveToBoundsChange: (Boolean) -> Unit,
+    fling: Boolean,
+    onFlingChange: (Boolean) -> Unit,
     clip: Boolean,
     onClipChange: (Boolean) -> Unit,
     clipTransformToContentScale: Boolean,
     onClipTransformToContentScale: (Boolean) -> Unit,
-    consume: Boolean,
-    onConsumeChange: (Boolean) -> Unit,
-
-    ) {
+) {
 
     Spacer(modifier = Modifier.height(20.dp))
     TitleMedium(text = "Change Properties")
@@ -136,6 +139,13 @@ private fun SheetContent(
         onStateChange = onRotatableChange
     )
     CheckBoxWithTitle(
+        label = "moveToBounds",
+        state = moveToBounds,
+        onStateChange = onMoveToBoundsChange
+    )
+    CheckBoxWithTitle(label = "fling", state = fling, onStateChange = onFlingChange)
+
+    CheckBoxWithTitle(
         label = "clip(Limit pan forces clip)",
         state = clip,
         onStateChange = onClipChange
@@ -145,7 +155,6 @@ private fun SheetContent(
         state = clipTransformToContentScale,
         onStateChange = onClipTransformToContentScale
     )
-    CheckBoxWithTitle(label = "consume", state = consume, onStateChange = onConsumeChange)
 }
 
 @Composable
@@ -155,9 +164,10 @@ private fun MainContent(
     zoomable: Boolean,
     pannable: Boolean,
     rotatable: Boolean,
+    moveToBounds: Boolean,
+    fling: Boolean,
     clip: Boolean,
-    clipTransformToContentScale: Boolean,
-    consume: Boolean
+    clipTransformToContentScale: Boolean
 ) {
     val imageBitmap = ImageBitmap.imageResource(
         LocalContext.current.resources,
@@ -170,47 +180,50 @@ private fun MainContent(
             .verticalScroll(rememberScrollState())
             .padding(bottom = 60.dp)
     ) {
-        ZoomableImageDemo(
+        EnhancedZoomableImageDemo(
             imageBitmap = imageBitmap,
             contentScale = contentScale,
             limitPan = limitPan,
             zoomable = zoomable,
             pannable = pannable,
             rotatable = rotatable,
+            moveToBounds = moveToBounds,
+            fling = fling,
             clip = clip,
             clipTransformToContentScale = clipTransformToContentScale,
-            consume = consume
         )
 
-        ZoomModifierDemo(
+        EnhancedZoomModifierDemo(
             imageBitmap = imageBitmap,
             contentScale = contentScale,
             limitPan = limitPan,
             zoomable = zoomable,
             pannable = pannable,
             rotatable = rotatable,
+            moveToBounds = moveToBounds,
+            fling = fling,
             clip = clip,
             clipTransformToContentScale = clipTransformToContentScale,
-            consume = consume,
         )
     }
 }
 
 
 @Composable
-private fun ZoomableImageDemo(
+private fun EnhancedZoomableImageDemo(
     imageBitmap: ImageBitmap,
     contentScale: ContentScale,
     limitPan: Boolean,
     zoomable: Boolean,
     pannable: Boolean,
     rotatable: Boolean,
+    moveToBounds: Boolean,
+    fling: Boolean,
     clip: Boolean,
-    clipTransformToContentScale: Boolean,
-    consume: Boolean
+    clipTransformToContentScale: Boolean
 ) {
     Text(
-        text = "ZoomableImage",
+        text = "EnhancedZoomableImage",
         fontSize = 20.sp,
         fontWeight = FontWeight.Bold,
         color = MaterialTheme.colorScheme.primary,
@@ -219,7 +232,7 @@ private fun ZoomableImageDemo(
 
     TitleMedium(text = "Parameter version")
 
-    ZoomableImage(
+    EnhancedZoomableImage(
         modifier = Modifier
             .background(Color.LightGray)
             .fillMaxWidth()
@@ -230,26 +243,30 @@ private fun ZoomableImageDemo(
         zoomable = zoomable,
         pannable = pannable,
         rotatable = rotatable,
+        moveToBounds = moveToBounds,
+        fling = fling,
         clip = clip,
         clipTransformToContentScale = clipTransformToContentScale,
-        consume = consume
     )
 
     Spacer(modifier = Modifier.height(20.dp))
     TitleMedium(text = "rememberZoomState version")
 
-    ZoomableImage(
+    EnhancedZoomableImage(
         modifier = Modifier
             .background(Color.LightGray)
             .fillMaxWidth()
             .aspectRatio(4 / 3f),
         imageBitmap = imageBitmap,
         contentScale = contentScale,
-        zoomState = rememberZoomState(
+        enhancedZoomState = rememberEnhancedZoomState(
+            imageSize = IntSize(imageBitmap.width, imageBitmap.height),
             limitPan = limitPan,
             zoomable = zoomable,
             pannable = pannable,
             rotatable = rotatable,
+            moveToBounds = moveToBounds,
+            fling = fling,
             keys = arrayOf(
                 limitPan,
                 zoomable,
@@ -259,24 +276,26 @@ private fun ZoomableImageDemo(
                 clipTransformToContentScale
             )
         ),
+        moveToBounds = moveToBounds,
+        fling = fling,
         clip = clip,
         clipTransformToContentScale = clipTransformToContentScale,
-        consume = consume
     )
 
 }
 
 @Composable
-private fun ZoomModifierDemo(
+private fun EnhancedZoomModifierDemo(
     imageBitmap: ImageBitmap,
     contentScale: ContentScale,
     limitPan: Boolean,
     zoomable: Boolean,
     pannable: Boolean,
     rotatable: Boolean,
+    moveToBounds: Boolean,
+    fling: Boolean,
     clip: Boolean,
     clipTransformToContentScale: Boolean,
-    consume: Boolean
 ) {
     Column(
         modifier = Modifier
@@ -293,29 +312,31 @@ private fun ZoomModifierDemo(
         )
 
         Text(
-            text = "Zoom Modifier",
+            text = "EnhancedZoom Modifier",
             fontSize = 20.sp,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.primary,
             modifier = Modifier.padding(8.dp)
         )
 
-        TitleMedium(text = "Modifier.zoom() applied to Image")
+        TitleMedium(text = "Modifier.enhancedZoom() applied to Image")
         Image(
             modifier = Modifier
                 .background(Color.LightGray)
                 .border(2.dp, Color.Red)
                 .fillMaxWidth()
                 .aspectRatio(4 / 3f)
-                .zoom(
+                .enhancedZoom(
                     keys = keys,
                     clip = clip,
-                    consume = consume,
-                    zoomState = rememberZoomState(
+                    enhancedZoomState = rememberEnhancedZoomState(
+                        imageSize = IntSize(imageBitmap.width, imageBitmap.height),
                         limitPan = limitPan,
                         zoomable = zoomable,
                         pannable = pannable,
                         rotatable = rotatable,
+                        moveToBounds = moveToBounds,
+                        fling = fling,
                         keys = keys
                     ),
                 ),
@@ -323,112 +344,5 @@ private fun ZoomModifierDemo(
             contentDescription = "",
             contentScale = contentScale
         )
-
-        Spacer(modifier = Modifier.height(40.dp))
-        TitleMedium(text = "Modifier.zoom applied to Canvas")
-        DrawPolygonPath(
-            modifier = Modifier
-                .padding(8.dp)
-                .shadow(1.dp, clip = false)
-                .background(Color.White)
-                .fillMaxWidth()
-                .height(200.dp)
-                .zoom(
-                    keys = keys,
-                    clip = clip,
-                    consume = consume,
-                    zoomState = rememberZoomState(
-                        limitPan = limitPan,
-                        zoomable = zoomable,
-                        pannable = pannable,
-                        rotatable = rotatable,
-                        keys = keys
-                    ),
-                )
-        )
-
-        Spacer(modifier = Modifier.height(20.dp))
-        TitleMedium(text = "gesture callbacks")
-
-        var text by remember {
-            mutableStateOf(
-                "Use pinch or fling gesture\n" +
-                        "to observe data"
-            )
-        }
-
-        Image(
-            modifier = Modifier
-                .background(Color.LightGray)
-                .fillMaxWidth()
-                .aspectRatio(4 / 3f)
-                .zoom(
-                    keys = keys,
-                    zoomState = rememberZoomState(
-                        limitPan = limitPan,
-                        rotatable = rotatable,
-                        keys = keys
-                    ),
-                    clip = clip,
-                    consume = consume,
-                    onGestureStart = {
-                        text = "onGestureStart()\n$it"
-                    },
-                    onGesture = {
-                        text = "onGesture()\n$it"
-                    },
-                    onGestureEnd = {
-                        text = "onGestureEnd()\n$it"
-                    }
-                ),
-            bitmap = imageBitmap,
-            contentDescription = "",
-            contentScale = contentScale
-        )
-
-        Text(text)
     }
 }
-
-@Composable
-private fun DrawPolygonPath(modifier: Modifier) {
-    var sides by remember { mutableStateOf(6f) }
-    var cornerRadius by remember { mutableStateOf(1f) }
-
-    Canvas(modifier = modifier) {
-        val canvasWidth = size.width
-        val canvasHeight = size.height
-        val cx = canvasWidth / 2
-        val cy = canvasHeight / 2
-        val radius = (canvasHeight - 20.dp.toPx()) / 2
-        val path = createPolygonPath(cx, cy, sides.roundToInt(), radius)
-
-        drawPath(
-            color = Color.Red,
-            path = path,
-            style = Stroke(
-                width = 4.dp.toPx(),
-                pathEffect = PathEffect.cornerPathEffect(cornerRadius)
-            )
-        )
-    }
-
-    Column(modifier = Modifier.padding(horizontal = 20.dp)) {
-        androidx.compose.material.Text(text = "Sides ${sides.roundToInt()}")
-        Slider(
-            value = sides,
-            onValueChange = { sides = it },
-            valueRange = 3f..12f,
-            steps = 10
-        )
-
-        androidx.compose.material.Text(text = "CornerRadius ${cornerRadius.roundToInt()}")
-
-        Slider(
-            value = cornerRadius,
-            onValueChange = { cornerRadius = it },
-            valueRange = 0f..50f,
-        )
-    }
-}
-

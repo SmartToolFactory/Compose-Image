@@ -1,20 +1,17 @@
 package com.smarttoolfactory.image.zoom
 
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.DpSize
-import androidx.compose.ui.unit.dp
 import com.smarttoolfactory.image.SlotsEnum
 
 
@@ -63,7 +60,6 @@ fun AnimatedZoomLayout(
         Box(
             Modifier
                 .fillMaxSize()
-                .border(5.dp, Color.Red)
                 .animatedZoom(
                     enabled = enabled,
                     clip = clip,

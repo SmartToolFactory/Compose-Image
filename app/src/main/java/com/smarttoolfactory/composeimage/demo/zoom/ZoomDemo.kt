@@ -32,6 +32,8 @@ import kotlin.math.sin
 @Composable
 fun ZoomDemo() {
 
+    println("🍎 ZoomDemo")
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -46,6 +48,7 @@ fun ZoomDemo() {
             R.drawable.landscape4
         )
 
+        Spacer(modifier = Modifier.height(40.dp))
         ContentScaleSelectionMenu(contentScale = contentScale) {
             contentScale = it
         }

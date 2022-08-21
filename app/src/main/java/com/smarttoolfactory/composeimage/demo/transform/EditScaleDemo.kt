@@ -1,4 +1,4 @@
-package com.smarttoolfactory.composeimage.demo
+package com.smarttoolfactory.composeimage.demo.transform
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background

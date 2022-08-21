@@ -12,6 +12,7 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.ui.input.pointer.positionChange
 import com.smarttoolfactory.gesture.pointerMotionEvents
+import com.smarttoolfactory.image.util.getDistanceToEdgeFromTouch
 import com.smarttoolfactory.image.util.getTouchRegion
 
 internal fun Modifier.transform(
@@ -60,9 +61,9 @@ internal fun Modifier.transform(
 
         // This is the real position of touch in screen, when scaled
         // right bottom corner of 1000x1000px Composable is always (1000,1000)
-        // but we need screen coordinated to set draw rectangle after scaling and translating
+        // but we need screen coordinates to set draw rectangle after scaling and translating
         // rectDraw is drawn based on touch position on screen
-        var screenPosition: Offset
+        var touchPositionOnScreen: Offset
 
         // Touch position for edge of the rectangle, used for not jumping to edge of rectangle
         // when user moves a handle. We set positionActual as position of selected handle
@@ -93,10 +94,10 @@ internal fun Modifier.transform(
                     val touchPositionScreenY =
                         rectDraw.top + position.y * rectDraw.height / rectBounds.height
 
-                    screenPosition = Offset(touchPositionScreenX, touchPositionScreenY)
+                    touchPositionOnScreen = Offset(touchPositionScreenX, touchPositionScreenY)
 
                     touchRegion = getTouchRegion(
-                        position = screenPosition,
+                        position = touchPositionOnScreen,
                         rect = rectDraw,
                         handlePlacement = handlePlacement,
                         threshold = touchRegionRadius * 2
@@ -105,7 +106,7 @@ internal fun Modifier.transform(
                     // This is the difference between touch position and edge
                     // This is required for not moving edge of draw rect to touch position on move
                     distanceToEdgeFromTouch =
-                        getDistanceToEdgeFromTouch(touchRegion, rectTemp, screenPosition)
+                        getDistanceToEdgeFromTouch(touchRegion, rectTemp, touchPositionOnScreen)
                 }
 
                 onDown(currentTransform, rectDraw)
@@ -136,14 +137,14 @@ internal fun Modifier.transform(
 
                         // Set position of top left while moving with top left handle and
                         // limit position to not intersect other handles
-                        screenPosition = Offset(
+                        touchPositionOnScreen = Offset(
                             screenPositionX.coerceAtMost(rectTemp.right - minDimension),
                             screenPositionY.coerceAtMost(rectTemp.bottom - minDimension)
                         )
 
                         rectDraw = Rect(
-                            left = screenPosition.x,
-                            top = screenPosition.y,
+                            left = touchPositionOnScreen.x,
+                            top = touchPositionOnScreen.y,
                             right = rectTemp.right,
                             bottom = rectTemp.bottom
                         )
@@ -163,8 +164,8 @@ internal fun Modifier.transform(
                         // TransformationOrigin of Composable is center
                         // so need to take center into consideration
                         // to translate from handle position
-                        val xTranslation = screenPosition.x + horizontalCenter
-                        val yTranslation = screenPosition.y + verticalCenter
+                        val xTranslation = touchPositionOnScreen.x + horizontalCenter
+                        val yTranslation = touchPositionOnScreen.y + verticalCenter
 
                         currentTransform = currentTransform.copy(
                             translationX = xTranslation,
@@ -180,16 +181,16 @@ internal fun Modifier.transform(
 
                         // Set position of top left while moving with bottom left handle and
                         // limit position to not intersect other handles
-                        screenPosition = Offset(
+                        touchPositionOnScreen = Offset(
                             screenPositionX.coerceAtMost(rectTemp.right - minDimension),
                             screenPositionY.coerceAtLeast(rectTemp.top + minDimension)
                         )
 
                         rectDraw = Rect(
-                            left = screenPosition.x,
+                            left = touchPositionOnScreen.x,
                             top = rectTemp.top,
                             right = rectTemp.right,
-                            bottom = screenPosition.y,
+                            bottom = touchPositionOnScreen.y,
                         )
 
                         // TransformOrion is center of composable, by changing
@@ -207,8 +208,8 @@ internal fun Modifier.transform(
                         // TransformationOrigin of Composable is center
                         // so need to take center into consideration
                         // to translate from handle position
-                        val xTranslation = screenPosition.x + horizontalCenter
-                        val yTranslation = screenPosition.y - rectDraw.height + verticalCenter
+                        val xTranslation = touchPositionOnScreen.x + horizontalCenter
+                        val yTranslation = touchPositionOnScreen.y - rectDraw.height + verticalCenter
 
                         currentTransform = currentTransform.copy(
                             translationX = xTranslation,
@@ -224,15 +225,15 @@ internal fun Modifier.transform(
 
                         // Set position of top left while moving with top right handle and
                         // limit position to not intersect other handles
-                        screenPosition = Offset(
+                        touchPositionOnScreen = Offset(
                             screenPositionX.coerceAtLeast(rectTemp.left + minDimension),
                             screenPositionY.coerceAtMost(rectTemp.bottom - minDimension)
                         )
 
                         rectDraw = Rect(
                             left = rectTemp.left,
-                            top = screenPosition.y,
-                            right = screenPosition.x,
+                            top = touchPositionOnScreen.y,
+                            right = touchPositionOnScreen.x,
                             bottom = rectTemp.bottom,
                         )
 
@@ -251,8 +252,8 @@ internal fun Modifier.transform(
                         // TransformationOrigin of Composable is center
                         // so need to take center into consideration
                         // to translate from handle position
-                        val xTranslation = screenPosition.x - rectDraw.width + horizontalCenter
-                        val yTranslation = screenPosition.y + verticalCenter
+                        val xTranslation = touchPositionOnScreen.x - rectDraw.width + horizontalCenter
+                        val yTranslation = touchPositionOnScreen.y + verticalCenter
 
                         currentTransform = currentTransform.copy(
                             translationX = xTranslation,
@@ -268,7 +269,7 @@ internal fun Modifier.transform(
 
                         // Set position of top left while moving with bottom right handle and
                         // limit position to not intersect other handles
-                        screenPosition = Offset(
+                        touchPositionOnScreen = Offset(
                             screenPositionX.coerceAtLeast(rectTemp.left + minDimension),
                             screenPositionY.coerceAtLeast(rectTemp.top + minDimension)
                         )
@@ -276,8 +277,8 @@ internal fun Modifier.transform(
                         rectDraw = Rect(
                             left = rectTemp.left,
                             top = rectTemp.top,
-                            right = screenPosition.x,
-                            bottom = screenPosition.y,
+                            right = touchPositionOnScreen.x,
+                            bottom = touchPositionOnScreen.y,
                         )
 
                         // TransformOrion is center of composable, by changing
@@ -295,8 +296,8 @@ internal fun Modifier.transform(
                         // TransformationOrigin of Composable is center
                         // so need to take center into consideration
                         // to translate from handle position
-                        val xTranslation = screenPosition.x - rectDraw.width + horizontalCenter
-                        val yTranslation = screenPosition.y - rectDraw.height + verticalCenter
+                        val xTranslation = touchPositionOnScreen.x - rectDraw.width + horizontalCenter
+                        val yTranslation = touchPositionOnScreen.y - rectDraw.height + verticalCenter
 
                         currentTransform = currentTransform.copy(
                             translationX = xTranslation,
@@ -313,16 +314,16 @@ internal fun Modifier.transform(
 
                         // Set position of left while moving with left center handle and
                         // limit position to not intersect other handles
-                        screenPosition = Offset(
+                        touchPositionOnScreen = Offset(
                             screenPositionX.coerceAtMost(rectTemp.right - minDimension),
                             screenPositionY.coerceAtMost(rectTemp.bottom - minDimension)
                         )
 
-                        rectDraw = rectDraw.copy(left = screenPosition.x)
+                        rectDraw = rectDraw.copy(left = touchPositionOnScreen.x)
 
                         val horizontalCenter = (rectDraw.width - rectBounds.width) / 2
                         val widthRatio = rectDraw.width / rectBounds.width
-                        val xTranslation = screenPosition.x + horizontalCenter
+                        val xTranslation = touchPositionOnScreen.x + horizontalCenter
 
                         currentTransform = currentTransform.copy(
                             translationX = xTranslation,
@@ -335,12 +336,12 @@ internal fun Modifier.transform(
 
                         // Set position of top while moving with top center handle and
                         // limit position to not intersect other handles
-                        screenPosition = Offset(
+                        touchPositionOnScreen = Offset(
                             screenPositionX.coerceAtMost(rectTemp.right - minDimension),
                             screenPositionY.coerceAtMost(rectTemp.bottom - minDimension)
                         )
 
-                        rectDraw = rectDraw.copy(top = screenPosition.y)
+                        rectDraw = rectDraw.copy(top = touchPositionOnScreen.y)
 
                         // TransformOrion is center of composable, by changing
                         // it to 0,0 only for translation we move the composable
@@ -355,7 +356,7 @@ internal fun Modifier.transform(
                         // TransformationOrigin of Composable is center
                         // so need to take center into consideration
                         // to translate from handle position
-                        val yTranslation = screenPosition.y + verticalCenter
+                        val yTranslation = touchPositionOnScreen.y + verticalCenter
 
                         currentTransform = currentTransform.copy(
                             translationY = yTranslation,
@@ -369,12 +370,12 @@ internal fun Modifier.transform(
 
                         // Set position of right while moving with right center handle and
                         // limit position to not intersect other handles
-                        screenPosition = Offset(
+                        touchPositionOnScreen = Offset(
                             screenPositionX.coerceAtLeast(rectTemp.left + minDimension),
                             screenPositionY.coerceAtLeast(rectTemp.top + minDimension)
                         )
 
-                        rectDraw = rectDraw.copy(right = screenPosition.x)
+                        rectDraw = rectDraw.copy(right = touchPositionOnScreen.x)
 
                         // TransformOrion is center of composable, by changing
                         // it to 0,0 only for translation we move the composable
@@ -389,7 +390,7 @@ internal fun Modifier.transform(
                         // TransformationOrigin of Composable is center
                         // so need to take center into consideration
                         // to translate from handle position
-                        val xTranslation = screenPosition.x - rectDraw.width + horizontalCenter
+                        val xTranslation = touchPositionOnScreen.x - rectDraw.width + horizontalCenter
 
                         currentTransform = currentTransform.copy(
                             translationX = xTranslation,
@@ -403,12 +404,12 @@ internal fun Modifier.transform(
 
                         // Set position of bottom while moving with bottom center handle and
                         // limit position to not intersect other handles
-                        screenPosition = Offset(
+                        touchPositionOnScreen = Offset(
                             screenPositionX.coerceAtLeast(rectTemp.left + minDimension),
                             screenPositionY.coerceAtLeast(rectTemp.top + minDimension)
                         )
 
-                        rectDraw = rectDraw.copy(bottom = screenPosition.y)
+                        rectDraw = rectDraw.copy(bottom = touchPositionOnScreen.y)
 
                         // TransformOrion is center of composable, by changing
                         // it to 0,0 only for translation we move the composable
@@ -423,7 +424,7 @@ internal fun Modifier.transform(
                         // TransformationOrigin of Composable is center
                         // so need to take center into consideration
                         // to translate from handle position
-                        val yTranslation = screenPosition.y - rectDraw.height + verticalCenter
+                        val yTranslation = touchPositionOnScreen.y - rectDraw.height + verticalCenter
 
                         currentTransform = currentTransform.copy(
                             translationY = yTranslation,
@@ -478,39 +479,3 @@ internal fun Modifier.transform(
         properties["onUp"] = onUp
     }
 )
-
-private fun getDistanceToEdgeFromTouch(
-    touchRegion: TouchRegion,
-    rectTemp: Rect,
-    screenPosition: Offset
-) = when (touchRegion) {
-    // Corners
-    TouchRegion.TopLeft -> {
-        rectTemp.topLeft - screenPosition
-    }
-    TouchRegion.TopRight -> {
-        rectTemp.topRight - screenPosition
-    }
-    TouchRegion.BottomLeft -> {
-        rectTemp.bottomLeft - screenPosition
-    }
-    TouchRegion.BottomRight -> {
-        rectTemp.bottomRight - screenPosition
-    }
-    // Sides
-    TouchRegion.CenterLeft -> {
-        rectTemp.centerLeft - screenPosition
-    }
-    TouchRegion.TopCenter -> {
-        rectTemp.topCenter - screenPosition
-    }
-    TouchRegion.CenterRight -> {
-        rectTemp.centerRight - screenPosition
-    }
-    TouchRegion.BottomCenter -> {
-        rectTemp.bottomCenter - screenPosition
-    }
-    else -> {
-        Offset.Zero
-    }
-}

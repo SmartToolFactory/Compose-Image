@@ -79,6 +79,48 @@ private fun getCornerTouchRegion(
     }
 }
 
+/**
+ * Returns how far user touched to corner or center of sides of the screen. [TouchRegion]
+ * where user exactly has touched is already passed to this function. For instance user
+ * touched top left then this function returns distance to top left from user's position so
+ * we can add an offset to not jump edge to position user touched.
+ */
+internal fun getDistanceToEdgeFromTouch(
+    touchRegion: TouchRegion,
+    rect: Rect,
+    touchPosition: Offset
+) = when (touchRegion) {
+    // Corners
+    TouchRegion.TopLeft -> {
+        rect.topLeft - touchPosition
+    }
+    TouchRegion.TopRight -> {
+        rect.topRight - touchPosition
+    }
+    TouchRegion.BottomLeft -> {
+        rect.bottomLeft - touchPosition
+    }
+    TouchRegion.BottomRight -> {
+        rect.bottomRight - touchPosition
+    }
+    // Sides
+    TouchRegion.CenterLeft -> {
+        rect.centerLeft - touchPosition
+    }
+    TouchRegion.TopCenter -> {
+        rect.topCenter - touchPosition
+    }
+    TouchRegion.CenterRight -> {
+        rect.centerRight - touchPosition
+    }
+    TouchRegion.BottomCenter -> {
+        rect.bottomCenter - touchPosition
+    }
+    else -> {
+        Offset.Zero
+    }
+}
+
 private fun getSideTouchRegion(
     position: Offset,
     rect: Rect,

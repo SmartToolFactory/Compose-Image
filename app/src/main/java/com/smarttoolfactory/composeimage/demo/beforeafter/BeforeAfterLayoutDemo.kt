@@ -1,4 +1,4 @@
-package com.smarttoolfactory.composeimage.demo
+package com.smarttoolfactory.composeimage.demo.beforeafter
 
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.*

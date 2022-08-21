@@ -34,6 +34,8 @@ import com.smarttoolfactory.image.*
 @Composable
 fun ThumbnailDemo() {
 
+    println("🍏 ThumbnailDemo")
+
     val imageBitmapLarge = ImageBitmap.imageResource(
         LocalContext.current.resources,
         R.drawable.landscape4

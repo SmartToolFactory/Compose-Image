@@ -17,8 +17,9 @@ import androidx.compose.ui.unit.Constraints
  * some circumstances
  *
  * @param placeMainContent when set to true places main content. Set this flag to false
- * when dimensions of content is required for inside [mainContent]. Just measure it then pass
- * its dimensions to any child composable
+ * when dimensions of content is required for [mainContent]. Measure [mainContent] then pass
+ * its dimensions to any child composable but don't place it because we already place
+ * it inside [dependentContent]
  *
  * @param mainContent Composable is used for calculating size and pass it
  * to Composables that depend on it
@@ -30,7 +31,7 @@ import androidx.compose.ui.unit.Constraints
 @Composable
 fun DimensionSubcomposeLayout(
     modifier: Modifier = Modifier,
-    placeMainContent:Boolean = true,
+    placeMainContent: Boolean = true,
     mainContent: @Composable () -> Unit,
     dependentContent: @Composable (Size) -> Unit
 ) {
@@ -41,7 +42,7 @@ fun DimensionSubcomposeLayout(
         // Subcompose(compose only a section) main content and get Placeable
         val mainPlaceables: List<Placeable> = subcompose(SlotsEnum.Main, mainContent)
             .map {
-                it.measure(constraints)
+                it.measure(constraints.copy(minWidth = 0, minHeight = 0))
             }
 
         // Get max width and height of main component
@@ -63,7 +64,7 @@ fun DimensionSubcomposeLayout(
 
         layout(maxWidth, maxHeight) {
 
-            if(placeMainContent){
+            if (placeMainContent) {
                 mainPlaceables.forEach { placeable: Placeable ->
                     placeable.placeRelative(0, 0)
                 }

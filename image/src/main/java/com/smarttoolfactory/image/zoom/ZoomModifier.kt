@@ -5,10 +5,10 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.draw.clipToBounds
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import com.smarttoolfactory.gesture.detectTransformGestures
+import com.smarttoolfactory.gesture.pointerMotionEvents
 import com.smarttoolfactory.image.util.calculateZoom
 import com.smarttoolfactory.image.util.update
 import kotlinx.coroutines.launch
@@ -32,48 +32,61 @@ import kotlinx.coroutines.launch
  * of this modifier
  */
 fun Modifier.zoom(
-    key: Any?,
+    key: Any? = Unit,
     consume: Boolean = true,
     clip: Boolean = true,
     zoomState: ZoomState,
-    onGestureStart: (ZoomData) -> Unit = {},
-    onGesture: (ZoomData) -> Unit = {},
-    onGestureEnd: (ZoomData) -> Unit = {},
+    onGestureStart: ((ZoomData) -> Unit)? = null,
+    onGesture: ((ZoomData) -> Unit)? = null,
+    onGestureEnd: ((ZoomData) -> Unit)? = null
 ) = composed(
     factory = {
         val coroutineScope = rememberCoroutineScope()
 
-        val boundPan = zoomState.limitPan && !zoomState.rotationEnabled
-        val clipToBounds = (clip || boundPan)
-
+        Modifier.pointerMotionEvents()
+        // Current Zoom level
         var zoomLevel by remember { mutableStateOf(ZoomLevel.Min) }
 
+        // Whether panning should be limited to bounds of gesture area or not
+        val boundPan = zoomState.limitPan && !zoomState.rotatable
+
+        // If we bound to touch area or clip is true Modifier.clipToBounds is used
+        val clipToBounds = (clip || boundPan)
+
         val transformModifier = Modifier.pointerInput(key) {
+
+            // Pass size of this Composable this Modifier is attached for constraining operations
+            // inside this bounds
+            zoomState.size = this.size
+
             detectTransformGestures(
                 consume = consume,
                 onGestureStart = {
-                    onGestureStart(zoomState.zoomData)
+                    onGestureStart?.invoke(zoomState.zoomData)
                 },
                 onGestureEnd = {
-                    onGestureEnd(zoomState.zoomData)
+                    onGestureEnd?.invoke(zoomState.zoomData)
                 },
-                onGesture = { _, gesturePan, gestureZoom, gestureRotate, _, _ ->
+                onGesture = { centroid, pan, zoom, rotation, _, _ ->
 
                     coroutineScope.launch {
                         zoomState.updateZoomState(
-                            size = size,
-                            gestureZoom = gestureZoom,
-                            gesturePan = gesturePan,
-                            gestureRotate = gestureRotate
+                            centroid = centroid,
+                            panChange = pan,
+                            zoomChange = zoom,
+                            rotationChange = rotation
                         )
                     }
 
-                    onGesture(zoomState.zoomData)
+                    onGesture?.invoke(zoomState.zoomData)
                 }
             )
         }
 
         val tapModifier = Modifier.pointerInput(key) {
+            // Pass size of this Composable this Modifier is attached for constraining operations
+            // inside this bounds
+            zoomState.size = this.size
             detectTapGestures(
                 onDoubleTap = {
 
@@ -87,15 +100,10 @@ fun Modifier.zoom(
                     zoomLevel = newZoomLevel
 
                     coroutineScope.launch {
-                        zoomState.animatePanTo(Offset.Zero)
-                    }
-
-                    coroutineScope.launch {
-                        zoomState.animateZoomTo(newZoom)
-                    }
-
-                    coroutineScope.launch {
-                        zoomState.animateRotationTo(zoomState.rotationInitial)
+                        zoomState.resetWithAnimation(
+                            zoom = newZoom,
+                            rotation = zoomState.rotationInitial
+                        )
                     }
                 }
             )
@@ -149,44 +157,54 @@ fun Modifier.zoom(
     consume: Boolean = true,
     clip: Boolean = true,
     zoomState: ZoomState,
-    onGestureStart: (ZoomData) -> Unit = {},
-    onGesture: (ZoomData) -> Unit = {},
-    onGestureEnd: (ZoomData) -> Unit = {},
+    onGestureStart: ((ZoomData) -> Unit)? = null,
+    onGesture: ((ZoomData) -> Unit)? = null,
+    onGestureEnd: ((ZoomData) -> Unit)? = null
 ) = composed(
     factory = {
         val coroutineScope = rememberCoroutineScope()
 
-        val boundPan = zoomState.limitPan && !zoomState.rotationEnabled
-        val clipToBounds = (clip || boundPan)
-
+        // Current Zoom level
         var zoomLevel by remember { mutableStateOf(ZoomLevel.Min) }
 
+        // Whether panning should be limited to bounds of gesture area or not
+        val boundPan = zoomState.limitPan && !zoomState.rotatable
+
+        // If we bound to touch area or clip is true Modifier.clipToBounds is used
+        val clipToBounds = (clip || boundPan)
+
         val transformModifier = Modifier.pointerInput(key1, key2) {
+            // Pass size of this Composable this Modifier is attached for constraining operations
+            // inside this bounds
+            zoomState.size = this.size
             detectTransformGestures(
                 consume = consume,
                 onGestureStart = {
-                    onGestureStart(zoomState.zoomData)
+                    onGestureStart?.invoke(zoomState.zoomData)
                 },
                 onGestureEnd = {
-                    onGestureEnd(zoomState.zoomData)
+                    onGestureEnd?.invoke(zoomState.zoomData)
                 },
-                onGesture = { _, gesturePan, gestureZoom, gestureRotate, _, _ ->
+                onGesture = { centroid, pan, zoom, rotation, _, _ ->
 
                     coroutineScope.launch {
                         zoomState.updateZoomState(
-                            size = size,
-                            gestureZoom = gestureZoom,
-                            gesturePan = gesturePan,
-                            gestureRotate = gestureRotate
+                            centroid = centroid,
+                            panChange = pan,
+                            zoomChange = zoom,
+                            rotationChange = rotation
                         )
                     }
 
-                    onGesture(zoomState.zoomData)
+                    onGesture?.invoke(zoomState.zoomData)
                 }
             )
         }
 
         val tapModifier = Modifier.pointerInput(key1, key2) {
+            // Pass size of this Composable this Modifier is attached for constraining operations
+            // inside this bounds
+            zoomState.size = this.size
             detectTapGestures(
                 onDoubleTap = {
 
@@ -200,15 +218,10 @@ fun Modifier.zoom(
                     zoomLevel = newZoomLevel
 
                     coroutineScope.launch {
-                        zoomState.animatePanTo(Offset.Zero)
-                    }
-
-                    coroutineScope.launch {
-                        zoomState.animateZoomTo(newZoom)
-                    }
-
-                    coroutineScope.launch {
-                        zoomState.animateRotationTo(zoomState.rotationInitial)
+                        zoomState.resetWithAnimation(
+                            zoom = newZoom,
+                            rotation = zoomState.rotationInitial
+                        )
                     }
                 }
             )
@@ -262,44 +275,54 @@ fun Modifier.zoom(
     consume: Boolean = true,
     clip: Boolean = true,
     zoomState: ZoomState,
-    onGestureStart: (ZoomData) -> Unit = {},
-    onGesture: (ZoomData) -> Unit = {},
-    onGestureEnd: (ZoomData) -> Unit = {},
+    onGestureStart: ((ZoomData) -> Unit)? = null,
+    onGesture: ((ZoomData) -> Unit)? = null,
+    onGestureEnd: ((ZoomData) -> Unit)? = null
 ) = composed(
     factory = {
         val coroutineScope = rememberCoroutineScope()
 
-        val boundPan = zoomState.limitPan && !zoomState.rotationEnabled
-        val clipToBounds = (clip || boundPan)
-
+        // Current Zoom level
         var zoomLevel by remember { mutableStateOf(ZoomLevel.Min) }
 
-        val transformModifier = Modifier.pointerInput(keys) {
+        // Whether panning should be limited to bounds of gesture area or not
+        val boundPan = zoomState.limitPan && !zoomState.rotatable
+
+        // If we bound to touch area or clip is true Modifier.clipToBounds is used
+        val clipToBounds = (clip || boundPan)
+
+        val transformModifier = Modifier.pointerInput(*keys) {
+            // Pass size of this Composable this Modifier is attached for constraining operations
+            // inside this bounds
+            zoomState.size = this.size
             detectTransformGestures(
                 consume = consume,
                 onGestureStart = {
-                    onGestureStart(zoomState.zoomData)
+                    onGestureStart?.invoke(zoomState.zoomData)
                 },
                 onGestureEnd = {
-                    onGestureEnd(zoomState.zoomData)
+                    onGestureEnd?.invoke(zoomState.zoomData)
                 },
-                onGesture = { _, gesturePan, gestureZoom, gestureRotate, _, _ ->
+                onGesture = { centroid, pan, zoom, rotation, _, _ ->
 
                     coroutineScope.launch {
                         zoomState.updateZoomState(
-                            size = size,
-                            gestureZoom = gestureZoom,
-                            gesturePan = gesturePan,
-                            gestureRotate = gestureRotate
+                            centroid = centroid,
+                            panChange = pan,
+                            zoomChange = zoom,
+                            rotationChange = rotation
                         )
                     }
 
-                    onGesture(zoomState.zoomData)
+                    onGesture?.invoke(zoomState.zoomData)
                 }
             )
         }
 
-        val tapModifier = Modifier.pointerInput(keys) {
+        val tapModifier = Modifier.pointerInput(*keys) {
+            // Pass size of this Composable this Modifier is attached for constraining operations
+            // inside this bounds
+            zoomState.size = this.size
             detectTapGestures(
                 onDoubleTap = {
 
@@ -313,15 +336,10 @@ fun Modifier.zoom(
                     zoomLevel = newZoomLevel
 
                     coroutineScope.launch {
-                        zoomState.animatePanTo(Offset.Zero)
-                    }
-
-                    coroutineScope.launch {
-                        zoomState.animateZoomTo(newZoom)
-                    }
-
-                    coroutineScope.launch {
-                        zoomState.animateRotationTo(zoomState.rotationInitial)
+                        zoomState.resetWithAnimation(
+                            zoom = newZoom,
+                            rotation = zoomState.rotationInitial
+                        )
                     }
                 }
             )
@@ -370,9 +388,9 @@ fun Modifier.zoom(
     clip = clip,
     consume = true,
     zoomState = zoomState,
-    onGestureStart = {},
-    onGestureEnd = {},
-    onGesture = {}
+    onGestureStart = null,
+    onGestureEnd = null,
+    onGesture = null
 )
 
 /**
@@ -386,8 +404,8 @@ fun Modifier.zoom(
  * enabling rotation, pan or zoom and contains current [ZoomData]
  */
 fun Modifier.zoom(
-    key1: Any? ,
-    key2: Any? ,
+    key1: Any?,
+    key2: Any?,
     zoomState: ZoomState,
     clip: Boolean = true,
 ) = zoom(
@@ -396,9 +414,9 @@ fun Modifier.zoom(
     clip = clip,
     consume = true,
     zoomState = zoomState,
-    onGestureStart = {},
-    onGestureEnd = {},
-    onGesture = {}
+    onGestureStart = null,
+    onGestureEnd = null,
+    onGesture = null
 )
 
 /**
@@ -420,7 +438,14 @@ fun Modifier.zoom(
     clip = clip,
     consume = true,
     zoomState = zoomState,
-    onGestureStart = {},
-    onGestureEnd = {},
-    onGesture = {}
+    onGestureStart = null,
+    onGestureEnd = null,
+    onGesture = null
 )
+
+internal val ZoomState.zoomData: ZoomData
+    get() = ZoomData(
+        zoom = zoom,
+        pan = pan,
+        rotation = rotation
+    )

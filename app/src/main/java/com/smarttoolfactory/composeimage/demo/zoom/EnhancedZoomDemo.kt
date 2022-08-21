@@ -76,7 +76,7 @@ private fun EnhancedZoomableImageSample(imageBitmap: ImageBitmap, contentScale: 
         moveToBounds = true,
         clipTransformToContentScale = true,
         enabled = { zoom, pan, rotation ->
-            (zoom > 1.2f)
+            (zoom > 1f)
         }
     )
 
@@ -99,7 +99,7 @@ private fun EnhancedZoomableImageSample(imageBitmap: ImageBitmap, contentScale: 
         moveToBounds = true,
         fling = true,
         enabled = { zoom, pan, rotation ->
-            (zoom > 1.2f)
+            (zoom > 1f)
         }
     )
 
@@ -124,7 +124,7 @@ private fun EnhancedZoomableImageSample(imageBitmap: ImageBitmap, contentScale: 
         moveToBounds = false,
         fling = true,
         enabled = { zoom, pan, rotation ->
-            (zoom > 1.2f)
+            (zoom > 1f)
         }
     )
 
@@ -176,7 +176,7 @@ private fun EnhancedZoomModifierSample(imageBitmap: ImageBitmap) {
                         }
                     },
                     enabled = { zoom, pan, rotation ->
-                        zoom > 1.2f
+                        zoom > 1f
                     }
                 ),
             bitmap = imageBitmap,
@@ -205,7 +205,7 @@ private fun EnhancedZoomModifierSample(imageBitmap: ImageBitmap) {
                         moveToBounds = true
                     ),
                     enabled = { zoom, pan, rotation ->
-                        (zoom > 1.2f)
+                        (zoom > 1f)
                     }
                 ),
             bitmap = imageBitmap,
@@ -235,7 +235,7 @@ private fun EnhancedZoomModifierSample(imageBitmap: ImageBitmap) {
                         fling = true
                     ),
                     enabled = { zoom, pan, rotation ->
-                        (zoom > 1.2f)
+                        (zoom > 1f)
                     }
                 ),
             bitmap = imageBitmap,
@@ -266,7 +266,7 @@ private fun EnhancedZoomModifierSample(imageBitmap: ImageBitmap) {
                         fling = true
                     ),
                     enabled = { zoom, pan, rotation ->
-                        (zoom > 1.2f)
+                        (zoom > 1f)
                     }
                 ),
             bitmap = imageBitmap,

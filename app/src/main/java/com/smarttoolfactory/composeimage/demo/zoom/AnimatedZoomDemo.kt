@@ -21,7 +21,7 @@ fun AnimatedZoomDemo() {
         AnimatedZoomLayout(
             modifier = Modifier.fillMaxSize(),
             enabled = { zoom, pan, rotation ->
-                (zoom > 1.2f)
+                (zoom > 1f)
             }
         ) {
             Text(

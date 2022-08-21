@@ -8,6 +8,7 @@ import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import com.smarttoolfactory.gesture.detectTransformGestures
+import com.smarttoolfactory.gesture.pointerMotionEvents
 import com.smarttoolfactory.image.util.calculateZoom
 import com.smarttoolfactory.image.util.update
 import kotlinx.coroutines.launch
@@ -42,6 +43,7 @@ fun Modifier.zoom(
     factory = {
         val coroutineScope = rememberCoroutineScope()
 
+        Modifier.pointerMotionEvents()
         // Current Zoom level
         var zoomLevel by remember { mutableStateOf(ZoomLevel.Min) }
 

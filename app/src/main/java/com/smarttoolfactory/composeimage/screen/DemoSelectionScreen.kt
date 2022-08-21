@@ -1,11 +1,11 @@
 package com.smarttoolfactory.composeimage.screen
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -70,6 +70,7 @@ fun DemoSelectionScreen(onRouteSelected: (String) -> Unit) {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun DemoSelectionCard(
     title: String,
@@ -77,11 +78,8 @@ private fun DemoSelectionCard(
     onClick: () -> Unit
 ) {
     ElevatedCard(
-        modifier = Modifier
-            .clickable {
-                onClick()
-            },
-        shape = RoundedCornerShape(10.dp)
+        shape = RoundedCornerShape(10.dp),
+        onClick = onClick
     ) {
         Column(modifier = Modifier.padding(8.dp)) {
             Text(

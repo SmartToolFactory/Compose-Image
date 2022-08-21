@@ -15,7 +15,8 @@ fun ZoomDemoScreen() {
             "Enhanced Zoom" to { EnhancedZoomDemo() },
             "Enhanced Zoom2" to { EnhancedZoomDemo2() },
             "Enhanced Zoom Crop" to { EnhancedZoomCropDemo() },
-            "Animated Zoom" to { AnimatedZoomDemo() }
+            "Animated Zoom" to { AnimatedZoomDemo() },
+            "Zoomable List" to { ZoomableListDemo() }
         )
     )
 }

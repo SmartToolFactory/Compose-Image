@@ -85,14 +85,17 @@ internal fun Layout(
             val coroutineScope = rememberCoroutineScope()
 
             val transformModifier = Modifier.pointerInput(Unit) {
+                // Pass size of this Composable this Modifier is attached for constraining operations
+                // inside this bounds
+                zoomState.size = this.size
                 detectTransformGestures(
-                    onGesture = { _: Offset, panChange: Offset, zoomChange: Float, _, _, _ ->
+                    onGesture = { centroid: Offset, panChange: Offset, zoomChange: Float, _, _, _ ->
 
                         coroutineScope.launch {
                             zoomState.updateZoomState(
-                                size,
-                                gesturePan = panChange,
-                                gestureZoom = zoomChange
+                                centroid = centroid,
+                                panChange = panChange,
+                                zoomChange = zoomChange
                             )
                         }
                     }
@@ -100,6 +103,9 @@ internal fun Layout(
             }
 
             val touchModifier = Modifier.pointerInput(Unit) {
+                // Pass size of this Composable this Modifier is attached for constraining operations
+                // inside this bounds
+                zoomState.size = this.size
                 detectMotionEvents(
                     onDown = {
                         val position = it.position
@@ -124,14 +130,13 @@ internal fun Layout(
             }
 
             val tapModifier = Modifier.pointerInput(Unit) {
+                // Pass size of this Composable this Modifier is attached for constraining operations
+                // inside this bounds
+                zoomState.size = this.size
                 detectTapGestures(
                     onDoubleTap = {
                         coroutineScope.launch {
-                            zoomState.animatePanTo(Offset.Zero)
-                        }
-
-                        coroutineScope.launch {
-                            zoomState.animateZoomTo(1f)
+                            zoomState.resetWithAnimation()
                         }
                     }
                 )

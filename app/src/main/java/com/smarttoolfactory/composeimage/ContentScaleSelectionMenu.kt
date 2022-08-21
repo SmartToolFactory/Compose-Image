@@ -17,6 +17,7 @@ import androidx.compose.ui.unit.sp
 val contentScaleOptions =
     listOf("None", "Fit", "Crop", "FillBounds", "FillWidth", "FillHeight", "Inside")
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ContentScaleSelectionMenu(
     contentScale: ContentScale,

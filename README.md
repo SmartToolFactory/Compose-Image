@@ -2,12 +2,17 @@
 
 [![](https://jitpack.io/v/SmartToolFactory/Compose-Image.svg)](https://jitpack.io/#SmartToolFactory/Compose-Image)
 
+
+
 Collection of Images, Modifiers, utility functions for Jetpack Compose to expand
 and enrich displaying, manipulating, scaling, resizing, zooming, and
 getting cropped `ImageBitmap` based on selection area, before/after image to with handle to
 show partial of both images and more is cooking up
 
 https://user-images.githubusercontent.com/35650605/179715223-ba681886-6032-461f-806a-ea6a535d0627.mp4
+
+https://user-images.githubusercontent.com/35650605/185785993-58aee8fb-8f27-4664-9ebe-5cde04b5a04e.mp4
+
 
 ## Gradle Setup
 
@@ -215,6 +220,10 @@ fun MorphLayout(
 ```
 
 ## Zoom
+
+
+
+
 
 Zoom feature provides zooming in or out Image, or Composables with animations and
 getting data about current transform or image Using Callbacks.

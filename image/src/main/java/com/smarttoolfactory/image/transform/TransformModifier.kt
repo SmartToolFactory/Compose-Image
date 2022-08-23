@@ -107,9 +107,9 @@ internal fun Modifier.transform(
                     // This is required for not moving edge of draw rect to touch position on move
                     distanceToEdgeFromTouch =
                         getDistanceToEdgeFromTouch(touchRegion, rectTemp, touchPositionOnScreen)
-                }
 
-                onDown(currentTransform, rectDraw)
+                    onDown(currentTransform, rectDraw)
+                }
             },
             onMove = { change: PointerInputChange ->
 

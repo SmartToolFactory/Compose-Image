@@ -24,11 +24,11 @@ internal fun calculateZoom(
         }
         ZoomLevel.Max -> {
             newZoomLevel = ZoomLevel.Min
-            newZoom = if (min == initial) (min + max.coerceAtMost(3f)) / 2 else min
+            newZoom = if (min == initial) initial else min
         }
         else -> {
             newZoomLevel = ZoomLevel.Mid
-            newZoom = initial.coerceAtMost(2f)
+            newZoom = if (min == initial) (min + max.coerceAtMost(3f)) / 2 else initial
         }
     }
     return Pair(newZoomLevel, newZoom)

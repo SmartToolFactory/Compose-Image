@@ -9,7 +9,7 @@ show partial of both images and more is cooking up
 
 https://user-images.githubusercontent.com/35650605/179715223-ba681886-6032-461f-806a-ea6a535d0627.mp4
 
-https://user-images.githubusercontent.com/35650605/185785993-58aee8fb-8f27-4664-9ebe-5cde04b5a04e.mp4
+https://user-images.githubusercontent.com/35650605/186409295-14e967b5-a31c-4b2c-ab38-1990cbdce13a.mp4
 
 ## Gradle Setup
 

@@ -122,9 +122,6 @@ private fun SheetContent(
 
     Spacer(modifier = Modifier.height(20.dp))
     TitleMedium(text = "Change Properties")
-    ContentScaleSelectionMenu(contentScale = contentScale) {
-        onContentScaleChange(contentScale)
-    }
 
     CheckBoxWithTitle(
         label = "Limit Pan(Rotation should be disabled)",
@@ -155,6 +152,10 @@ private fun SheetContent(
         state = clipTransformToContentScale,
         onStateChange = onClipTransformToContentScale
     )
+
+    ContentScaleSelectionMenu(contentScale = contentScale) {
+        onContentScaleChange(contentScale)
+    }
 }
 
 @Composable

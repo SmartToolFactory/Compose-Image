@@ -235,7 +235,6 @@ open class BaseEnhancedZoomState constructor(
         val velocity = Offset(velocityTracker.x, velocityTracker.y)
         var flingStarted = false
 
-        val bounds = getBounds()
         launch {
             animatablePanX.animateDecay(
                 velocity.x,
@@ -251,11 +250,16 @@ open class BaseEnhancedZoomState constructor(
         }
 
         launch {
-            val animationResult = animatablePanY.animateDecay(
+            animatablePanY.animateDecay(
                 velocity.y,
-                exponentialDecay(
-                    absVelocityThreshold = 20f
-                )
+                exponentialDecay(absVelocityThreshold = 20f),
+                block = {
+                    // This callback returns target value of fling gesture initially
+                    if (!flingStarted) {
+                        onFlingStart()
+                        flingStarted = true
+                    }
+                }
             )
         }
     }

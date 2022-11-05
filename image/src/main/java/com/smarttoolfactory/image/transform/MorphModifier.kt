@@ -60,23 +60,26 @@ internal fun Modifier.morph(
                 translationY = transform.translationY
                 rotationZ = transform.rotation
             }
-            .pointerMotionEvents(Unit,
+            .pointerMotionEvents(
                 onDown = { change ->
 
-                    val size = with(density) { updatedSize.toSize() }
-                    val position = change.position
+                    if (enabled) {
+                        val size = with(density) { updatedSize.toSize() }
+                        val position = change.position
 
-                    touchRegion = getTouchRegion(
-                        position = position,
-                        rect = Rect(offset = Offset.Zero, size = size),
-                        threshold = touchRegionRadius * 2,
-                        handlePlacement = handlePlacement
-                    )
-
-                    onDown()
-
+                        touchRegion = getTouchRegion(
+                            position = position,
+                            rect = Rect(offset = Offset.Zero, size = size),
+                            threshold = touchRegionRadius * 2,
+                            handlePlacement = handlePlacement
+                        )
+                        onDown()
+                    }
                 },
                 onMove = { change ->
+
+                    if (!enabled) return@pointerMotionEvents
+
                     val dragAmount = change.positionChange()
 
                     updateTransform(
@@ -101,7 +104,8 @@ internal fun Modifier.morph(
                 onUp = {
                     touchRegion = TouchRegion.None
                     onUp()
-                }
+                },
+                key1 = enabled
             )
     },
     inspectorInfo = {

@@ -81,12 +81,13 @@ open class EnhancedZoomState constructor(
         )
 
     private fun calculateRectBounds(): IntRect {
-
         val width = size.width
         val height = size.height
+
+        val bounds = getBounds()
         val zoom = animatableZoom.targetValue
-        val panX = animatablePanX.targetValue
-        val panY = animatablePanY.targetValue
+        val panX = animatablePanX.targetValue.coerceIn(-bounds.x, bounds.x)
+        val panY = animatablePanY.targetValue.coerceIn(-bounds.y, bounds.y)
 
         // Offset for interpolating offset from (imageWidth/2,-imageWidth/2) interval
         // to (0, imageWidth) interval when
@@ -94,11 +95,9 @@ open class EnhancedZoomState constructor(
         val horizontalCenterOffset = width * (zoom - 1) / 2f
         val verticalCenterOffset = height * (zoom - 1) / 2f
 
-        val bounds = getBounds()
-
-        val offsetX = (horizontalCenterOffset - panX.coerceIn(-bounds.x, bounds.x))
+        val offsetX = (horizontalCenterOffset - panX)
             .coerceAtLeast(0f) / zoom
-        val offsetY = (verticalCenterOffset - panY.coerceIn(-bounds.y, bounds.y))
+        val offsetY = (verticalCenterOffset - panY)
             .coerceAtLeast(0f) / zoom
 
         val offset = Offset(offsetX, offsetY)
@@ -167,18 +166,25 @@ open class BaseEnhancedZoomState constructor(
 
     open suspend fun onGestureStart() = coroutineScope {}
 
-    open suspend fun onGestureEnd(onFinish: () -> Unit) {
+    open suspend fun onGestureEnd(onBoundsCalculated: () -> Unit) {
 
         // Gesture end might be called after second tap and we don't want to fling
         // or animate back to valid bounds when doubled tapped
         if (!doubleTapped) {
+
             if (fling && zoom > 1) {
-                fling()
+                fling {
+                    // We get target value on start instead of updating bounds after
+                    // gesture has finished
+                    onBoundsCalculated()
+                }
+            } else {
+                onBoundsCalculated()
             }
+
             if (moveToBounds) {
                 resetToValidBounds()
             }
-            onFinish()
         }
     }
 
@@ -224,25 +230,36 @@ open class BaseEnhancedZoomState constructor(
      * Create a fling gesture when user removes finger from scree to have continuous movement
      * until [velocityTracker] speed reached to lower bound
      */
-    private suspend fun fling() = coroutineScope {
+    private suspend fun fling(onFlingStart: () -> Unit) = coroutineScope {
         val velocityTracker = velocityTracker.calculateVelocity()
         val velocity = Offset(velocityTracker.x, velocityTracker.y)
+        var flingStarted = false
 
         launch {
             animatablePanX.animateDecay(
                 velocity.x,
-                exponentialDecay(
-                    absVelocityThreshold = 20f
-                )
+                exponentialDecay(absVelocityThreshold = 20f),
+                block = {
+                    // This callback returns target value of fling gesture initially
+                    if (!flingStarted) {
+                        onFlingStart()
+                        flingStarted = true
+                    }
+                }
             )
         }
 
         launch {
             animatablePanY.animateDecay(
                 velocity.y,
-                exponentialDecay(
-                    absVelocityThreshold = 20f
-                )
+                exponentialDecay(absVelocityThreshold = 20f),
+                block = {
+                    // This callback returns target value of fling gesture initially
+                    if (!flingStarted) {
+                        onFlingStart()
+                        flingStarted = true
+                    }
+                }
             )
         }
     }

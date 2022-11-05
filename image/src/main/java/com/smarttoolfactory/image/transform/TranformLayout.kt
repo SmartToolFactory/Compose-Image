@@ -111,12 +111,6 @@ private fun TransformLayout(
         )
     }
 
-//    var innerTransform by remember {
-//        mutableStateOf(
-//            transform
-//        )
-//    }
-
     var rectDraw by remember {
         mutableStateOf(
             Rect(
@@ -166,42 +160,6 @@ private fun TransformLayout(
                 horizontal = handleRadius / abs(outerTransform.scaleX),
                 vertical = handleRadius / abs(outerTransform.scaleY)
             )
-//            .clipToBounds()
-//            .graphicsLayer {
-//                translationX = innerTransform.translationX
-//                translationY = innerTransform.translationY
-//                scaleX = innerTransform.scaleX
-//                scaleY = innerTransform.scaleY
-//            }
-//            .pointerInput(Unit) {
-//                detectPointerTransformGestures(
-//                    requisite = PointerRequisite.GreaterThan,
-//                    numberOfPointers = 1,
-//                    onGesture = { _,
-//                                  gesturePan: Offset,
-//                                  gestureZoom: Float,
-//                                  _,
-//                                  _,
-//                                  _ ->
-//
-//                        val oldZoom = innerTransform.scaleX
-//                        val offset =
-//                            Offset(innerTransform.translationX, innerTransform.translationY)
-//                        val zoom = (oldZoom * gestureZoom).coerceIn(1f, 3f)
-//                        val newOffset = offset + gesturePan
-//
-//                        val maxX = (size.width * (zoom - 1) / 2f)
-//                        val maxY = (size.height * (zoom - 1) / 2f)
-//
-//                        innerTransform = innerTransform.copy(
-//                            translationX = newOffset.x.coerceIn(-maxX, maxX),
-//                            translationY = newOffset.y.coerceIn(-maxY, maxY),
-//                            scaleX = zoom,
-//                            scaleY = zoom
-//                        )
-//                    }
-//                )
-//            }
 
     TransformImpl(
         modifier = editModifier,

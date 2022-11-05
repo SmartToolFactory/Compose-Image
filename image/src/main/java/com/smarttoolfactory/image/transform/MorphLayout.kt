@@ -138,47 +138,14 @@ private fun MorphLayout(
             onUp = onUp
         )
 
-//    var zoom by remember { mutableStateOf(1f) }
-//    var offset by remember { mutableStateOf(Offset.Zero) }
-
     val transformModifier = Modifier
         .padding(handleRadius)
         .fillMaxSize()
-//        .clipToBounds()
-//        .graphicsLayer {
-//            translationX = offset.x
-//            translationY = offset.y
-//            scaleX = zoom
-//            scaleY = zoom
-//        }
-//        .pointerInput(Unit) {
-//            detectPointerTransformGestures(
-//                requisite = PointerRequisite.GreaterThan,
-//                numberOfPointers = 1,
-//                onGesture = { _,
-//                              gesturePan: Offset,
-//                              gestureZoom: Float,
-//                              _,
-//                              _,
-//                              _ ->
-//                    val newScale = (zoom * gestureZoom).coerceIn(1f, 3f)
-//                    val newOffset = offset + gesturePan
-//                    zoom = newScale
-//
-//                    val maxX = (size.width * (zoom - 1) / 2f)
-//                    val maxY = (size.height * (zoom - 1) / 2f)
-//
-//                    offset = Offset(
-//                        newOffset.x.coerceIn(-maxX, maxX),
-//                        newOffset.y.coerceIn(-maxY, maxY)
-//                    )
-//                }
-//            )
-//        }
 
     ResizeImpl(
         modifier = editModifier,
         transformModifier = transformModifier,
+        enabled = enabled,
         touchRegionRadius = touchRegionRadius,
         rectDraw = rectDraw,
         handlePlacement = handlePlacement,
@@ -190,6 +157,7 @@ private fun MorphLayout(
 private fun ResizeImpl(
     modifier: Modifier,
     transformModifier: Modifier,
+    enabled: Boolean,
     touchRegionRadius: Float,
     rectDraw: Rect,
     handlePlacement: HandlePlacement,
@@ -207,11 +175,15 @@ private fun ResizeImpl(
             content()
         }
 
-        HandleOverlay(
-            modifier = Modifier.fillMaxSize(),
-            radius = touchRegionRadius,
-            rectDraw = rectDraw,
-            handlePlacement = handlePlacement
-        )
+        if (enabled) {
+            HandleOverlay(
+                modifier = Modifier.fillMaxSize(),
+                radius = touchRegionRadius,
+                rectDraw = rectDraw,
+                handlePlacement = handlePlacement
+            )
+        }
+
+
     }
 }

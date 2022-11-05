@@ -5,10 +5,9 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Crop
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -46,7 +45,7 @@ fun EnhancedZoomCropDemo() {
 
     val imageBitmap = ImageBitmap.imageResource(
         LocalContext.current.resources,
-        R.drawable.landscape1
+        R.drawable.landscape5
     )
 
     var contentScale by remember { mutableStateOf(ContentScale.FillBounds) }
@@ -179,25 +178,6 @@ private fun CallbackAndCropSample(imageBitmap: ImageBitmap, contentScale: Conten
                 )
             }
 
-            Button(
-                modifier = Modifier
-                    .padding(8.dp)
-                    .fillMaxWidth(),
-                enabled = !zoomState.isAnimationRunning,
-                onClick = { showDialog = true }
-            ) {
-                Text("Crop")
-            }
-
-            ImageDialog(
-                showDialog = showDialog,
-                imageBitmap = imageBitmap,
-                croppedImage = croppedImage
-            ) {
-                showDialog = false
-            }
-
-
             Spacer(modifier = Modifier.height(20.dp))
 
             if (rectCrop.size != IntSize.Zero) {
@@ -222,6 +202,30 @@ private fun CallbackAndCropSample(imageBitmap: ImageBitmap, contentScale: Conten
                         contentScale = ContentScale.FillBounds
                     )
                 }
+            }
+
+            Spacer(modifier = Modifier.weight(1f))
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                horizontalArrangement = Arrangement.End
+            ) {
+                FloatingActionButton(
+                    onClick = { showDialog = true }
+                ) {
+                    Icon(imageVector = Icons.Default.Crop, contentDescription = null)
+                }
+
+            }
+
+            ImageDialog(
+                showDialog = showDialog,
+                imageBitmap = imageBitmap,
+                croppedImage = croppedImage
+            ) {
+                showDialog = false
             }
         }
     }

@@ -60,7 +60,7 @@ internal fun Modifier.morph(
                 translationY = transform.translationY
                 rotationZ = transform.rotation
             }
-            .pointerMotionEvents(enabled,
+            .pointerMotionEvents(
                 onDown = { change ->
 
                     if (enabled) {
@@ -104,7 +104,8 @@ internal fun Modifier.morph(
                 onUp = {
                     touchRegion = TouchRegion.None
                     onUp()
-                }
+                },
+                key1 = enabled
             )
     },
     inspectorInfo = {

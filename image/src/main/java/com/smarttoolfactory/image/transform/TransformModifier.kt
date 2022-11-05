@@ -72,7 +72,6 @@ internal fun Modifier.transform(
         var distanceToEdgeFromTouch = Offset.Zero
 
         pointerMotionEvents(
-            enabled,
             onDown = { change: PointerInputChange ->
 
                 if (enabled) {
@@ -463,7 +462,8 @@ internal fun Modifier.transform(
                 touchRegion = TouchRegion.None
                 rectTemp = rectDraw.copy()
                 onUp(currentTransform, rectDraw)
-            }
+            },
+            key1 = enabled
         )
     },
     inspectorInfo = {

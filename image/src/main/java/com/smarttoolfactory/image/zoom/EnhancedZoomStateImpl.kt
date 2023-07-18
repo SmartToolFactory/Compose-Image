@@ -212,7 +212,7 @@ open class BaseEnhancedZoomState constructor(
         val zoom = zoom.coerceAtLeast(1f)
         val bounds = getBounds()
         val pan = pan.coerceIn(-bounds.x..bounds.x, -bounds.y..bounds.y)
-        resetWithAnimation(pan = pan, zoom = zoom)
+        resetWithAnimation(pan = pan, zoom = zoom, rotation = rotation)
         resetTracking()
     }
 

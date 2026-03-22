@@ -1,30 +1,32 @@
 package com.smarttoolfactory.composeimage.demo.beforeafter
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
-import com.google.android.exoplayer2.MediaItem
-import com.google.android.exoplayer2.Player
-import com.google.android.exoplayer2.SimpleExoPlayer
-import com.google.android.exoplayer2.ui.AspectRatioFrameLayout
-import com.google.android.exoplayer2.ui.PlayerView
+import androidx.media3.common.MediaItem
+import androidx.media3.common.Player
+import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.ui.AspectRatioFrameLayout
+import androidx.media3.ui.PlayerView
 
 @Composable
 fun MyPlayer(modifier: Modifier, uri: String) {
     val context = LocalContext.current
     val player = remember {
-        SimpleExoPlayer.Builder(context).build()
+        ExoPlayer.Builder(context).build()
     }
     val playerView = remember {
-        PlayerView(context)
+        PlayerView(context).apply {
+            useController = false
+            resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FILL
+        }
     }
 
     LaunchedEffect(player, uri) {
-        playerView.useController = false
-        playerView.resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FILL
         val mediaItem = MediaItem.fromUri(uri)
 
         player.setMediaItem(mediaItem)
@@ -32,6 +34,12 @@ fun MyPlayer(modifier: Modifier, uri: String) {
         player.repeatMode = Player.REPEAT_MODE_ONE
         player.prepare()
         player.playWhenReady = true
+    }
+
+    DisposableEffect(player) {
+        onDispose {
+            player.release()
+        }
     }
 
     AndroidView(

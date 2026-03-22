@@ -1,11 +1,12 @@
 package com.smarttoolfactory.composeimage
 
-import android.annotation.SuppressLint
 import android.graphics.Bitmap
 import android.graphics.ImageDecoder
 import android.os.Build
 import android.provider.MediaStore
 import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.FloatingActionButton
@@ -16,9 +17,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
-import com.google.modernstorage.photopicker.PhotoPicker
 
-@SuppressLint("UnsafeOptInUsageError")
 @Composable
 fun ImageSelectionButton(
     elevation: FloatingActionButtonElevation = FloatingActionButtonDefaults.elevation(),
@@ -27,8 +26,8 @@ fun ImageSelectionButton(
     val context = LocalContext.current
 
     val photoPicker =
-        rememberLauncherForActivityResult(PhotoPicker()) { uris ->
-            val uri = uris.firstOrNull() ?: return@rememberLauncherForActivityResult
+        rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
+            uri ?: return@rememberLauncherForActivityResult
 
             val bitmap: Bitmap = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                 ImageDecoder.decodeBitmap(
@@ -48,7 +47,9 @@ fun ImageSelectionButton(
     FloatingActionButton(
         elevation = elevation,
         onClick = {
-            photoPicker.launch(PhotoPicker.Args(PhotoPicker.Type.IMAGES_ONLY, 1))
+            photoPicker.launch(
+                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+            )
         },
     ) {
         Icon(

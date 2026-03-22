@@ -1,11 +1,15 @@
 package com.smarttoolfactory.composeimage.screen
 
 import androidx.compose.runtime.Composable
-import com.google.accompanist.pager.ExperimentalPagerApi
 import com.smarttoolfactory.composeimage.PagerContent
-import com.smarttoolfactory.composeimage.demo.zoom.*
+import com.smarttoolfactory.composeimage.demo.zoom.AnimatedZoomDemo
+import com.smarttoolfactory.composeimage.demo.zoom.EnhancedZoomCropDemo
+import com.smarttoolfactory.composeimage.demo.zoom.EnhancedZoomDemo
+import com.smarttoolfactory.composeimage.demo.zoom.EnhancedZoomDemo2
+import com.smarttoolfactory.composeimage.demo.zoom.ZoomDemo
+import com.smarttoolfactory.composeimage.demo.zoom.ZoomDemo2
+import com.smarttoolfactory.composeimage.demo.zoom.ZoomableListDemo
 
-@OptIn(ExperimentalPagerApi::class)
 @Composable
 fun ZoomDemoScreen() {
     PagerContent(

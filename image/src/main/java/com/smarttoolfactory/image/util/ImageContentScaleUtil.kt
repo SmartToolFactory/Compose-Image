@@ -32,10 +32,8 @@ internal fun getScaledBitmapRect(
     bitmapWidth: Int,
     bitmapHeight: Int
 ): IntRect {
-    // Get scale of box to width of the image
+
     // We need a rect that contains Bitmap bounds to pass if any child requires it
-    // For a image with 100x100 px with 300x400 px container and image with crop 400x400px
-    // So we need to pass top left as 0,50 and size
     val scaledBitmapX = boxWidth / imageWidth
     val scaledBitmapY = boxHeight / imageHeight
 

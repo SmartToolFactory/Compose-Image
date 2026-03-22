@@ -4,13 +4,20 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.*
+import androidx.compose.ui.graphics.Canvas
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.DefaultAlpha
+import androidx.compose.ui.graphics.FilterQuality
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.translate
+import androidx.compose.ui.graphics.painter.BitmapPainter
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.Role
@@ -20,7 +27,6 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntRect
-import androidx.compose.ui.unit.IntSize
 import com.smarttoolfactory.image.util.getParentSize
 import com.smarttoolfactory.image.util.getScaledBitmapRect
 
@@ -76,6 +82,34 @@ fun ImageWithConstraints(
     content: @Composable ImageScope.() -> Unit = {}
 ) {
 
+    val bitmapPainter =
+        remember(imageBitmap) { BitmapPainter(imageBitmap, filterQuality = filterQuality) }
+
+    ImageWithConstraints(
+        modifier = modifier,
+        alignment = alignment,
+        painter = bitmapPainter,
+        contentScale = contentScale,
+        contentDescription = contentDescription,
+        alpha = alpha,
+        colorFilter = colorFilter,
+        drawImage = drawImage,
+        content = content
+    )
+}
+
+@Composable
+fun ImageWithConstraints(
+    modifier: Modifier,
+    alignment: Alignment,
+    painter: Painter,
+    contentScale: ContentScale,
+    alpha: Float,
+    colorFilter: ColorFilter?,
+    drawImage: Boolean,
+    contentDescription: String?,
+    content: @Composable ImageScope.() -> Unit
+) {
     val semantics = if (contentDescription != null) {
         Modifier.semantics {
             this.contentDescription = contentDescription
@@ -91,8 +125,8 @@ fun ImageWithConstraints(
         contentAlignment = alignment,
     ) {
 
-        val bitmapWidth = imageBitmap.width
-        val bitmapHeight = imageBitmap.height
+        val bitmapWidth = painter.intrinsicSize.width.toInt()
+        val bitmapHeight = painter.intrinsicSize.height.toInt()
 
         val (boxWidth: Int, boxHeight: Int) = getParentSize(bitmapWidth, bitmapHeight)
 
@@ -118,7 +152,7 @@ fun ImageWithConstraints(
 
         ImageLayout(
             constraints = constraints,
-            imageBitmap = imageBitmap,
+            painter = painter,
             bitmapRect = bitmapRect,
             imageWidth = imageWidth,
             imageHeight = imageHeight,
@@ -126,7 +160,6 @@ fun ImageWithConstraints(
             boxHeight = boxHeight,
             alpha = alpha,
             colorFilter = colorFilter,
-            filterQuality = filterQuality,
             drawImage = drawImage,
             content = content
         )
@@ -136,7 +169,7 @@ fun ImageWithConstraints(
 @Composable
 private fun ImageLayout(
     constraints: Constraints,
-    imageBitmap: ImageBitmap,
+    painter: Painter,
     bitmapRect: IntRect,
     imageWidth: Float,
     imageHeight: Float,
@@ -144,7 +177,6 @@ private fun ImageLayout(
     boxHeight: Int,
     alpha: Float = DefaultAlpha,
     colorFilter: ColorFilter? = null,
-    filterQuality: FilterQuality = DrawScope.DefaultFilterQuality,
     drawImage: Boolean = true,
     content: @Composable ImageScope.() -> Unit
 ) {
@@ -160,7 +192,7 @@ private fun ImageLayout(
     }
 
     // Send rectangle of Bitmap drawn to Canvas as bitmapRect, content scale modes like
-    // crop might crop image from center so Rect can be such as IntRect(250,250,500,500)
+    // ContentScale.Crop might crop image so Rect can be such as IntRect(250,250,500,500)
 
     // canvasWidthInDp, and  canvasHeightInDp are Canvas dimensions coerced to Box size
     // that covers Canvas
@@ -177,12 +209,11 @@ private fun ImageLayout(
     if (drawImage) {
         ImageImpl(
             modifier = Modifier.size(canvasWidthInDp, canvasHeightInDp),
-            imageBitmap = imageBitmap,
+            painter = painter,
             alpha = alpha,
             width = imageWidth.toInt(),
             height = imageHeight.toInt(),
             colorFilter = colorFilter,
-            filterQuality = filterQuality
         )
     }
 
@@ -192,15 +223,14 @@ private fun ImageLayout(
 @Composable
 private fun ImageImpl(
     modifier: Modifier,
-    imageBitmap: ImageBitmap,
+    painter: Painter,
     width: Int,
     height: Int,
     alpha: Float = DefaultAlpha,
     colorFilter: ColorFilter? = null,
-    filterQuality: FilterQuality = DrawScope.DefaultFilterQuality,
 ) {
-    val bitmapWidth = imageBitmap.width
-    val bitmapHeight = imageBitmap.height
+    val bitmapWidth = painter.intrinsicSize.width
+    val bitmapHeight = painter.intrinsicSize.height
 
     Canvas(modifier = modifier.clipToBounds()) {
 
@@ -216,14 +246,22 @@ private fun ImageImpl(
             left = (-width + canvasWidth) / 2f,
 
             ) {
-            drawImage(
-                imageBitmap,
-                srcSize = IntSize(bitmapWidth, bitmapHeight),
-                dstSize = IntSize(width, height),
-                alpha = alpha,
-                colorFilter = colorFilter,
-                filterQuality = filterQuality
-            )
+
+            with(painter) {
+                draw(
+                    size = Size(width.toFloat(), height.toFloat()),
+                    alpha = alpha,
+                    colorFilter = colorFilter
+                )
+            }
+//            drawImage(
+//                painter,
+//                srcSize = IntSize(bitmapWidth, bitmapHeight),
+//                dstSize = IntSize(width, height),
+//                alpha = alpha,
+//                colorFilter = colorFilter,
+//                filterQuality = filterQuality
+//            )
         }
     }
 }

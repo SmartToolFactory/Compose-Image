@@ -1,16 +1,16 @@
 plugins {
-    id 'com.android.application'
-    id 'org.jetbrains.kotlin.android'
+    alias(libs.plugins.android.application)
+    alias(libs.plugins.kotlin.compose)
 }
 
 android {
     namespace 'com.smarttoolfactory.composeimage'
-    compileSdk 33
+    compileSdk libs.versions.compileSdk.get().toInteger()
 
     defaultConfig {
         applicationId "com.smarttoolfactory.composeimage"
-        minSdk 21
-        targetSdk 33
+        minSdk libs.versions.minSdk.get().toInteger()
+        targetSdk libs.versions.targetSdk.get().toInteger()
         versionCode 1
         versionName "1.0"
 
@@ -27,19 +27,13 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
-    }
-    kotlinOptions {
-        jvmTarget = '1.8'
+        sourceCompatibility JavaVersion.toVersion(libs.versions.java.get())
+        targetCompatibility JavaVersion.toVersion(libs.versions.java.get())
     }
     buildFeatures {
         compose true
     }
-    composeOptions {
-        kotlinCompilerExtensionVersion '1.3.2'
-    }
-    packagingOptions {
+    packaging {
         resources {
             excludes += '/META-INF/{AL2.0,LGPL2.1}'
         }
@@ -50,52 +44,44 @@ dependencies {
 
     implementation project(':image')
 
-    implementation 'androidx.core:core-ktx:1.9.0'
-    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.5.1'
+    implementation libs.androidx.core.ktx
+    implementation libs.androidx.lifecycle.runtime.ktx
 
-    implementation 'com.github.SmartToolFactory:Compose-Extended-Gestures:2.1.0'
+    implementation libs.smarttoolfactory.compose.extended.gestures
 
-    implementation "androidx.compose.ui:ui:$compose_version"
+    implementation platform(libs.androidx.compose.bom)
+    androidTestImplementation platform(libs.androidx.compose.bom)
+
+    implementation libs.androidx.compose.ui
     // Tooling support (Previews, etc.)
-    implementation "androidx.compose.ui:ui-tooling:$compose_version"
+    implementation libs.androidx.compose.ui.tooling.preview
     // Foundation (Border, Background, Box, Image, Scroll, shapes, animations, etc.)
-    implementation "androidx.compose.foundation:foundation:$compose_version"
+    implementation libs.androidx.compose.foundation
     // Material Design
-    implementation "androidx.compose.material:material:$compose_version"
+    implementation libs.androidx.compose.material
     // Material design icons
-    implementation "androidx.compose.material:material-icons-core:$compose_version"
-    implementation "androidx.compose.material:material-icons-extended:$compose_version"
+    implementation libs.androidx.compose.material.icons.core
+    implementation libs.androidx.compose.material.icons.extended
     // Integration with activities
-    implementation 'androidx.activity:activity-compose:1.6.1'
+    implementation libs.androidx.activity.compose
     // Integration with ViewModels
-    implementation 'androidx.lifecycle:lifecycle-viewmodel-compose:2.5.1'
+    implementation libs.androidx.lifecycle.viewmodel.compose
 
     // Material Design 3 for Compose
-    implementation "androidx.compose.material3:material3:1.0.0"
-
-    // Photo Picker
-    implementation("com.google.modernstorage:modernstorage-photopicker:1.0.0-alpha06")
+    implementation libs.androidx.compose.material3
 
     // Coil
-    implementation("io.coil-kt:coil-compose:2.1.0")
+    implementation libs.coil.compose
 
-    // ExoPlayer
-    implementation 'com.google.android.exoplayer:exoplayer:2.18.1'
+    implementation libs.androidx.media3.exoplayer
+    implementation libs.androidx.media3.ui
 
+    implementation libs.androidx.navigation.compose
 
-    def nav_compose_version = "2.5.3"
-    implementation "androidx.navigation:navigation-compose:$nav_compose_version"
-
-    def accompanist_version = "0.25.0"
-    // Accompanist
-    implementation "com.google.accompanist:accompanist-systemuicontroller:$accompanist_version"
-    implementation "com.google.accompanist:accompanist-pager:$accompanist_version"
-    implementation "com.google.accompanist:accompanist-drawablepainter:$accompanist_version"
-
-    testImplementation 'junit:junit:4.13.2'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.3'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
-    androidTestImplementation "androidx.compose.ui:ui-test-junit4:$compose_version"
-    debugImplementation "androidx.compose.ui:ui-tooling:$compose_version"
-    debugImplementation "androidx.compose.ui:ui-test-manifest:$compose_version"
+    testImplementation libs.junit4
+    androidTestImplementation libs.androidx.test.ext.junit
+    androidTestImplementation libs.androidx.test.espresso.core
+    androidTestImplementation libs.androidx.compose.ui.test.junit4
+    debugImplementation libs.androidx.compose.ui.tooling
+    debugImplementation libs.androidx.compose.ui.test.manifest
 }

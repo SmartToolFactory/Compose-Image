@@ -34,6 +34,7 @@ import com.smarttoolfactory.composeimage.demo.transform.EditSizeDemo
 import com.smarttoolfactory.composeimage.demo.zoom.AnimatedZoomDemo
 import com.smarttoolfactory.composeimage.demo.zoom.EnhancedZoomCropDemo
 import com.smarttoolfactory.composeimage.demo.zoom.EnhancedZoomDemo
+import com.smarttoolfactory.composeimage.demo.zoom.SubsamplingDemo
 import com.smarttoolfactory.composeimage.demo.zoom.ZoomDemo
 import com.smarttoolfactory.composeimage.ui.theme.ComposeImageTheme
 import kotlinx.coroutines.launch
@@ -110,13 +111,14 @@ private fun HomeContent() {
             when (page) {
                 0 -> ImageWithConstraintsDemo()
                 1 -> ThumbnailDemo()
-                2 -> ZoomDemo()
-                3 -> EnhancedZoomDemo()
-                4 -> EnhancedZoomCropDemo()
-                5 -> AnimatedZoomDemo()
-                6 -> BeforeAfterImageDemo()
-                7 -> BeforeAfterLayoutDemo()
-                8 -> EditScaleDemo()
+                2 -> SubsamplingDemo()
+                3 -> ZoomDemo()
+                4 -> EnhancedZoomDemo()
+                5 -> EnhancedZoomCropDemo()
+                6 -> AnimatedZoomDemo()
+                7 -> BeforeAfterImageDemo()
+                8 -> BeforeAfterLayoutDemo()
+                9 -> EditScaleDemo()
                 else -> EditSizeDemo()
             }
         }
@@ -128,6 +130,7 @@ internal val tabList =
     listOf(
         "Image Constraints",
         "Image Thumbnail",
+        "Subsampling",
         "Zoom",
         "Enhanced Zoom",
         "Enhanced Zoom Crop",

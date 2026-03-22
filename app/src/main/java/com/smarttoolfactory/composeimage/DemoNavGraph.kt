@@ -6,7 +6,12 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.smarttoolfactory.composeimage.screen.*
+import com.smarttoolfactory.composeimage.demo.zoom.SubsamplingDemo
+import com.smarttoolfactory.composeimage.screen.BeforeAfterDemoScreen
+import com.smarttoolfactory.composeimage.screen.DemoSelectionScreen
+import com.smarttoolfactory.composeimage.screen.ImageDemoScreen
+import com.smarttoolfactory.composeimage.screen.TransformDemoScreen
+import com.smarttoolfactory.composeimage.screen.ZoomDemoScreen
 
 
 @Composable
@@ -31,6 +36,9 @@ fun DemoNavGraph(
         composable(route = Destinations.Image) { navBackEntryStack ->
             ImageDemoScreen()
         }
+        composable(route = Destinations.Subsampling) { navBackEntryStack ->
+            SubsamplingDemo()
+        }
         composable(route = Destinations.Zoom) { navBackEntryStack ->
             ZoomDemoScreen()
         }
@@ -46,6 +54,7 @@ fun DemoNavGraph(
 object Destinations {
     const val Home = "selection_screen"
     const val Image = "image_screen"
+    const val Subsampling = "subsampling_screen"
     const val Zoom = "zoom_screen"
     const val Transform = "transform_screen"
     const val BeforeAfter = "before_after_screen"

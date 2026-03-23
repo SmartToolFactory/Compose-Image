@@ -305,8 +305,8 @@ fun rememberZoomState(
 
 ### ZoomableImage
 
-Zoomable image that zooms in and out in [ [minZoom], [maxZoom] ] interval and translates
-zoomed image based on pointer position.
+Zoomable image that zooms in and out in [ [minZoom], [maxZoom] ] interval while keeping the pinch
+centroid stable. Pan gestures translate the zoomed image separately.
 Double tap gestures reset image translation and zoom to default values with animation.
 Callbacks notify user that gesture has started, going on finished with [ZoomData] that
 contains current transformation information
@@ -439,9 +439,10 @@ fun Modifier.enhancedZoom(
 
 ### EnhancedZoomableImage
 
-Zoomable image that zooms in and out in [ [minZoom], [maxZoom] ] interval and pans zoomed image
-based on pointer position. Double tap gestures reset image translation and zoom to default values
-with animation. Difference between `ZoomaableImage` and `EnhancedZoomableImage` is this version
+Zoomable image that zooms in and out in [ [minZoom], [maxZoom] ] interval while keeping the pinch
+centroid stable. Pan gestures translate the zoomed image separately. Double tap gestures reset
+image translation and zoom to default values with animation. Difference between `ZoomaableImage`
+and `EnhancedZoomableImage` is this version
 can animate back to bounds and have fling gesture that doesn't stop movement when last pointer
 is up but continues motion agains friction.
 
@@ -625,4 +626,3 @@ fun AnimatedZoomLayout(
   developer to define zoom on double tap gesture
 * **enabled** lambda can be used selectively enable or disable pan and intercepting with scroll,
   drag or lists or pagers using current zoom, pan or rotation values
-

@@ -26,7 +26,7 @@ open class AnimatedZoomState constructor(
     limitPan = limitPan
 ) {
 
-    override fun getBounds(size: IntSize): Offset {
+    override fun getBounds(size: IntSize, zoom: Float): Offset {
 
         val contentWidth: Int
         val contentHeight: Int

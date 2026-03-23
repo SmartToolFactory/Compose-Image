@@ -50,6 +50,14 @@ fun DemoSelectionScreen(onRouteSelected: (String) -> Unit) {
             badge = "NEW"
         ),
         DemoCardSpec(
+            title = "Centroid Debug",
+            description = "Standalone zoomable image with a fixed pinch-start marker and live centroid overlay for gesture debugging.",
+            route = Destinations.CentroidDebug,
+            icon = Icons.Outlined.ZoomIn,
+            accent = MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.78f),
+            badge = "DEBUG"
+        ),
+        DemoCardSpec(
             title = "Image",
             description = "ImageWithConstraints and thumbnail tooling for building image-aware layouts.",
             route = Destinations.Image,

@@ -3,6 +3,7 @@ package com.smarttoolfactory.composeimage.screen
 import androidx.compose.runtime.Composable
 import com.smarttoolfactory.composeimage.PagerContent
 import com.smarttoolfactory.composeimage.demo.zoom.AnimatedZoomDemo
+import com.smarttoolfactory.composeimage.demo.zoom.CentroidDebugDemo
 import com.smarttoolfactory.composeimage.demo.zoom.EnhancedZoomCropDemo
 import com.smarttoolfactory.composeimage.demo.zoom.EnhancedZoomDemo
 import com.smarttoolfactory.composeimage.demo.zoom.EnhancedZoomDemo2
@@ -15,6 +16,7 @@ import com.smarttoolfactory.composeimage.demo.zoom.ZoomableListDemo
 fun ZoomDemoScreen() {
     PagerContent(
         content = mapOf<String, @Composable () -> Unit>(
+            "Centroid Debug" to { CentroidDebugDemo() },
             "Zoom" to { ZoomDemo() },
             "Zoom2" to { ZoomDemo2() },
             "Enhanced Zoom" to { EnhancedZoomDemo() },

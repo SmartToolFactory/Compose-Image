@@ -5,8 +5,11 @@ import androidx.compose.runtime.Stable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.IntSize
+import com.smarttoolfactory.image.util.coerceIn
+import com.smarttoolfactory.image.util.rotateBy
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
+import kotlin.math.abs
 
 
 /**
@@ -80,6 +83,15 @@ open class ZoomState(
      * @param size is size of Composable that this modifier is applied to.
      */
     internal open fun getBounds(size: IntSize): Offset {
+        return getBounds(size, zoom)
+    }
+
+    /**
+     * Get panning bounds for an arbitrary zoom value without mutating the current state.
+     * This is used when pan limits need to be calculated from the next zoom level before
+     * snapping the animatables.
+     */
+    internal open fun getBounds(size: IntSize, zoom: Float): Offset {
         val maxX = (size.width * (zoom - 1) / 2f).coerceAtLeast(0f)
         val maxY = (size.height * (zoom - 1) / 2f).coerceAtLeast(0f)
         return Offset(maxX, maxY)
@@ -92,32 +104,76 @@ open class ZoomState(
         return getBounds(size)
     }
 
+    /**
+     * Convenience overload for calculating bounds from this state's current layout size and an
+     * explicit zoom value.
+     */
+    protected open fun getBounds(zoom: Float): Offset {
+        return getBounds(size, zoom)
+    }
+
+    /**
+     * Updates zoom, rotation, and pan from a gesture stream.
+     *
+     * Transform gestures derive pan from the gesture centroid so the same content point remains
+     * under the fingers while zooming or rotating. Pure pan gestures retain the legacy raw-pan
+     * behavior.
+     */
     open suspend fun updateZoomState(
         centroid: Offset,
         panChange: Offset,
         zoomChange: Float,
         rotationChange: Float = 1f,
     ) {
-        val newZoom = (this.zoom * zoomChange).coerceIn(zoomMin, zoomMax)
+        val previousZoom = zoom
+        val previousPan = pan
+        val previousRotation = rotation
 
-        snapZoomTo(newZoom)
+        val effectiveZoomChange = if (zoomable) zoomChange else 1f
+        val effectiveRotationChange = if (rotatable) rotationChange else 0f
+
+        val newZoom = (previousZoom * effectiveZoomChange).coerceIn(zoomMin, zoomMax)
         val newRotation = if (rotatable) {
-            this.rotation + rotationChange
+            previousRotation + effectiveRotationChange
         } else {
             0f
         }
-        snapRotationTo(newRotation)
 
         if (pannable) {
-            val newPan = this.pan + panChange.times(this.zoom)
             val boundPan = limitPan && !rotatable
+            val transformGesture =
+                abs(effectiveZoomChange - 1f) > TRANSFORM_EPSILON ||
+                    abs(effectiveRotationChange) > TRANSFORM_EPSILON
 
-            if (boundPan) {
-                val bound = getBounds(size)
-                updateBounds(bound.times(-1f), bound)
+            val newPan = if (transformGesture) {
+                calculateAnchoredPan(
+                    size = size,
+                    centroid = centroid,
+                    previousPan = previousPan,
+                    previousZoom = previousZoom,
+                    previousRotation = previousRotation,
+                    newZoom = newZoom,
+                    newRotation = newRotation
+                )
+            } else {
+                previousPan + panChange.times(previousZoom)
             }
-            snapPanXto(newPan.x)
-            snapPanYto(newPan.y)
+
+            val boundedPan = if (boundPan) {
+                val bound = getBounds(newZoom)
+                updateBounds(bound.times(-1f), bound)
+                newPan.coerceIn(-bound.x..bound.x, -bound.y..bound.y)
+            } else {
+                newPan
+            }
+
+            snapZoomTo(newZoom)
+            snapRotationTo(newRotation)
+            snapPanXto(boundedPan.x)
+            snapPanYto(boundedPan.y)
+        } else {
+            snapZoomTo(newZoom)
+            snapRotationTo(newRotation)
         }
     }
 
@@ -182,5 +238,35 @@ open class ZoomState(
         if (rotatable) {
             animatableRotation.snapTo(rotation)
         }
+    }
+
+    /**
+     * Solves the pan required to keep the content under [centroid] fixed while the zoom or
+     * rotation changes. The calculation projects the centroid into content space using the
+     * previous transform, then reapplies the next transform and offsets pan to match.
+     */
+    private fun calculateAnchoredPan(
+        size: IntSize,
+        centroid: Offset,
+        previousPan: Offset,
+        previousZoom: Float,
+        previousRotation: Float,
+        newZoom: Float,
+        newRotation: Float
+    ): Offset {
+        val center = Offset(size.width / 2f, size.height / 2f)
+        val centroidFromCenter = centroid - center
+        val transformedVectorBefore = centroidFromCenter - previousPan
+        val contentVector = transformedVectorBefore
+            .rotateBy(-previousRotation)
+            .times(1f / previousZoom)
+        val transformedVectorAfter = contentVector
+            .rotateBy(newRotation)
+            .times(newZoom)
+        return centroidFromCenter - transformedVectorAfter
+    }
+
+    private companion object {
+        const val TRANSFORM_EPSILON = 0.001f
     }
 }

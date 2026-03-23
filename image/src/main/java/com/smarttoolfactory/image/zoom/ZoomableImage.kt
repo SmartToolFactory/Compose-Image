@@ -13,8 +13,8 @@ import androidx.compose.ui.layout.ContentScale
 import com.smarttoolfactory.image.ImageWithConstraints
 
 /**
- * Zoomable image that zooms in and out in [ [minZoom], [maxZoom] ] interval and translates
- * zoomed image based on pointer position.
+ * Zoomable image that zooms in and out in [ [minZoom], [maxZoom] ] interval while keeping
+ * the pinch centroid stable. Pan gestures translate the zoomed image separately.
  * Double tap gestures reset image translation and zoom to default values with animation.
  * @param initialZoom zoom set initially
  * @param minZoom minimum zoom value this Composable can possess
@@ -111,8 +111,8 @@ fun ZoomableImage(
 }
 
 /**
- * Zoomable image that zooms in and out in [zoomState.minZoom, zoomState.maxZoom] interval and translates
- * zoomed image based on pointer position.
+ * Zoomable image that zooms in and out in [zoomState.minZoom, zoomState.maxZoom] interval while
+ * keeping the pinch centroid stable. Pan gestures translate the zoomed image separately.
  * Double tap gestures reset image translation and zoom to default values with animation.
  * @param clip whether image should be clip to bounds of Image
  * @param clipTransformToContentScale when set true zoomable image takes borders of image drawn
@@ -183,5 +183,4 @@ fun ZoomableImage(
         }
     }
 }
-
 

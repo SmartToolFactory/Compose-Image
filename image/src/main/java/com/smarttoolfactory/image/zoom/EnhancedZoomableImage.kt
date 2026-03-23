@@ -15,8 +15,8 @@ import androidx.compose.ui.unit.IntSize
 import com.smarttoolfactory.image.ImageWithConstraints
 
 /**
- * Zoomable image that zooms in and out in [ [minZoom], [maxZoom] ] interval and pans
- * zoomed image based on pointer position.
+ * Zoomable image that zooms in and out in [ [minZoom], [maxZoom] ] interval while keeping
+ * the pinch centroid stable. Pan gestures translate the zoomed image separately.
  * Double tap gestures reset image translation and zoom to default values with animation.
  *
  * @param initialZoom zoom set initially
@@ -129,8 +129,8 @@ fun EnhancedZoomableImage(
 }
 
 /**
- * Zoomable image that zooms in and out in [zoomState.minZoom, zoomState.maxZoom] interval
- * and pans zoomed image based on pointer position.
+ * Zoomable image that zooms in and out in [zoomState.minZoom, zoomState.maxZoom] interval while
+ * keeping the pinch centroid stable. Pan gestures translate the zoomed image separately.
  * Double tap gestures reset image translation and zoom to default values with animation.
  *
  * @param clip when set to true clips to parent bounds. Anything outside parent bounds is not

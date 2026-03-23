@@ -34,6 +34,7 @@ import androidx.compose.ui.unit.sp
 @Composable
 fun PinchCentroidDebugOverlay(
     modifier: Modifier = Modifier,
+    showLegend: Boolean = true,
     content: @Composable BoxScope.() -> Unit
 ) {
     var anchorCentroid by remember { mutableStateOf<Offset?>(null) }
@@ -141,20 +142,22 @@ fun PinchCentroidDebugOverlay(
             )
         }
 
-        Text(
-            modifier = Modifier
-                .align(Alignment.TopStart)
-                .padding(12.dp)
-                .background(
-                    color = Color.Black.copy(alpha = 0.65f),
-                    shape = RoundedCornerShape(10.dp)
-                )
-                .padding(horizontal = 12.dp, vertical = 8.dp),
-            text = "CYAN = pinch start\nMAGENTA = current pinch centroid",
-            color = Color.White,
-            fontSize = 13.sp,
-            fontWeight = FontWeight.Medium
-        )
+        if (showLegend) {
+            Text(
+                modifier = Modifier
+                    .align(Alignment.TopStart)
+                    .padding(12.dp)
+                    .background(
+                        color = Color.Black.copy(alpha = 0.65f),
+                        shape = RoundedCornerShape(10.dp)
+                    )
+                    .padding(horizontal = 12.dp, vertical = 8.dp),
+                text = "CYAN = pinch start\nMAGENTA = current pinch centroid",
+                color = Color.White,
+                fontSize = 13.sp,
+                fontWeight = FontWeight.Medium
+            )
+        }
     }
 }
 

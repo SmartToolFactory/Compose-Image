@@ -8,6 +8,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.smarttoolfactory.composeimage.demo.zoom.CentroidDebugDemo
 import com.smarttoolfactory.composeimage.demo.zoom.SubsamplingDemo
+import com.smarttoolfactory.composeimage.demo.zoom.ZoomComparisonDemo
 import com.smarttoolfactory.composeimage.screen.BeforeAfterDemoScreen
 import com.smarttoolfactory.composeimage.screen.DemoSelectionScreen
 import com.smarttoolfactory.composeimage.screen.ImageDemoScreen
@@ -43,6 +44,9 @@ fun DemoNavGraph(
         composable(route = Destinations.CentroidDebug) { navBackEntryStack ->
             CentroidDebugDemo()
         }
+        composable(route = Destinations.ZoomComparison) { navBackEntryStack ->
+            ZoomComparisonDemo()
+        }
         composable(route = Destinations.Zoom) { navBackEntryStack ->
             ZoomDemoScreen()
         }
@@ -60,6 +64,7 @@ object Destinations {
     const val Image = "image_screen"
     const val Subsampling = "subsampling_screen"
     const val CentroidDebug = "centroid_debug_screen"
+    const val ZoomComparison = "zoom_comparison_screen"
     const val Zoom = "zoom_screen"
     const val Transform = "transform_screen"
     const val BeforeAfter = "before_after_screen"

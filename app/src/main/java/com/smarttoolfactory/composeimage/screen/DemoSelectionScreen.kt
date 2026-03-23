@@ -58,6 +58,14 @@ fun DemoSelectionScreen(onRouteSelected: (String) -> Unit) {
             badge = "DEBUG"
         ),
         DemoCardSpec(
+            title = "Zoom Compare",
+            description = "Stacked comparison of centroid-stable zoom versus a naive drifting zoom path on the same image.",
+            route = Destinations.ZoomComparison,
+            icon = Icons.Outlined.Compare,
+            accent = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.82f),
+            badge = "NEW"
+        ),
+        DemoCardSpec(
             title = "Image",
             description = "ImageWithConstraints and thumbnail tooling for building image-aware layouts.",
             route = Destinations.Image,

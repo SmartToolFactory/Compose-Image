@@ -8,6 +8,7 @@ import com.smarttoolfactory.composeimage.demo.zoom.EnhancedZoomCropDemo
 import com.smarttoolfactory.composeimage.demo.zoom.EnhancedZoomDemo
 import com.smarttoolfactory.composeimage.demo.zoom.EnhancedZoomDemo2
 import com.smarttoolfactory.composeimage.demo.zoom.SubsamplingDemo
+import com.smarttoolfactory.composeimage.demo.zoom.ZoomComparisonDemo
 import com.smarttoolfactory.composeimage.demo.zoom.ZoomDemo
 import com.smarttoolfactory.composeimage.demo.zoom.ZoomDemo2
 import com.smarttoolfactory.composeimage.demo.zoom.ZoomableListDemo
@@ -17,6 +18,7 @@ fun ZoomDemoScreen() {
     PagerContent(
         content = mapOf<String, @Composable () -> Unit>(
             "Centroid Debug" to { CentroidDebugDemo() },
+            "Zoom Compare" to { ZoomComparisonDemo() },
             "Zoom" to { ZoomDemo() },
             "Zoom2" to { ZoomDemo2() },
             "Enhanced Zoom" to { EnhancedZoomDemo() },
